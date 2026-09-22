@@ -30,6 +30,11 @@ updateCss
 resetCss
 css-lab-parent
 css-lab-preview
+bodyMdxSource
+lesson-content-registry.tsx
+LessonMarkdown
+react-markdown
+href="/learn
 CSS exercise preview
 CSS Lab progress persistence failed
 draft.files["style.css"]
@@ -81,7 +86,32 @@ LearningWorkspace负责：
 - solution读取。
 - Workspace path validation。
 
-## 3. Current 3 CSS Exercise regression
+## 3. MDX Learning Flow v1 regression
+
+M6A 是底层 Workspace/Runtime 重构，不得让已合入 main 的教学产品能力退化。
+
+最终必须验证：
+
+- `lesson.json` 仍只承载 metadata，Lesson runtime 无 MDX source/body/path。
+- `lesson.mdx` 仍通过 generated static registry 渲染。
+- MDX contract 仍拒绝 import/export、arbitrary expression、unknown JSX、H1。
+- `Concept / Predict / Compare / Exercise` 四个 Activity 行为可用。
+- learner-visible Lesson 的 Exercise Activity references 仍满足 canonical `exercise.order` 完整/唯一/同序约束。
+- progressive hints 初始隐藏、逐层 reveal、按钮 N/M 状态无回归。
+- Preview bounded canvas 与 `Auto / 390 / 768 / 1280` presets 无回归。
+- checker mismatch 与 checker/runtime fault 仍有 structured diagnostics；语义等价 accepted value 场景仍通过。
+- generated registry 不因 Exercise Workspace migration 产生无解释 diff。
+
+对应质量门禁：
+
+```bash
+pnpm content:check
+pnpm test:content
+pnpm content:generate
+git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
+```
+
+## 4. Current 3 CSS Exercise regression
 
 必须验证：
 
@@ -103,7 +133,7 @@ LearningWorkspace负责：
 
 不要把单 CSS Exercise变成复杂 file explorer。
 
-## 4. HTML capability verification
+## 5. HTML capability verification
 
 production content当前可以没有 editable HTML。
 
@@ -156,13 +186,13 @@ base.css locked
 
 AGENTS应记录这一测试要求。
 
-## 5. Solution leakage review
+## 6. Solution leakage review
 
 结构性保证：
 
 - Exercise type无 solution。
 - ContentReader不读取 solution。
-- learner route不 import ContentSourceInspector。
+- learner route不 import ExerciseSourceInspector。
 - client graph不 import server-only inspector。
 - solution只在 Studio/server authoring inspection出现。
 
@@ -170,7 +200,7 @@ AGENTS应记录这一测试要求。
 
 可额外用 solution-only marker做 E2E字符串回归，但不能作为主要安全边界。
 
-## 6. Progress final regression
+## 7. Progress final regression
 
 确认：
 
@@ -199,7 +229,7 @@ key     = [exerciseId, revision]
 
 不能成为新的 global Workspace default。
 
-## 7. Studio final regression
+## 8. Studio final regression
 
 当前 repository content：
 
@@ -220,7 +250,7 @@ key     = [exerciseId, revision]
 
 不能只定义未调用 helper。
 
-## 8. Browser security review
+## 9. Browser security review
 
 ### sandbox
 
@@ -267,7 +297,7 @@ learner HTML不是 raw concat。
 - shape validators。
 - requestId validation。
 
-## 9. AGENTS.md 更新
+## 10. AGENTS.md 更新
 
 产品定位：
 
@@ -340,6 +370,21 @@ HTML是否 editable由 content metadata决定。
 - Toolchain/Runtime分离。
 - schema vocabulary不等于 runtime capability。
 
+### Preserve MDX authoring contract
+
+M6A 更新 AGENTS 时必须继续保留并同步以下已经正式生效的规则：
+
+- `lesson.json = metadata`，`lesson.mdx = teaching content`。
+- Lesson runtime 不携带 MDX source/body/path。
+- generated registry 不手改；新增/移动 Lesson 后显式运行 `pnpm content:generate`。
+- `Concept / Predict / Compare / Exercise` 是 v1 唯一允许的 MDX custom components。
+- MDX 禁 import/export、arbitrary JS expression、raw HTML/custom JSX、H1。
+- Exercise Activity 使用 lesson-local slug，不硬编码 learner absolute route。
+- `exercise.order` 继续是 canonical learner sequence。
+- `content:check` / `test:content` 继续是正式质量门禁。
+
+不要因为项目定位升级为 Front-end Lab Platform 而把这些 Lesson Content Domain 规则删除或弱化。
+
 ### JavaScript wording
 
 旧：
@@ -365,7 +410,7 @@ Do not enable learner JavaScript execution until the dedicated JavaScript runtim
 - cloud IDE/sync/auth。
 - LanguagePlugin/RuntimeRegistry/ToolchainRegistry/CheckerRegistry。
 
-## 10. README / docs current-state sync
+## 11. README / docs current-state sync
 
 如果 README/current architecture仍写旧 asset：
 
@@ -380,7 +425,7 @@ solution.css
 
 历史变更记录保留历史事实，不为 grep清零篡改。
 
-## 11. Dead code cleanup
+## 12. Dead code cleanup
 
 删除无消费者的：
 
@@ -394,7 +439,7 @@ solution.css
 
 不要保留双 API。
 
-## 12. 禁止最终出现的过度抽象
+## 13. 禁止最终出现的过度抽象
 
 默认删除：
 
@@ -419,12 +464,16 @@ module CDN adapter
 
 除非仓库中已存在第二个真实实现需求；M6A没有。
 
-## 13. 最终验证
+## 14. 最终验证
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
+pnpm content:generate
+git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
 git diff --check
 git status --short
 ```
@@ -437,7 +486,7 @@ git status --short
 - 不 deleteDatabase。
 - 不改 build script规避。
 
-## 14. 最终搜索允许/禁止
+## 15. 最终搜索允许/禁止
 
 ### 允许
 
@@ -468,7 +517,7 @@ BrowserRuntime reading editable
 BrowserRuntime reading ProgressStore
 ```
 
-## 15. Codex 完成报告
+## 16. Codex 完成报告
 
 必须报告：
 
@@ -481,16 +530,21 @@ BrowserRuntime reading ProgressStore
 7. Workspace/HTML capability automated checks
 8. solution leakage boundary
 9. Studio health result
-10. `pnpm lint`
-11. `pnpm build`
-12. `pnpm test:e2e`
-13. remaining risks
+10. MDX Learning Flow v1 regression / generated registry idempotency
+11. `pnpm content:check`
+12. `pnpm test:content`
+13. `pnpm lint`
+14. `pnpm build`
+15. `pnpm test:e2e`
+16. remaining risks
 
 不要自动开始 M6B / JavaScript Runtime / TypeScript Toolchain。
 
-## 16. Acceptance Criteria
+## 17. Acceptance Criteria
 
 - [ ] Task 01-05 criteria全部满足。
+- [ ] MDX Learning Flow v1 content contract、Activity、hints、Preview presets、structured diagnostics 与 canonical sequence 无回归。
+- [ ] `content:check` / `test:content` / generated registry idempotency通过。
 - [ ] current CSS learner E2E通过。
 - [ ] Workspace multi-file domain测试通过。
 - [ ] Browser isolated HTML/security E2E通过。
@@ -501,4 +555,4 @@ BrowserRuntime reading ProgressStore
 - [ ] README/current docs同步。
 - [ ] 没有 JS/TS runtime提前实现。
 - [ ] 没有 generic IDE/plugin abstraction。
-- [ ] lint/build/e2e/diff-check全部通过。
+- [ ] content:check/test:content/lint/build/e2e/generated-registry-idempotency/diff-check全部通过。

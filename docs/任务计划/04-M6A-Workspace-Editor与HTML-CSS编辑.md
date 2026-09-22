@@ -13,6 +13,21 @@ style.css editable=true
 
 不为测试修改当前课程内容，也不增加 test-only产品 route。
 
+## 0. Learning Shell 是既有产品基线
+
+Task 04 的重构边界是 **Editor domain**，不是重新设计整个 learner shell。
+
+必须保留 MDX Learning Flow v1 已确认的布局/行为：
+
+- 左侧 LessonPanel 渲染完整 MDX teaching flow。
+- 当前 Exercise context 继续可见。
+- progressive hints 仍由 Learning Shell 管理。
+- Editor 是主要操作区。
+- PreviewPanel 继续是 bounded experiment window，并保留 viewport presets。
+- 底部 Action Bar 的 previous/reset/hint/check/next 关系不变。
+
+`LearningWorkspace` 可以为了 Draft/WorkspaceEditor 数据流重构，但不得回退为旧式“三张等权大卡片”或删除 MDX Activity。
+
 ## 1. 开始前读取
 
 ```text
@@ -21,6 +36,10 @@ src/features/exercise/components/css-editor.tsx
 src/features/exercise/lib/editor/*
 src/features/learning/components/editor-panel.tsx
 src/features/learning/components/learning-workspace.tsx
+src/features/learning/components/lesson-panel.tsx
+src/features/learning/components/preview-panel.tsx
+src/features/learning/components/mdx/*
+src/features/learning/generated/lesson-content-registry.tsx
 src/features/progress/hooks/use-exercise-progress.ts
 package.json
 pnpm-lock.yaml
@@ -352,6 +371,8 @@ Task 05 用 isolated sandbox iframe验证 HTML Runtime behavior/security。
 ## 15. 验证
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
@@ -367,6 +388,8 @@ git status --short
 - [ ] HTML formatter使用 prettier/plugins/html。
 - [ ] embeddedLanguageFormatting关闭。
 - [ ] WorkspaceEditor只展示 editable files。
+- [ ] LessonPanel / MDX Activity / progressive hints / Action Bar 产品行为无回归。
+- [ ] Preview viewport controls 在 Editor 重构后仍可用。
 - [ ] activePath不持久化。
 - [ ] multi-file draft切换不丢 content。
 - [ ] 不要求跨 tab保留 per-file EditorState。

@@ -21,6 +21,28 @@ ExerciseWorkspace + Draft
 
 这是 M6A 技术风险最高的阶段，禁止自由发挥。
 
+## 0. PreviewPanel UX 与 Runtime implementation 分层
+
+MDX Learning Flow v1 已把 Preview 定义为正式产品 shell：
+
+```text
+Resizable Preview Panel
+→ bounded canvas
+→ Browser viewport
+→ Check results / progressive hints
+```
+
+Task 05 可以彻底替换 `PreviewFrame / preview-document / preview-messages` 的底层 Runtime，但必须保留：
+
+- PreviewPanel resize relationship。
+- bounded canvas。
+- `Auto / 390 / 768 / 1280` viewport presets 与缩放行为。
+- Browser chrome/viewport 呈现能力。
+- Check results 区域。
+- progressive hints 区域及其独立于 Runtime 的 state。
+
+目标是把新的 BrowserRuntimeFrame 嵌入现有 PreviewPanel 产品壳，而不是重做 Preview UX。
+
 ## 1. 开始前读取
 
 ```text
@@ -504,23 +526,52 @@ new ExecutionSnapshot
 - iframe generation重置 sent request id。
 - 旧 result不能完成 exercise。
 
-## 14. CheckResult neutralization
+## 14. CheckResult 与 structured diagnostics
 
-最终：
+M6A 要把公共 check outcome 与 Browser-specific diagnostics 分层，但**不能**退化 MDX v1 已验证的 learner feedback。
+
+公共语义建议：
 
 ```ts
+export type CheckOutcomeReason =
+  | "matched"
+  | "mismatch"
+  | "target-not-found"
+  | "checker-error";
+
 export interface CheckResult {
   id: string;
   message: string;
   passed: boolean;
+  reason: CheckOutcomeReason;
   expected: string | number | boolean | null;
   actual: string | number | boolean | null;
 }
 ```
 
-不要保留 `type: Check["type"]` 在统一 result里。
+Browser checker detail 可单独表达：
 
-Check definitions仍可 style/exists/count。
+```ts
+export interface BrowserCheckDiagnostic {
+  selector: string | null;
+  property: string | null;
+}
+
+export interface BrowserCheckResult extends CheckResult {
+  diagnostic: BrowserCheckDiagnostic | null;
+}
+```
+
+具体字段名可以调整，但以下语义是 hard requirement：
+
+- learner mismatch 与 checker/runtime fault 必须可区分。
+- selector/target not found 有独立语义，不能被显示成普通属性值 mismatch。
+- learner UI 继续能显示 expected / actual。
+- Browser style diagnostics 继续能显示 selector/property。
+- 公共 result 不依赖 `Check["type"]`。
+- Browser-specific detail 不强迫未来 Worker/TypeScript checker 采用 DOM 字段。
+
+当前 `StyleCheck.alsoAccepts` 可以在 M6A 继续作为 transitional schema；Runtime checker 必须继续接受 canonical `equals` + 语义等价 alternatives。不要在本阶段引入 matcher registry/DSL 重构。
 
 ## 15. Check snapshot race
 
@@ -587,6 +638,8 @@ fixed nonce只允许 test。
 ## 19. 验证
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
@@ -612,6 +665,9 @@ git status --short
 - [ ] CSP不开放 unsafe JS。
 - [ ] script/event/javascript URL/navigation有 defense-in-depth。
 - [ ] CheckResult与 Browser definition type解耦。
+- [ ] structured diagnostics 无回归：mismatch / target-not-found / checker-error 可区分，expected/actual 与 Browser selector/property 仍可展示。
+- [ ] style check 多个语义等价 accepted values 仍可通过。
+- [ ] PreviewPanel bounded canvas / viewport presets / hints UX 未因 Runtime 重写退化。
 - [ ] captured draft race正确。
 - [ ] isolated runtime/security E2E通过。
 - [ ] current CSS learner E2E无回归。

@@ -18,6 +18,8 @@ Task 02 结束后不再存在 production v1 Exercise runtime contract。
 
 ```text
 docs/任务计划/01-M6A-Workspace-Domain与Exercise-Schema-v2.md
+docs/功能文档/MDX-Learning-Flow-v1-产品方案.md
+docs/任务计划/MDX-Learning-Flow-v1/07-M6A-衔接约束.md
 src/lib/workspace/*
 src/lib/content/file/file-content-reader.ts
 src/lib/content/file/file-utils.ts
@@ -59,6 +61,19 @@ ExerciseRecordSchema
 
 不要长期保留 v1/v2 双读 fallback。
 
+### Lesson Content Domain 明确不参与本次 cutover
+
+以下正式 MDX v1 基线必须原样保留：
+
+- `lesson.json` metadata contract。
+- `lesson.mdx` teaching source。
+- generated lesson registry。
+- `LessonContentInspector`。
+- `scripts/content/*` / MDX contract tooling。
+- `content:generate` / `content:check` / `test:content`。
+
+`lesson.mdx` **不是** Workspace asset；Exercise v1 → v2 只迁移 Exercise 自己的 metadata/assets。不要把 Lesson source 放进 `starter/`，也不要让 `FileContentReader` 重新读取 MDX body。
+
 ## 3. 现有 Exercise asset 迁移
 
 每个当前 exercise：
@@ -97,6 +112,8 @@ solution.css  -> solution/style.css
 不创建 `support/`。
 
 当前 3 个 Exercise 的 id/slug/order/revision/URL 不变；仅 asset representation 改变不 bump revision。
+
+其中 `exercise.order` 已是 MDX v1 的 canonical learner sequence。迁移后 `content:check` 必须继续证明 learner-visible Lesson 对三个 published Exercise 的引用完整、唯一且同序；不得因 v2 metadata 改写 sequence 语义。
 
 ## 4. exercise.json v2
 
@@ -155,7 +172,27 @@ Task 01 transitional alias如已无用，本阶段删除/收敛。
 
 Runtime 永远看不到 OS path。
 
-## 7. Hard loading errors 与 Content Health 分工
+## 7. Studio source dependencies
+
+MDX v1 已让 Studio 依赖 `LessonContentInspector`。Task 02 新增 Exercise asset/source inspection 时，不得覆盖或绕开该依赖。
+
+推荐把多个 source dependency 收敛为显式 options object，而不是继续增加 positional 参数，例如：
+
+```ts
+readStudioContentHealth(contentReader, {
+  lessonContentInspector,
+  exerciseSourceInspector,
+});
+```
+
+名称可按实际代码调整。要求是：
+
+- Lesson source facts 与 Exercise source facts 仍是两个窄职责。
+- 两个 inspector 都保持 server-only。
+- learner route/client graph 不 import source inspector。
+- 不设计 generic `ContentInspectorRegistry`。
+
+## 8. Hard loading errors 与 Content Health 分工
 
 ### Hard loading/schema error
 
@@ -184,14 +221,14 @@ Reader 成功 hydrate 后才做：
 
 这样 schema/read error 与 authoring quality 不冲突。
 
-## 8. Server-only ContentSourceInspector
+## 9. Server-only ExerciseSourceInspector
 
 Solution 不进入 Exercise，因此 Studio 使用窄 source inspection。
 
 推荐：
 
 ```text
-src/lib/content/file/file-content-source-inspector.ts
+src/lib/content/file/file-exercise-source-inspector.ts
 ```
 
 必须 `import "server-only"`。
@@ -211,7 +248,7 @@ interface ExerciseAssetInspection {
   solutionPaths: readonly WorkspacePath[];
 }
 
-interface ContentSourceInspector {
+interface ExerciseSourceInspector {
   inspectExercise(
     source: ExerciseSourceRef,
   ): Promise<ExerciseAssetInspection>;
@@ -236,7 +273,9 @@ File implementation与 FileContentReader使用同一 courses root convention。
 
 不得暴露绝对 OS path 到 Studio domain。
 
-## 9. Studio Workspace Health
+不要把 ExerciseRecordV2 的完整 Zod schema 复制到 `scripts/content`。现有 content tooling 继续只负责 repository/authoring integrity；完整 runtime/schema validation 仍由正式 content schema + FileContentReader/build 承担。
+
+## 10. Studio Workspace Health
 
 保留现有：
 
@@ -281,11 +320,11 @@ actual starter paths - declared workspace paths
 
 声明但缺 starter 已属于 Reader hard error，不重复诊断。
 
-## 10. Solution completeness
+## 11. Solution completeness
 
 ```text
 editablePaths = declared files where editable=true
-solutionPaths = ContentSourceInspector.solutionPaths
+solutionPaths = ExerciseSourceInspector.solutionPaths
 
 set(solutionPaths) === set(editablePaths)
 ```
@@ -299,7 +338,7 @@ set(solutionPaths) === set(editablePaths)
 
 当前 CSS Exercise 只能有 `solution/style.css`，不要复制 locked `index.html/base.css`。
 
-## 11. Solution boundary
+## 12. Solution boundary
 
 禁止：
 
@@ -318,19 +357,19 @@ interface Exercise {
 FileContentReader
   -> learner-safe hydrated Exercise
 
-FileContentSourceInspector
+FileExerciseSourceInspector
   -> server-only authoring source facts
 ```
 
 Studio可依赖两者；learner只能依赖前者。
 
-## 12. JS/TS interim rule
+## 13. JS/TS interim rule
 
 Task 02-04 期间不得向 content 添加 JS/TS workspace file。
 
 schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
-## 13. E2E
+## 14. E2E
 
 更新 `e2e/studio-content-health.spec.ts`：
 
@@ -344,9 +383,11 @@ schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
 不要依赖样式 class。
 
-## 14. 验证
+## 15. 验证
 
-```bash
+ ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
@@ -354,9 +395,16 @@ git diff --check
 git status --short
 ```
 
+并确认 Lesson registry 因 Exercise asset migration 保持幂等：
+
+```bash
+pnpm content:generate
+git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
+```
+
 人工确认旧 root assets不与新结构双存。注意 `starter/base.css` 是合法新路径。
 
-## 15. Acceptance Criteria
+## 16. Acceptance Criteria
 
 - [ ] 当前 3 个 exercise 已迁移 starter/solution。
 - [ ] Exercise production schema/type 原子切 v2。
@@ -364,7 +412,7 @@ git status --short
 - [ ] fixtureHtml/baseCss/starterCss 从 runtime Exercise 删除。
 - [ ] Reader metadata-driven hydrate declared starter files。
 - [ ] declared starter missing 明确为 hard load error。
-- [ ] ContentSourceInspector server-only。
+- [ ] ExerciseSourceInspector server-only。
 - [ ] Inspector 只返回 normalized logical paths。
 - [ ] solution 不进入 Exercise。
 - [ ] zero editable 按状态 audit。
@@ -373,4 +421,6 @@ git status --short
 - [ ] solution path set 等于 editable path set。
 - [ ] Studio 当前 0 error / 0 warning。
 - [ ] URL/id/revision不变。
-- [ ] lint/build/e2e通过。
+- [ ] `lesson.mdx` / generated registry / LessonContentInspector 未被 Workspace migration 污染。
+- [ ] canonical `exercise.order` 与 MDX Exercise references 仍通过 `content:check`。
+- [ ] content:check/test:content/lint/build/e2e通过。
