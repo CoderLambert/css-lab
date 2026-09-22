@@ -1,11 +1,11 @@
 import { Settings2, SunMedium } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   Progress,
   ProgressLabel,
   ProgressValue,
 } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 
 interface WorkspaceHeaderProps {
   courseTitle: string;
@@ -70,10 +70,22 @@ export function WorkspaceHeader({
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <Button variant="ghost" size="icon" aria-label="切换主题" title="切换主题">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="切换主题"
+          title="切换主题（暂未开放）"
+          disabled
+        >
           <SunMedium />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="打开设置" title="打开设置">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="打开设置"
+          title="打开设置（暂未开放）"
+          disabled
+        >
           <Settings2 />
         </Button>
       </div>

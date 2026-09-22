@@ -44,14 +44,10 @@ export function aggregateLearningProgress(
         createProgressKey(progress.exerciseId, progress.revision),
       ),
   );
-
-  const completedExerciseIds = new Set(
-    exercises
-      .filter((exercise) =>
-        completedKeys.has(createProgressKey(exercise.exerciseId, exercise.revision)),
-      )
-      .map((exercise) => exercise.exerciseId),
-  );
+  const isCompleted = (exercise: ProgressExerciseDescriptor): boolean =>
+    completedKeys.has(
+      createProgressKey(exercise.exerciseId, exercise.revision),
+    );
 
   const moduleExercises = exercises.filter(
     (exercise) => exercise.moduleId === currentModuleId,
@@ -61,17 +57,16 @@ export function aggregateLearningProgress(
   );
 
   return {
-    course: createSummary(completedExerciseIds.size, exercises.length),
+    course: createSummary(
+      exercises.filter(isCompleted).length,
+      exercises.length,
+    ),
     module: createSummary(
-      moduleExercises.filter((exercise) =>
-        completedExerciseIds.has(exercise.exerciseId),
-      ).length,
+      moduleExercises.filter(isCompleted).length,
       moduleExercises.length,
     ),
     lesson: createSummary(
-      lessonExercises.filter((exercise) =>
-        completedExerciseIds.has(exercise.exerciseId),
-      ).length,
+      lessonExercises.filter(isCompleted).length,
       lessonExercises.length,
     ),
   };

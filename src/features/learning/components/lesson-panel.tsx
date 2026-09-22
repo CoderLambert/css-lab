@@ -1,27 +1,41 @@
+import { Badge } from "@/components/ui/badge";
 import { CheckResults } from "@/features/exercise/components/check-results";
 import type { CheckState } from "@/features/exercise/lib/check-state";
-import { Badge } from "@/components/ui/badge";
 import type { Exercise, Lesson } from "@/lib/content/types";
 
 interface LessonPanelProps {
+  moduleTitle: string;
   lesson: Lesson;
   exercise: Exercise;
   checkState?: CheckState;
 }
 
-export function LessonPanel({ lesson, exercise, checkState }: LessonPanelProps) {
+export function LessonPanel({
+  moduleTitle,
+  lesson,
+  exercise,
+  checkState,
+}: LessonPanelProps) {
+  const lessonNumber = String(lesson.order).padStart(2, "0");
+
   return (
-    <section className="flex h-full min-w-0 flex-col bg-panel" aria-labelledby="lesson-title">
+    <section
+      className="flex h-full min-w-0 flex-col bg-panel"
+      aria-labelledby="lesson-title"
+    >
       <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-5 sm:px-6">
         <div className="flex items-start gap-3">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-sm font-semibold tabular-nums text-accent-foreground">
-            03
+            {lessonNumber}
           </span>
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Lesson
             </p>
-            <h2 id="lesson-title" className="mt-1 font-heading text-base font-semibold text-panel-foreground">
+            <h2
+              id="lesson-title"
+              className="mt-1 font-heading text-base font-semibold text-panel-foreground"
+            >
               {lesson.title}
             </h2>
           </div>
@@ -32,8 +46,11 @@ export function LessonPanel({ lesson, exercise, checkState }: LessonPanelProps) 
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-6">
-        <Badge variant="secondary" className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-accent-foreground">
-          Flexbox Alignment
+        <Badge
+          variant="secondary"
+          className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-accent-foreground"
+        >
+          {moduleTitle}
         </Badge>
 
         <h1 className="mt-5 max-w-[22rem] font-heading text-[clamp(1.45rem,2.5vw,1.85rem)] font-semibold leading-tight tracking-[-0.035em] text-panel-foreground">
@@ -42,18 +59,6 @@ export function LessonPanel({ lesson, exercise, checkState }: LessonPanelProps) 
         <p className="mt-4 max-w-[30rem] text-sm leading-7 text-muted-foreground">
           {lesson.description}
         </p>
-
-        <div className="mt-7 border-l-2 border-lesson-highlight-border bg-lesson-highlight px-4 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-foreground">
-            核心概念
-          </p>
-          <p className="mt-2 text-sm leading-6 text-panel-foreground">
-            <code className="font-mono text-[0.92em] text-accent-foreground">justify-content</code>{" "}
-            控制主轴上的对齐方式，
-            <code className="font-mono text-[0.92em] text-accent-foreground">align-items</code>{" "}
-            控制交叉轴上的对齐方式。
-          </p>
-        </div>
 
         <div className="mt-7">
           <p className="text-sm font-semibold text-panel-foreground">本题任务</p>
@@ -69,7 +74,10 @@ export function LessonPanel({ lesson, exercise, checkState }: LessonPanelProps) 
           <ul className="mt-3 space-y-3 text-sm leading-6 text-muted-foreground">
             {exercise.hints.map((hint) => (
               <li key={hint} className="flex gap-2.5">
-                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
+                <span
+                  className="mt-2 size-1.5 shrink-0 rounded-full bg-success"
+                  aria-hidden="true"
+                />
                 <span>{hint}</span>
               </li>
             ))}

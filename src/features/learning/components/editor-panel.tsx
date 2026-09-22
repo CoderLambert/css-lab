@@ -61,32 +61,22 @@ export function EditorPanel({ value, onChange }: EditorPanelProps) {
           <p className="mt-1 text-xs text-editor-muted">实时编辑</p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-editor-muted hover:bg-editor-line-active hover:text-editor-foreground"
-            disabled={isFormatting}
-            aria-label="格式化 CSS"
-            onClick={() => {
-              void handleFormat();
-            }}
-          >
-            <Braces />
-            <span className="hidden sm:inline">
-              {isFormatting ? "格式化中…" : "格式化"}
-            </span>
-          </Button>
-
-          <span className="flex items-center gap-2 text-[11px] text-editor-muted">
-            <span
-              className="size-1.5 rounded-full bg-success"
-              aria-hidden="true"
-            />
-            synced
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="shrink-0 text-editor-muted hover:bg-editor-line-active hover:text-editor-foreground"
+          disabled={isFormatting}
+          aria-label="格式化 CSS"
+          onClick={() => {
+            void handleFormat();
+          }}
+        >
+          <Braces />
+          <span className="hidden sm:inline">
+            {isFormatting ? "格式化中…" : "格式化"}
           </span>
-        </div>
+        </Button>
       </div>
 
       <div className="min-h-0 flex-1">

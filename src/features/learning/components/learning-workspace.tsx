@@ -170,6 +170,7 @@ function LearningWorkspaceSession({
               <ResizablePanelGroup orientation="horizontal" className="h-full">
                 <ResizablePanel defaultSize="25" minSize="19" className="min-w-0">
                   <LessonPanel
+                    moduleTitle={module.title}
                     lesson={lesson}
                     exercise={exercise}
                     checkState={checkState}

@@ -36,11 +36,19 @@ function createProgressRequestKey(
   currentLessonId: string,
   refreshToken: number,
 ): string {
-  const exerciseKey = exercises
-    .map((exercise) => `${exercise.exerciseId}:${exercise.revision}`)
-    .join(",");
-
-  return `${currentModuleId}:${currentLessonId}:${exerciseKey}:${refreshToken}`;
+  return JSON.stringify({
+    currentModuleId,
+    currentLessonId,
+    refreshToken,
+    exercises: exercises.map(
+      ({ exerciseId, revision, moduleId, lessonId }) => [
+        exerciseId,
+        revision,
+        moduleId,
+        lessonId,
+      ],
+    ),
+  });
 }
 
 export function useLearningProgress({
