@@ -1,19 +1,42 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import { createCssUpdateMessage, isPreviewReadyMessage } from "../lib/preview-messages";
+import {
+  createCheckRunMessage,
+  createCssUpdateMessage,
+  isCheckResultMessage,
+  isPreviewReadyMessage,
+  type CheckRequest,
+  type CheckResultMessage,
+} from "../lib/preview-messages";
 import { createPreviewDocument } from "../lib/preview-document";
 
-interface PreviewFrameProps {
+export interface PreviewFrameProps {
   html: string;
   baseCss: string;
   css: string;
+  checkRequest: CheckRequest | null;
+  onCheckResult: (result: CheckResultMessage) => void;
 }
 
-export function PreviewFrame({ html, baseCss, css }: PreviewFrameProps) {
+function postCssUpdate(iframeWindow: Window, css: string): void {
+  iframeWindow.postMessage(createCssUpdateMessage(css), "*");
+}
+
+export function PreviewFrame({
+  html,
+  baseCss,
+  css,
+  checkRequest,
+  onCheckResult,
+}: PreviewFrameProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const cssRef = useRef(css);
+  const checkRequestRef = useRef<CheckRequest | null>(checkRequest);
+  const isReadyRef = useRef(false);
+  const sentCheckRequestIdRef = useRef<string | null>(null);
+  const onCheckResultRef = useRef(onCheckResult);
 
   const srcDoc = useMemo(
     () => createPreviewDocument({ html, baseCss }),
@@ -23,6 +46,32 @@ export function PreviewFrame({ html, baseCss, css }: PreviewFrameProps) {
   useEffect(() => {
     cssRef.current = css;
   }, [css]);
+
+  useEffect(() => {
+    checkRequestRef.current = checkRequest;
+  }, [checkRequest]);
+
+  useEffect(() => {
+    onCheckResultRef.current = onCheckResult;
+  }, [onCheckResult]);
+
+  useEffect(() => {
+    isReadyRef.current = false;
+  }, [srcDoc]);
+
+  const sendPendingCheck = useCallback((iframeWindow: Window): void => {
+    const request = checkRequestRef.current;
+
+    if (
+      !request ||
+      sentCheckRequestIdRef.current === request.requestId
+    ) {
+      return;
+    }
+
+    iframeWindow.postMessage(createCheckRunMessage(request), "*");
+    sentCheckRequestIdRef.current = request.requestId;
+  }, []);
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -39,8 +88,26 @@ export function PreviewFrame({ html, baseCss, css }: PreviewFrameProps) {
       }
 
       if (isPreviewReadyMessage(event.data)) {
-        iframeWindow.postMessage(createCssUpdateMessage(cssRef.current), "*");
+        isReadyRef.current = true;
+        postCssUpdate(iframeWindow, cssRef.current);
+        sendPendingCheck(iframeWindow);
+        return;
       }
+
+      if (!isCheckResultMessage(event.data)) {
+        return;
+      }
+
+      const pendingRequest = checkRequestRef.current;
+
+      if (
+        !pendingRequest ||
+        pendingRequest.requestId !== event.data.requestId
+      ) {
+        return;
+      }
+
+      onCheckResultRef.current(event.data);
     };
 
     window.addEventListener("message", handleMessage);
@@ -48,21 +115,28 @@ export function PreviewFrame({ html, baseCss, css }: PreviewFrameProps) {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
+  }, [sendPendingCheck]);
 
   useEffect(() => {
     const iframeWindow = iframeRef.current?.contentWindow;
 
     if (iframeWindow) {
-      iframeWindow.postMessage(createCssUpdateMessage(css), "*");
+      postCssUpdate(iframeWindow, css);
+
+      if (checkRequest && isReadyRef.current) {
+        sendPendingCheck(iframeWindow);
+      }
     }
-  }, [css]);
+  }, [checkRequest, css, sendPendingCheck]);
 
   const handleIframeLoad = () => {
     const iframeWindow = iframeRef.current?.contentWindow;
 
     if (iframeWindow) {
-      iframeWindow.postMessage(createCssUpdateMessage(cssRef.current), "*");
+      isReadyRef.current = true;
+      postCssUpdate(iframeWindow, cssRef.current);
+
+      sendPendingCheck(iframeWindow);
     }
   };
 

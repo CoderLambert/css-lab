@@ -1,14 +1,26 @@
 import { CheckCircle2 } from "lucide-react";
 
 import { PreviewFrame } from "@/features/exercise/components/preview-frame";
+import type {
+  CheckRequest,
+  CheckResultMessage,
+} from "@/features/exercise/lib/preview-messages";
 
 interface PreviewPanelProps {
   html: string;
   baseCss: string;
   css: string;
+  checkRequest: CheckRequest | null;
+  onCheckResult: (result: CheckResultMessage) => void;
 }
 
-export function PreviewPanel({ html, baseCss, css }: PreviewPanelProps) {
+export function PreviewPanel({
+  html,
+  baseCss,
+  css,
+  checkRequest,
+  onCheckResult,
+}: PreviewPanelProps) {
   return (
     <section className="flex h-full min-w-0 flex-col bg-panel" aria-labelledby="preview-title">
       <div className="flex items-center justify-between border-b border-border px-5 py-5 sm:px-6">
@@ -34,7 +46,13 @@ export function PreviewPanel({ html, baseCss, css }: PreviewPanelProps) {
               <span className="size-2 rounded-full bg-muted-foreground/25" />
               <span className="size-2 rounded-full bg-muted-foreground/25" />
             </div>
-            <PreviewFrame html={html} baseCss={baseCss} css={css} />
+            <PreviewFrame
+              html={html}
+              baseCss={baseCss}
+              css={css}
+              checkRequest={checkRequest}
+              onCheckResult={onCheckResult}
+            />
           </div>
 
           <div className="flex items-start gap-2.5 self-start text-sm">

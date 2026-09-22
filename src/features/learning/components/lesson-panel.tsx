@@ -1,12 +1,15 @@
+import { CheckResults } from "@/features/exercise/components/check-results";
+import type { CheckState } from "@/features/exercise/lib/check-state";
 import { Badge } from "@/components/ui/badge";
 import type { Exercise, Lesson } from "@/lib/content/types";
 
 interface LessonPanelProps {
   lesson: Lesson;
   exercise: Exercise;
+  checkState?: CheckState;
 }
 
-export function LessonPanel({ lesson, exercise }: LessonPanelProps) {
+export function LessonPanel({ lesson, exercise, checkState }: LessonPanelProps) {
   return (
     <section className="flex h-full min-w-0 flex-col bg-panel" aria-labelledby="lesson-title">
       <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-5 sm:px-6">
@@ -58,6 +61,8 @@ export function LessonPanel({ lesson, exercise }: LessonPanelProps) {
             {exercise.prompt}
           </p>
         </div>
+
+        {checkState ? <CheckResults state={checkState} /> : null}
 
         <div className="mt-7 border-t border-border pt-5">
           <p className="text-sm font-semibold text-panel-foreground">提示</p>

@@ -3,10 +3,16 @@ import { Check, Lightbulb, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface WorkspaceFooterProps {
+  isChecking: boolean;
+  onCheck: () => void;
   onReset: () => void;
 }
 
-export function WorkspaceFooter({ onReset }: WorkspaceFooterProps) {
+export function WorkspaceFooter({
+  isChecking,
+  onCheck,
+  onReset,
+}: WorkspaceFooterProps) {
   return (
     <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-panel px-5 py-3 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
@@ -24,9 +30,9 @@ export function WorkspaceFooter({ onReset }: WorkspaceFooterProps) {
           <Lightbulb />
           提示
         </Button>
-        <Button size="sm" disabled>
+        <Button size="sm" disabled={isChecking} onClick={onCheck}>
           <Check />
-          检查答案
+          {isChecking ? "检查中…" : "检查答案"}
         </Button>
       </div>
     </footer>

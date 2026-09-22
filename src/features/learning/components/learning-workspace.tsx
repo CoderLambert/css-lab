@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import type { CheckState } from "@/features/exercise/lib/check-state";
+import type { CheckResultMessage } from "@/features/exercise/lib/preview-messages";
 import type { Exercise, Lesson } from "@/lib/content/types";
 import { EditorPanel } from "./editor-panel";
 import { LessonPanel } from "./lesson-panel";
@@ -43,14 +45,62 @@ function LearningWorkspaceSession({
   exercise,
 }: LearningWorkspaceProps) {
   const [css, setCss] = useState(exercise.starterCss);
+  const [checkState, setCheckState] = useState<CheckState>({
+    status: "idle",
+  });
+  const requestCounterRef = useRef(0);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
     getDesktopWorkspaceSnapshot,
     getDesktopWorkspaceServerSnapshot,
   );
 
+  const checkRequest = useMemo(
+    () =>
+      checkState.status === "checking"
+        ? {
+            requestId: checkState.requestId,
+            checks: exercise.checks,
+          }
+        : null,
+    [checkState, exercise.checks],
+  );
+
+  const handleCssChange = (nextCss: string) => {
+    setCss(nextCss);
+    setCheckState({ status: "idle" });
+  };
+
   const handleReset = () => {
     setCss(exercise.starterCss);
+    setCheckState({ status: "idle" });
+  };
+
+  const handleCheck = () => {
+    requestCounterRef.current += 1;
+
+    setCheckState({
+      status: "checking",
+      requestId: `${exercise.id}:${requestCounterRef.current}`,
+    });
+  };
+
+  const handleCheckResult = (result: CheckResultMessage) => {
+    setCheckState((currentState) => {
+      if (
+        currentState.status !== "checking" ||
+        currentState.requestId !== result.requestId
+      ) {
+        return currentState;
+      }
+
+      return {
+        status: "complete",
+        requestId: result.requestId,
+        passed: result.passed,
+        results: result.results,
+      };
+    });
   };
 
   return (
@@ -63,11 +113,15 @@ function LearningWorkspaceSession({
             <div className="h-full min-h-[620px]">
               <ResizablePanelGroup orientation="horizontal" className="h-full">
                 <ResizablePanel defaultSize="25" minSize="19" className="min-w-0">
-                  <LessonPanel lesson={lesson} exercise={exercise} />
+                  <LessonPanel
+                    lesson={lesson}
+                    exercise={exercise}
+                    checkState={checkState}
+                  />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize="40" minSize="28" className="min-w-0">
-                  <EditorPanel value={css} onChange={setCss} />
+                  <EditorPanel value={css} onChange={handleCssChange} />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize="35" minSize="26" className="min-w-0">
@@ -75,6 +129,8 @@ function LearningWorkspaceSession({
                     html={exercise.fixtureHtml}
                     baseCss={exercise.baseCss}
                     css={css}
+                    checkRequest={checkRequest}
+                    onCheckResult={handleCheckResult}
                   />
                 </ResizablePanel>
               </ResizablePanelGroup>
@@ -82,23 +138,33 @@ function LearningWorkspaceSession({
           ) : (
             <div className="grid min-h-[760px] grid-cols-1 min-[800px]:grid-cols-2">
               <div className="min-h-[560px] min-w-0 border-b border-border min-[800px]:border-r">
-                <LessonPanel lesson={lesson} exercise={exercise} />
+                <LessonPanel
+                  lesson={lesson}
+                  exercise={exercise}
+                  checkState={checkState}
+                />
               </div>
               <div className="min-h-[520px] min-w-0 border-b border-border">
-                <EditorPanel value={css} onChange={setCss} />
+                <EditorPanel value={css} onChange={handleCssChange} />
               </div>
               <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
                 <PreviewPanel
                   html={exercise.fixtureHtml}
                   baseCss={exercise.baseCss}
                   css={css}
+                  checkRequest={checkRequest}
+                  onCheckResult={handleCheckResult}
                 />
               </div>
             </div>
           )}
         </main>
 
-        <WorkspaceFooter onReset={handleReset} />
+        <WorkspaceFooter
+          isChecking={checkState.status === "checking"}
+          onCheck={handleCheck}
+          onReset={handleReset}
+        />
       </div>
     </div>
   );
