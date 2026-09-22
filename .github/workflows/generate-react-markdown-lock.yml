@@ -1,0 +1,36 @@
+name: Generate React Markdown Lock
+
+on:
+  push:
+    paths:
+      - ".github/workflows/generate-react-markdown-lock.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          version: 12.5.1
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Generate lockfile
+        run: pnpm add react-markdown@10.1.0 --lockfile-only
+
+      - name: Upload generated lockfile
+        uses: actions/upload-artifact@v5
+        with:
+          name: react-markdown-lock
+          path: pnpm-lock.yaml
+          retention-days: 1
