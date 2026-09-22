@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 
 import {
   ResizableHandle,
@@ -22,7 +28,8 @@ import { WorkspaceHeader } from "./workspace-header";
 interface LearningWorkspaceProps {
   course: Course;
   module: Module;
-  lesson: Lesson;
+  lesson: Omit<Lesson, "bodyMarkdown">;
+  lessonContent: ReactNode;
   exercise: Exercise;
   navigation: LearnerNavigation;
 }
@@ -50,6 +57,7 @@ function LearningWorkspaceSession({
   course,
   module,
   lesson,
+  lessonContent,
   exercise,
   navigation,
 }: LearningWorkspaceProps) {
@@ -172,6 +180,7 @@ function LearningWorkspaceSession({
                   <LessonPanel
                     moduleTitle={module.title}
                     lesson={lesson}
+                    lessonContent={lessonContent}
                     exercise={exercise}
                     checkState={checkState}
                   />
@@ -198,6 +207,7 @@ function LearningWorkspaceSession({
                 <LessonPanel
                   moduleTitle={module.title}
                   lesson={lesson}
+                  lessonContent={lessonContent}
                   exercise={exercise}
                   checkState={checkState}
                 />
@@ -244,6 +254,7 @@ export function LearningWorkspace({
       course={course}
       module={module}
       lesson={lesson}
+      lessonContent={lessonContent}
       exercise={exercise}
       navigation={navigation}
     />

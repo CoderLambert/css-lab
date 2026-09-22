@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { LessonMarkdown } from "@/features/learning/components/lesson-markdown";
 import { LearningWorkspace } from "@/features/learning/components/learning-workspace";
 import { readPublishedExerciseSequence } from "@/features/learning/lib/learner-content";
 import { createLearnerNavigation } from "@/features/learning/lib/learner-navigation";
@@ -98,12 +99,14 @@ export default async function LearnExercisePage({
   }
 
   const navigation = createLearnerNavigation(sequence, exercise);
+  const { bodyMarkdown, ...lessonMetadata } = lesson;
 
   return (
     <LearningWorkspace
       course={course}
       module={courseModule}
-      lesson={lesson}
+      lesson={lessonMetadata}
+      lessonContent={<LessonMarkdown source={bodyMarkdown} />}
       exercise={exercise}
       navigation={navigation}
     />

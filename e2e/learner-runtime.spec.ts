@@ -36,6 +36,12 @@ test("learner navigation follows the published exercise sequence", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "水平与垂直居中" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 3, name: "主轴：justify-content" }),
+  ).toBeVisible();
+  await expect(
+    page.locator("code").filter({ hasText: "justify-content" }).first(),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "上一题" })).toBeDisabled();
 
   await page.locator("a").filter({ hasText: "下一题" }).click();

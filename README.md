@@ -17,6 +17,7 @@ CSS Lab 是一个专注于 CSS 实践的交互式学习项目。核心学习闭�
 - Tailwind CSS v4 + shadcn/Base UI
 - CodeMirror 6
 - Zod
+- `react-markdown` for trusted lesson Markdown rendering
 - IndexedDB via `idb`
 - Playwright
 - pnpm
@@ -51,6 +52,7 @@ CI 会执行 frozen install、lint、build 和 Chromium E2E。
 content/
   ↓ FileContentReader + Zod
 Server learner routes
+  ├─ lesson.md → react-markdown → Server Component slot
   ↓
 LearningWorkspace
   ├─ CodeMirror editor
@@ -74,6 +76,8 @@ LearningWorkspace
 ```text
 content/courses/<course>/modules/<module>/lessons/<lesson>/
 ```
+
+每个 lesson 使用 `lesson.json + lesson.md` 保存元数据与教学正文。Markdown 在服务端渲染，原始正文和 parser 不进入 learner client bundle。
 
 每道 exercise：
 

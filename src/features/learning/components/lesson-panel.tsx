@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { CheckResults } from "@/features/exercise/components/check-results";
 import type { CheckState } from "@/features/exercise/lib/check-state";
@@ -5,7 +7,8 @@ import type { Exercise, Lesson } from "@/lib/content/types";
 
 interface LessonPanelProps {
   moduleTitle: string;
-  lesson: Lesson;
+  lesson: Omit<Lesson, "bodyMarkdown">;
+  lessonContent: ReactNode;
   exercise: Exercise;
   checkState?: CheckState;
 }
@@ -13,6 +16,7 @@ interface LessonPanelProps {
 export function LessonPanel({
   moduleTitle,
   lesson,
+  lessonContent,
   exercise,
   checkState,
 }: LessonPanelProps) {
@@ -59,6 +63,11 @@ export function LessonPanel({
         <p className="mt-4 max-w-[30rem] text-sm leading-7 text-muted-foreground">
           {lesson.description}
         </p>
+
+        <div className="mt-7 border-t border-border pt-5">
+          <p className="text-sm font-semibold text-panel-foreground">知识要点</p>
+          <div className="mt-3">{lessonContent}</div>
+        </div>
 
         <div className="mt-7">
           <p className="text-sm font-semibold text-panel-foreground">本题任务</p>
