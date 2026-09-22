@@ -97,13 +97,21 @@ css
 接受语义：
 
 ```ts
+interface BrowserCheckRequest {
+  requestId: string;
+  checks: readonly Check[];
+  snapshot: ExecutionSnapshot; // click 时 captured snapshot
+}
+
 interface BrowserRuntimeFrameProps {
   runtime: BrowserRuntimeDefinition;
-  snapshot: ExecutionSnapshot;
-  checkRequest: CheckRequest | null;
+  snapshot: ExecutionSnapshot; // live preview snapshot
+  checkRequest: BrowserCheckRequest | null;
   onCheckResult(result: CheckResultMessage): void;
 }
 ```
+
+`checkRequest.snapshot` 与 live `snapshot` 分开是有意设计：checker 必须验证点击 Check 那一刻的 immutable input，不能依赖之后 React render/effect 的当前值。
 
 Runtime不得依赖：
 
@@ -121,18 +129,21 @@ Runtime只看 logical path/language/content。
 M6A Browser Runtime只接受：
 
 ```text
-html
-css
+exactly one HTML file
++
+zero or more CSS files
 ```
 
-snapshot若包含 `javascript/typescript`：
+并且：
 
-- 不注入。
-- 不执行。
-- 开发环境给明确 invariant error。
-- 不悄悄 ignore 后继续产生误导 preview。
+- `runtime.entry` 必须存在。
+- entry 必须是唯一 HTML file。
+- 任何非 entry 的 HTML file -> fail closed。
+- snapshot若包含 `javascript/typescript` -> fail closed。
+- unknown language / duplicate path / topology invariant violation -> 不注入、不执行、不继续产生看似正常的 preview。
+- 开发环境给明确 invariant error；production 至少进入不可执行/不可检查的安全失败状态。
 
-Studio会标记 authoring error；Runtime仍 defense-in-depth。
+Studio会提前标记 authoring error；Runtime仍承担 defense-in-depth，不能把“Studio 会报错”当执行前置条件。
 
 ## 5. Browser document identity：必须写死
 
@@ -147,16 +158,25 @@ useMemo(
 
 因为 snapshot每次 CSS input都会变，导致 iframe每个 keystroke reload。
 
-### srcDoc 只能依赖
+### srcDoc / document descriptor 只能依赖
 
 ```text
 entry HTML content
 ordered CSS logical paths
+runtime entry
 runtime bridge implementation/version
+fresh document generationId
 fresh document nonce
 ```
 
 **CSS content不得成为 srcDoc dependency。**
+
+`generationId` 与 CSP nonce 是两个不同概念：
+
+- `generationId`：Runtime protocol identity，用于拒绝 stale document messages；不是 security secret。
+- `nonce`：CSP script authorization token，必须 cryptographically random。
+- 每次 document rebuild 两者都更新。
+- CSS-only edit 两者都不能变化。
 
 RuntimeFrame从 snapshot派生：
 
@@ -171,7 +191,22 @@ document rebuild条件：
 - entry HTML content改变。
 - CSS path/order topology改变。
 - runtime entry改变。
+- runtime bridge version改变。
 - component/revision remount。
+
+每次 rebuild 建立新的 immutable document descriptor：
+
+```ts
+{
+  generationId,
+  nonce,
+  srcDoc,
+  entryHtml,
+  cssTopology,
+}
+```
+
+具体 React 实现可调整，但不能在普通 CSS render 中无条件重新生成 generation/nonce。
 
 CSS content变化只能 postMessage。
 
@@ -190,12 +225,13 @@ Runtime只认 path + order。
 
 ### runtime:ready 后同步全部 CSS
 
-收到合法 `runtime:ready` 后，按当前 snapshot的 CSS顺序发送：
+收到**当前 generation** 的合法 `runtime:ready` 后，按当前 live snapshot 的 CSS顺序发送：
 
 ```ts
 {
   source: "lab-host",
   type: "css:update",
+  generationId,
   path,
   content,
 }
@@ -231,6 +267,7 @@ check:result
 interface CssUpdateMessage {
   source: "lab-host";
   type: "css:update";
+  generationId: string;
   path: WorkspacePath;
   content: string;
 }
@@ -242,6 +279,29 @@ iframe bridge：
 - unknown path不能创建新 slot。
 - content必须 string。
 
+### Generation identity
+
+四类 runtime messages 都必须携带 `generationId`：
+
+```text
+runtime:ready
+css:update
+check:run
+check:result
+```
+
+document bridge 内嵌它所属的 generationId，并只接受相同 generationId 的 host message。
+
+Host 只接受等于当前 document descriptor generationId 的 iframe message。
+
+不能只依赖：
+
+```text
+event.source === iframe.contentWindow
+```
+
+因为 iframe document navigation/rebuild 前后的消息仍可能经过同一个 WindowProxy。generationId 用来区分 old/new document generation。
+
 ### Ready
 
 只有收到：
@@ -249,22 +309,26 @@ iframe bridge：
 ```ts
 {
   source: "lab-runtime",
-  type: "runtime:ready"
+  type: "runtime:ready",
+  generationId
 }
 ```
 
-才标记 runtime ready。
+且 `generationId === currentGenerationId` 才标记 runtime ready。
 
-**iframe onLoad 不能代表 runtime ready。**
+**iframe onLoad 不能代表 runtime ready，也不能在 load 时无条件把已经收到的 current-generation ready 清掉。**
 
-onLoad只负责重置：
+readiness reset 必须绑定 **document descriptor / generationId change**：
 
 ```text
-isReady = false
-sentCheckRequestId = null
+new document generation
+→ reset readyGenerationId
+→ reset sentCheckRequestId
+→ install/render new srcDoc
+→ wait current-generation runtime:ready
 ```
 
-随后等待 bridge message。
+`onLoad` 可以不处理，或只用于 diagnostics。不要依赖 `onLoad -> reset -> ready message` 的事件顺序，因为 child `postMessage(runtime:ready)` 与 iframe load 的调度顺序不应成为 correctness 前提。
 
 ## 8. postMessage targetOrigin
 
@@ -290,13 +354,15 @@ Host validation：
 2. message object
 3. `source === "lab-runtime"`
 4. type/shape validator
-5. requestId match
+5. `generationId === currentGenerationId`
+6. 对 check result 再验证 requestId match
 
 Iframe validation：
 
 1. `event.source === window.parent`
 2. `source === "lab-host"`
 3. type/shape validator
+4. `generationId === embeddedGenerationId`
 
 不要只检查 type。
 
@@ -468,6 +534,26 @@ formaction
 
 不要把单个 regex当全部安全机制。
 
+#### Runtime-owned DOM references / clobbering
+
+在 mount learner HTML **之前**，runtime bridge 必须直接保存：
+
+- learner root element reference。
+- ordered CSS style element references / path -> element Map。
+- 其他 runtime-owned control references。
+
+mount 后更新 CSS/DOM 时使用这些已捕获 reference，不通过 `window.<id>`、named property、`document.getElementById` 或 learner 可碰撞 selector 重新获取 runtime-owned nodes。
+
+learner HTML 即使声明：
+
+```html
+<div id="learner-root"></div>
+<style data-workspace-path="style.css"></style>
+<input name="...">
+```
+
+也不能覆盖/劫持 runtime-owned root、CSS slot 或 bridge state。
+
 #### 阻止 learner navigation
 
 bridge在 capture phase：
@@ -495,7 +581,7 @@ bridge顺序：
 3. template parse + DOM security policy。
 4. mount `#learner-root`。
 5. 安装 navigation guards。
-6. post `runtime:ready`。
+6. post 带当前 `generationId` 的 `runtime:ready`。
 
 Host收到 ready时：
 
@@ -524,6 +610,8 @@ new ExecutionSnapshot
 
 - active request失效。
 - iframe generation重置 sent request id。
+- stale generation 的 ready/result 全部忽略。
+- 旧 document 即使迟到发送 message，也不能让 Host 对它发送新 check。
 - 旧 result不能完成 exercise。
 
 ## 14. CheckResult 与 structured diagnostics
@@ -565,7 +653,10 @@ export interface BrowserCheckResult extends CheckResult {
 具体字段名可以调整，但以下语义是 hard requirement：
 
 - learner mismatch 与 checker/runtime fault 必须可区分。
-- selector/target not found 有独立语义，不能被显示成普通属性值 mismatch。
+- `target-not-found` 有独立语义，不能退化成普通属性值 mismatch，但也不能在 Runtime 中一律判成 checker fault。
+- Runtime 不知道 Workspace editability；它只报告 `target-not-found` + Browser diagnostics。
+- Learning Shell 结合 Workspace metadata解释：有 editable HTML 时，target missing 可能是 learner DOM mismatch；HTML 全 locked 时，当前 M6A 中更可能是 content/check configuration issue。
+- `checker-error` 始终作为明确 checker/runtime fault。
 - learner UI 继续能显示 expected / actual。
 - Browser style diagnostics 继续能显示 selector/property。
 - 公共 result 不依赖 `Check["type"]`。
@@ -575,18 +666,36 @@ export interface BrowserCheckResult extends CheckResult {
 
 ## 15. Check snapshot race
 
-当前 `requestId + code` 升级为 `requestId + captured ExerciseDraft`。
+当前 `requestId + code` 升级为：
+
+```text
+requestId
++
+captured ExerciseDraft
++
+captured ExecutionSnapshot
++
+current document generationId
+```
 
 流程：
 
 1. Check点击时 capture当前 immutable draft。
-2. captured draft生成 snapshot。
-3. checkRequest发送当前 runtime generation。
-4. 任意 editable file change -> active check失效。
-5. result必须 requestId match。
-6. passed时持久化 captured draft。
+2. 立即由 captured draft生成 captured snapshot，并放入 BrowserCheckRequest；不要在 Runtime effect 中重新从“当前 draft”生成。
+3. 若 captured snapshot 的 entry HTML / CSS topology 与当前 document generation 不一致，不能在旧 generation 上执行；先等待/触发正确 document rebuild，或使 request失效。
+4. 当前 generation ready 后，**先按 captured snapshot 顺序同步该 snapshot 的全部 CSS**。
+5. 在同一 host→iframe message sequence 中，CSS updates 全部发送完成后再发送 `check:run`。
+6. 不依赖“live CSS effect 应该已经先执行”这种 React effect 时序假设。
+7. iframe 对同一 source/window 的消息按发送顺序处理，因此 checker看到的是 captured snapshot 的 CSS。
+8. 任意 editable file change -> active check失效。
+9. result必须同时满足 current `generationId` + active `requestId`。
+10. passed时持久化 captured draft。
 
-禁止“旧 snapshot通过，却保存已经变更的新 draft”。
+禁止：
+
+- “旧 snapshot通过，却保存已经变更的新 draft”。
+- “刚输入最后一个字符立即点击 Check，但 checker 读到上一帧 CSS”。
+- stale document ready 后收到新的 check request。
 
 ## 16. Isolated Browser Runtime E2E
 
@@ -594,7 +703,7 @@ export interface BrowserCheckResult extends CheckResult {
 
 Playwright test直接 import纯 builder/message helpers：
 
-1. Node side生成 srcDoc。测试可传 fixed nonce；production必须随机。
+1. Node side生成 srcDoc。测试可传 fixed nonce + fixed generationId；production nonce必须随机，generationId必须每 document generation 唯一。
 2. `page.setContent` 建 parent page。
 3. 动态建 sandbox iframe。
 4. 设置 srcdoc。
@@ -607,6 +716,13 @@ Playwright test直接 import纯 builder/message helpers：
 - learner HTML正常 mount。
 - ordered CSS slots工作。
 - CSS update不需要 iframe rebuild。
+- exactly-one-HTML topology；第二个 HTML / JS / TS snapshot fail closed。
+- stale generation `runtime:ready` 被忽略。
+- current-generation ready 不会被随后发生的 iframe `load` handler错误清空。
+- stale generation `check:result` 即使 requestId看似合法也被忽略。
+- wrong-generation host message 被 iframe忽略。
+- CSS edit 后立即 Check，checker读取到 captured snapshot 的最新 CSS。
+- learner DOM clobbering（重复 id/name/data-workspace-path）不能替换 runtime-owned root/CSS slot。
 - `<script>` 不执行。
 - onclick等 handler不执行。
 - javascript URL不执行/不导航。
@@ -623,6 +739,8 @@ fixed nonce只允许 test。
 
 - CSS typing实时更新。
 - CSS typing过程中 iframe generation不变化。
+- HTML/document rebuild 后 generationId变化。
+- CSS最后一次编辑后立即点击 Check，结果对应最后一次输入。
 - checker仍通过。
 - reload恢复 Progress。
 - completion正确。
@@ -638,6 +756,7 @@ fixed nonce只允许 test。
 ## 19. 验证
 
 ```bash
+pnpm test:authoring-skill
 pnpm content:check
 pnpm test:content
 pnpm lint
@@ -651,23 +770,28 @@ git status --short
 
 - [ ] Browser Runtime独立目录。
 - [ ] public input只有 runtime definition + ExecutionSnapshot + checker contract。
-- [ ] JS/TS snapshot fail closed。
+- [ ] Browser topology fail closed：恰好一个 entry HTML，其余仅 CSS；第二 HTML/JS/TS/unknown topology不执行。
 - [ ] srcDoc dependency不含 CSS content。
+- [ ] generationId 与 CSP nonce职责分离，document rebuild时都更新，CSS-only edit时都保持。
 - [ ] CSS slots按 declaration order。
 - [ ] runtime:ready后同步最新全部 CSS。
 - [ ] CSS edit不 reload iframe。
 - [ ] HTML edit rebuild document。
-- [ ] iframe onLoad不等于 ready。
+- [ ] iframe onLoad不等于 ready，且不会覆盖已经合法收到的 current-generation ready；readiness reset只由 generation change驱动。
 - [ ] source为 lab-host/lab-runtime。
+- [ ] 所有 Runtime messages 带 generationId；Host/iframe 双向拒绝 stale/wrong generation。
 - [ ] postMessage("*") opaque-origin理由保留。
 - [ ] learner HTML不 raw-concat。
 - [ ] nonce每 document generation随机。
 - [ ] CSP不开放 unsafe JS。
 - [ ] script/event/javascript URL/navigation有 defense-in-depth。
+- [ ] runtime-owned root/CSS slot使用 mount 前捕获 reference，learner DOM clobbering不能劫持。
 - [ ] CheckResult与 Browser definition type解耦。
 - [ ] structured diagnostics 无回归：mismatch / target-not-found / checker-error 可区分，expected/actual 与 Browser selector/property 仍可展示。
 - [ ] style check 多个语义等价 accepted values 仍可通过。
 - [ ] PreviewPanel bounded canvas / viewport presets / hints UX 未因 Runtime 重写退化。
-- [ ] captured draft race正确。
+- [ ] captured draft/snapshot race正确。
+- [ ] check:run 前显式按 captured snapshot 同步 CSS，不依赖 live React effect 时序。
+- [ ] stale generation ready/result 与“最后一次 CSS 编辑后立即 Check”均有自动化覆盖。
 - [ ] isolated runtime/security E2E通过。
 - [ ] current CSS learner E2E无回归。
