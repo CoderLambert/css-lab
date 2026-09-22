@@ -2,6 +2,13 @@ import { expect, test } from "@playwright/test";
 
 import { createBrowserDocument } from "../src/features/exercise/runtime/browser/lib/browser-document";
 import {
+  acceptsCheckResult,
+  acceptsRuntimeReady,
+  browserDocumentIdentityEquals,
+  createBrowserDocumentIdentity,
+  planCapturedCheckDispatch,
+} from "../src/features/exercise/runtime/browser/lib/browser-host";
+import {
   createCheckRunMessage,
   createCssUpdateMessage,
   isCheckResultMessage,
@@ -318,4 +325,107 @@ test("CSP blocks learner HTML and CSS HTTP(S) egress", async ({ page }) => {
 
   await page.waitForTimeout(100);
   expect(egressRequests).toBe(0);
+});
+
+
+test("document identity ignores CSS content but changes for HTML or topology", () => {
+  const first = createBrowserDocumentIdentity(runtime, snapshot("<div>A</div>", "a{}"), 1);
+  const cssEdit = createBrowserDocumentIdentity(runtime, snapshot("<div>A</div>", "b{}"), 1);
+  const htmlEdit = createBrowserDocumentIdentity(runtime, snapshot("<div>B</div>", "b{}"), 1);
+  const topologyEdit = createBrowserDocumentIdentity(
+    runtime,
+    {
+      files: [
+        { path: "index.html", language: "html", content: "<div>A</div>" },
+        { path: "style.css", language: "css", content: "a{}" },
+      ],
+    },
+    1,
+  );
+
+  expect(browserDocumentIdentityEquals(first, cssEdit)).toBe(true);
+  expect(browserDocumentIdentityEquals(first, htmlEdit)).toBe(false);
+  expect(browserDocumentIdentityEquals(first, topologyEdit)).toBe(false);
+});
+
+test("captured check dispatch synchronizes every captured CSS file before check:run", () => {
+  const captured = snapshot("<div>A</div>", ".target { color: red }");
+  const identity = createBrowserDocumentIdentity(runtime, captured, 1);
+  const messages = planCapturedCheckDispatch(
+    "generation-a",
+    runtime,
+    identity,
+    {
+      requestId: "request-1",
+      checks: [
+        {
+          id: "color",
+          type: "style",
+          selector: ".target",
+          property: "color",
+          equals: "rgb(255, 0, 0)",
+          message: "red",
+        },
+      ],
+      snapshot: captured,
+    },
+  );
+
+  expect(messages.map((message) => message.type)).toEqual([
+    "css:update",
+    "css:update",
+    "check:run",
+  ]);
+  expect(messages[0]).toMatchObject({
+    generationId: "generation-a",
+    path: "base.css",
+  });
+  expect(messages[1]).toMatchObject({
+    generationId: "generation-a",
+    path: "style.css",
+    content: ".target { color: red }",
+  });
+});
+
+test("captured check refuses a stale document identity", () => {
+  const current = createBrowserDocumentIdentity(runtime, snapshot("<div>A</div>"), 1);
+
+  expect(() =>
+    planCapturedCheckDispatch(
+      "generation-a",
+      runtime,
+      current,
+      {
+        requestId: "request-1",
+        checks: [],
+        snapshot: snapshot("<div>B</div>"),
+      },
+    ),
+  ).toThrow(/different Browser document generation/);
+});
+
+test("ready and result acceptance reject stale generation and stale request ids", () => {
+  expect(
+    acceptsRuntimeReady(
+      {
+        source: "lab-runtime",
+        type: "runtime:ready",
+        generationId: "old",
+      },
+      "current",
+    ),
+  ).toBe(false);
+
+  const result = {
+    source: "lab-runtime",
+    type: "check:result",
+    generationId: "current",
+    requestId: "request-1",
+    passed: true,
+    results: [],
+  };
+
+  expect(acceptsCheckResult(result, "current", "request-1")).toBe(true);
+  expect(acceptsCheckResult(result, "old", "request-1")).toBe(false);
+  expect(acceptsCheckResult(result, "current", "request-2")).toBe(false);
 });
