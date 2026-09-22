@@ -53,19 +53,6 @@ export function LessonPanel({
             <p className="mt-2 text-sm leading-7 text-muted-foreground">
               {exercise.prompt}
             </p>
-            {exercise.hints.length > 0 ? (
-              <ul className="mt-4 space-y-2 text-sm leading-6 text-muted-foreground">
-                {exercise.hints.map((hint) => (
-                  <li key={hint} className="flex gap-2.5">
-                    <span
-                      className="mt-2 size-1.5 shrink-0 rounded-full bg-success"
-                      aria-hidden="true"
-                    />
-                    <span>{hint}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
           </div>
 
           <article className="mt-8 space-y-6 text-muted-foreground">
