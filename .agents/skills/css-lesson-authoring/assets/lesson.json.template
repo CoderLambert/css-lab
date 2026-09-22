@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": {{ID_JSON}},
+  "slug": {{SLUG_JSON}},
+  "title": {{TITLE_JSON}},
+  "description": {{DESCRIPTION_JSON}},
+  "estimatedMinutes": {{MINUTES}},
+  "order": {{ORDER}},
+  "status": "draft"
+}

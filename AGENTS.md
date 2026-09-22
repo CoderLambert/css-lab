@@ -199,6 +199,24 @@ Lesson content rules:
 - `exercise.order` is the canonical learner navigation sequence. Effective learner-visible Lessons must reference every published Exercise exactly once and in that order; they must not reference draft Exercises. Hidden/draft Lessons may reference draft Exercises while still requiring existing, slug-matching, non-duplicate references.
 - The generated registry is not edited by hand. Run `pnpm content:generate` after adding or moving lesson content, then run `pnpm content:check` before completing content changes.
 
+# Curriculum Authoring Skill
+
+When creating, revising, or reviewing CSS curriculum content, use the repo-level skill:
+
+```text
+.agents/skills/css-lesson-authoring/SKILL.md
+```
+
+For deterministic authoring operations, prefer the Skill scripts over hand-writing structure:
+
+- inspect Course/Module/Lesson context with `inspect-context.mjs`
+- scaffold Lesson/Exercise skeletons with `scaffold.mjs`
+- validate reusable source packs with `inspect-source-pack.mjs`
+
+Do not bypass the scaffolder for orders, draft skeletons, duplicate-ID checks, or overwrite protection when it covers the operation. Model reasoning should focus on teaching design, lesson narrative, exercise objectives, hints, and checker semantics.
+
+User-provided source files may be used as curriculum grounding. Follow the Skill's source-grounding workflow and never turn source text directly into exercises without deriving learning claims and outcomes first.
+
 # Exercise Assets
 
 The intended exercise directory is:
@@ -323,6 +341,7 @@ Before changing an unfamiliar framework or shadcn API, inspect the installed cod
 Before completing a code task, run:
 
 ```bash
+pnpm test:authoring-skill
 pnpm content:check
 pnpm test:content
 pnpm lint

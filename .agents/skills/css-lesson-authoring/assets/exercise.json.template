@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": {{ID_JSON}},
+  "revision": {{REVISION}},
+  "slug": {{SLUG_JSON}},
+  "title": {{TITLE_JSON}},
+  "prompt": {{PROMPT_JSON}},
+  "order": {{ORDER}},
+  "status": "draft",
+  "hints": [],
+  "checks": []
+}
