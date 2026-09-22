@@ -20,11 +20,13 @@ export interface BrowserDocumentIdentity {
   bridgeVersion: number;
 }
 
-export interface CapturedBrowserCheckRequest {
+export interface BrowserCheckRequest {
   requestId: string;
   checks: readonly Check[];
   snapshot: ExecutionSnapshot;
 }
+
+export type CapturedBrowserCheckRequest = BrowserCheckRequest;
 
 export function createBrowserDocumentIdentity(
   runtime: BrowserRuntimeDefinition,
@@ -68,7 +70,7 @@ export function planCapturedCheckDispatch(
   generationId: string,
   runtime: BrowserRuntimeDefinition,
   currentIdentity: BrowserDocumentIdentity,
-  request: CapturedBrowserCheckRequest,
+  request: BrowserCheckRequest,
 ): HostToRuntimeMessage[] {
   const capturedIdentity = createBrowserDocumentIdentity(
     runtime,

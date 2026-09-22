@@ -1,5 +1,6 @@
 import type { BrowserRuntimeDefinition } from "@/lib/content/schemas/exercise";
 import type { ExecutionSnapshot } from "@/lib/workspace/types";
+import type { BrowserDocumentIdentity } from "./browser-host";
 import {
   createGenerationId,
   createRandomNonce,
@@ -337,29 +338,35 @@ function createRuntimeBridge(
     );
   });
 
-  window.parent.postMessage(
-    {
-      source: runtimeSource,
-      type: "runtime:ready",
-      generationId,
-    },
-    "*",
-  );
+  window.setTimeout(() => {
+    window.parent.postMessage(
+      {
+        source: runtimeSource,
+        type: "runtime:ready",
+        generationId,
+      },
+      "*",
+    );
+  }, 0);
 })();`;
 }
 
-export function createBrowserDocument(
-  options: BrowserDocumentOptions,
+export function createBrowserDocumentFromIdentity(
+  identity: BrowserDocumentIdentity,
+  options: { generationId?: string; nonce?: string } = {},
 ): BrowserDocumentDescriptor {
-  const model = deriveBrowserSnapshotModel(options.runtime, options.snapshot);
+  if (identity.bridgeVersion !== BROWSER_RUNTIME_BRIDGE_VERSION) {
+    throw new Error("Browser document identity bridge version is stale");
+  }
+
   const generationId = options.generationId ?? createGenerationId();
   const nonce = options.nonce ?? createRandomNonce();
   const bridge = createRuntimeBridge(
     generationId,
-    model.entryHtml,
-    model.cssTopology,
+    identity.entryHtml,
+    identity.cssTopology,
   );
-  const cssSlots = model.cssTopology
+  const cssSlots = identity.cssTopology
     .map(
       (path) =>
         `<style data-runtime-workspace-path="${escapeHtmlAttribute(path)}"></style>`,
@@ -395,7 +402,26 @@ export function createBrowserDocument(
     generationId,
     nonce,
     srcDoc,
-    entryHtml: model.entryHtml,
-    cssTopology: model.cssTopology,
+    entryHtml: identity.entryHtml,
+    cssTopology: identity.cssTopology,
   };
+}
+
+export function createBrowserDocument(
+  options: BrowserDocumentOptions,
+): BrowserDocumentDescriptor {
+  const model = deriveBrowserSnapshotModel(options.runtime, options.snapshot);
+
+  return createBrowserDocumentFromIdentity(
+    {
+      runtimeEntry: options.runtime.entry,
+      entryHtml: model.entryHtml,
+      cssTopology: model.cssTopology,
+      bridgeVersion: BROWSER_RUNTIME_BRIDGE_VERSION,
+    },
+    {
+      generationId: options.generationId,
+      nonce: options.nonce,
+    },
+  );
 }
