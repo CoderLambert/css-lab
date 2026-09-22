@@ -234,7 +234,7 @@ test("fails when MDX Exercise order differs from exercise.order", async (t) => {
   );
 });
 
-test("accepts a hidden lesson that references a draft Exercise", async (t) => {
+test("accepts a draft lesson that references a draft Exercise", async (t) => {
   const fixture = await createContentFixture(t, {
     lessonStatus: "draft",
     exercises: [{ slug: "draft-exercise", order: 1, status: "draft" }],

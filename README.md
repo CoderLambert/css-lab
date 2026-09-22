@@ -83,7 +83,7 @@ content/courses/<course>/modules/<module>/lessons/<lesson>/
 
 每个 `lessons/*` 直接子目录都是 Lesson source directory，必须同时包含 `lesson.json + lesson.mdx`。`lesson.json` 由 `FileContentReader` 提供 runtime metadata，`lesson.mdx` 由生成的 registry 提供教学内容。修改或新增 lesson 后运行 `pnpm content:generate`，提交生成文件；提交前运行 `pnpm content:check`。
 
-`exercise.order` 是 learner navigation 的唯一 canonical sequence。effective learner-visible Lesson 的 MDX Exercise references 必须将所有 published Exercise 各引用一次，且顺序完全一致；draft/hidden Lesson 可以暂时引用 draft Exercise。
+`exercise.order` 是 learner navigation 的唯一 canonical sequence。effective learner-visible Lesson 的 MDX Exercise references 必须将所有 published Exercise 各引用一次，且顺序完全一致；draft 或因上级发布链而非 learner-visible 的 Lesson 可以暂时引用 draft Exercise。`hidden` 不是 content status。
 
 每道 exercise：
 

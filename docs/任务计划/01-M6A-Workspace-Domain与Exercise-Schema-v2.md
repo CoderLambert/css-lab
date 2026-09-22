@@ -429,6 +429,20 @@ export interface BrowserCheckResult extends CheckResult {
 
 ## 12. 验证
 
+在运行全量门禁前，必须使用现有 Playwright runner 直接 import 纯 Workspace/schema helper，增加确定性的正负测试。至少覆盖：
+
+- WorkspacePath 文档中列出的全部允许/拒绝样例。
+- exact duplicate 与 case-insensitive collision。
+- extension 与 language mismatch。
+- Browser entry missing、entry 不在 workspace、entry 不是 HTML。
+- zero editable 作为 structural schema 合法输入。
+- initial Draft 只含 editable files。
+- locked/unknown update 与 reset 明确失败。
+- malformed Draft（missing editable、unknown、locked path）创建 Snapshot 时明确失败。
+- Snapshot 保持 declaration order，locked 来自 starter、editable 来自 Draft。
+
+这些测试必须在 Task 01 就落地，因为此时 production content 仍是 v1，现有 learner/content happy path 不会自动执行新的 v2 schema 分支。
+
 ```bash
 pnpm test:authoring-skill
 pnpm content:check
@@ -459,4 +473,5 @@ Task 01 核心就是“新定义存在，但旧 production flow 无回归”，�
 - [ ] style check 的语义等价 accepted-values 能力未丢失。
 - [ ] production structured checker diagnostics 未被 Task 01 neutralization 提前破坏。
 - [ ] production learner flow 无 v1/v2 union 分支污染。
+- [ ] WorkspacePath、collision、language/extension、Browser entry 与 Draft/Snapshot invariant 的正负测试已落地。
 - [ ] test:authoring-skill/content:check/test:content/lint/build/e2e 全过。

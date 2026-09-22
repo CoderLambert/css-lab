@@ -45,6 +45,8 @@ runtime/typescript
 RuntimeRegistry
 LanguageRegistry
 CheckerRegistry
+document.querySelector
+document.querySelectorAll
 current v1 asset layout
 fixture.html.template
 starter.css.template
@@ -57,6 +59,8 @@ solution.css.template
 - 合法历史 docs。
 - Legacy IndexedDB migration。
 - CSS-specific editor代码。
+- Runtime DOM security/sanitization中合法的局部查询。
+- Browser checker中禁止保留的 document-wide查询；content checks必须改为learner-root scoped。
 - 不应继续存在的平台 coupling。
 
 ## 2. LearningWorkspace final responsibility
@@ -197,6 +201,7 @@ base.css locked
 - learner HTML remote resource与 CSS `url()` / `@import` 的 HTTP(S) network egress被 CSP阻断，并由 request-level test证明。
 - CSS slots/protocol/checker工作。
 - target-not-found presentation 在 editable HTML 与 locked HTML 两种 Workspace metadata 下语义正确；checker-error 始终是 runtime/checker fault。
+- Browser `style/exists/count` 只查询 learner fragment后代；runtime-owned document shell、learner-root wrapper与CSS slots不参与匹配或计数。
 
 ### Code-level WorkspaceEditor review
 
@@ -205,6 +210,19 @@ base.css locked
 - HtmlEditor真实接入 WorkspaceEditor switch。
 - `editable: true + language: html` 必然进入 HtmlEditor。
 - multi-file tabs使用 Draft Record，不存在 CSS-only state。
+
+### Manual HTML/CSS integration verification
+
+在不提交 fake content/test-only route的前提下，Task 06 必须用临时、可回收的本地 fixture或开发期 harness完成一次人工集成验证，并在最终报告记录结果：
+
+- editable HTML/CSS两个 tab均可打开、编辑和切换。
+- 切换 tab不丢两份 Draft content。
+- HTML edit触发新 document generation。
+- CSS-only edit保持 generation并实时更新。
+- Reset All恢复两份 starter content。
+- Check使用点击时 captured HTML/CSS snapshot。
+
+临时 fixture/harness不得进入最终 commit。首个真实 HTML-editable Exercise进入课程时仍必须补正式 learner-route E2E；本人工验证不替代该后续要求。
 
 ### 不做 fake learner content
 
@@ -288,6 +306,7 @@ key     = [exerciseId, revision]
 - multiple HTML rule。
 - undeclared starter rule。
 - FileContentReader 以 canonical coursesRoot为 trust anchor，对 Course/Module/Lesson/Exercise/starter 全部后代祖先 segment及 declared final file执行 no-symlink / regular-file / root-containment hard validation。
+- Reader/Inspectors实际读取的 `course.json/module.json/lesson.json/exercise.json/lesson.mdx` 最终文件也执行 no-symlink / regular-file / root-containment validation。
 
 必须有 server-side/temp-directory 自动化证明：
 
@@ -296,7 +315,10 @@ key     = [exerciseId, revision]
 - course/module/lesson/exercise ancestor directory symlink拒绝，包含 direct `get*BySlug` lookup。
 - symlink root escape拒绝。
 - regular declared starter正常读取。
-- ExerciseSourceInspector扫描异常不返回部分 path set；Studio把 narrow source inspection error转成 blocking health issue。
+- ExerciseSourceInspector扫描异常不返回部分 path set；Reader成功 hydrate后的 source-only narrow inspection error由 Studio转成 blocking health issue。
+- Reader必需 metadata、共同祖先或 declared starter错误保持全局 hard load；只有 Reader成功 hydrate后的 source-only inspector错误转成 per-Exercise blocking health issue。
+
+新增 Workspace/source health规则必须有负向自动化，而不只是当前 repository的 `0 error / 0 warning` happy path。至少覆盖 zero editable分级、Browser JS/TS、multiple HTML、undeclared starter、solution path equality以及 inspector failure mapping。
 
 不能只在 Studio inspector里发现 symlink；learner Reader本身必须 fail closed。
 
@@ -355,6 +377,13 @@ learner HTML不是 raw concat。
 - generationId 双向 validation。
 - requestId validation。
 - stale generation result即使 requestId碰巧匹配也必须拒绝。
+
+### checker selector scope
+
+- checks基于 mount前捕获的 learner-root reference查询。
+- runtime-owned `html/head/body`、learner-root wrapper、CSS slots与bridge nodes不参与 `style/exists/count`。
+- `exists("style")` 不得因CSS slots通过，`count("div")` 不得包含wrapper。
+- invalid selector -> checker-error；learner subtree无匹配 -> target-not-found。
 
 ### check input synchronization
 
@@ -496,7 +525,7 @@ Do not enable learner JavaScript execution until the dedicated JavaScript runtim
 - cloud IDE/sync/auth。
 - LanguagePlugin/RuntimeRegistry/ToolchainRegistry/CheckerRegistry。
 
-## 11. README / docs current-state sync
+## 11. README / active docs current-state sync
 
 如果 README/current architecture仍写旧 asset：
 
@@ -508,6 +537,18 @@ solution.css
 ```
 
 更新到 starter/solution/workspace metadata。
+
+至少复核并按最终实现同步：
+
+```text
+README.md
+docs/功能文档/MDX-Learning-Flow-v1-产品方案.md
+docs/任务计划/MDX-Learning-Flow-v1/07-M6A-衔接约束.md
+.agents/skills/css-lesson-authoring/SKILL.md
+.agents/skills/css-lesson-authoring/references/*
+```
+
+当前 schema vocabulary只有 `draft | published`。active文档中的 `hidden` 若表示 visibility，应改写为“非 learner-visible”或明确说明它不是 status；不能继续让作者误认为存在 `hidden` status。
 
 历史变更记录保留历史事实，不为 grep清零篡改。
 
@@ -648,7 +689,8 @@ BrowserRuntime reading ProgressStore
 16. `pnpm build`
 17. `pnpm test:e2e`
 18. release/rollback compatibility
-19. remaining risks
+19. HTML/CSS editable-tabs人工集成验证
+20. remaining risks
 
 不要自动开始 M6B / JavaScript Runtime / TypeScript Toolchain。
 
@@ -661,17 +703,22 @@ BrowserRuntime reading ProgressStore
 - [ ] current CSS learner E2E通过。
 - [ ] Workspace multi-file domain测试通过。
 - [ ] Browser isolated HTML/security E2E通过。
+- [ ] Browser checker scope隔离测试通过，runtime shell/wrapper/CSS slots不影响style/exists/count。
 - [ ] stale generation ready/result、ready-vs-load race、wrong-generation message、immediate-edit→check、DOM clobbering均有自动化覆盖。
 - [ ] v1 IndexedDB migration测试通过。
 - [ ] migration 使用 supplied versionchange transaction，fresh v2 / malformed legacy / already-v2 cases均覆盖。
 - [ ] blocked v2 open对 non-cooperative legacy connection有有界 in-memory fallback测试，且迟到 open/data不会覆盖 session draft。
 - [ ] solution boundary结构性成立。
 - [ ] canonical coursesRoot到 Exercise/starter的祖先 symlink、declared starter symlink/non-regular/root-escape 均在 FileContentReader 层 fail closed并有 list/direct lookup测试。
-- [ ] ExerciseSourceInspector error contract确定：失败不返回部分结果，Studio生成 blocking health issue。
+- [ ] ExerciseSourceInspector error contract确定：失败不返回部分结果；Reader成功 hydrate后的 source-only错误由Studio生成 blocking health issue。
+- [ ] Reader hard-load与source-only Inspector health issue的互斥边界已按真实调用顺序验证。
+- [ ] metadata JSON与lesson.mdx final-file symlink/non-regular/root-escape均fail closed并有自动化覆盖。
+- [ ] Studio Workspace/source health新增规则均有负向自动化覆盖。
 - [ ] learner HTML/CSS HTTP(S) network egress被 CSP阻断并有 request-level测试。
 - [ ] Studio当前 0 error / 0 warning。
 - [ ] AGENTS与 Front-end Lab方向一致。
 - [ ] README/current docs同步，包含 Browser entry = HTML fragment authoring contract。
+- [ ] editable HTML/CSS tabs已完成一次不入库的人工集成验证并记录结果；首个真实HTML Exercise的正式route E2E要求仍保留。
 - [ ] final release unit / forward-compatible rollback边界已记录。
 - [ ] 没有 JS/TS runtime提前实现。
 - [ ] 没有 generic IDE/plugin abstraction。

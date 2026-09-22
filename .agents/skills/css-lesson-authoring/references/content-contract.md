@@ -63,7 +63,7 @@ For an effective learner-visible Lesson:
 - references appear in `exercise.order`
 - draft Exercises are not referenced
 
-Draft/hidden Lessons may reference draft Exercises while source paths and slugs still must be valid and non-duplicated.
+Draft Lessons, or Lessons that are not learner-visible because an ancestor is unpublished, may reference draft Exercises while source paths and slugs still must be valid and non-duplicated. `hidden` is not a content status.
 
 ## Generated registry
 

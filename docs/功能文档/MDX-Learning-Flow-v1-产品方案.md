@@ -195,7 +195,7 @@ lesson.json
 lesson.mdx
 ```
 
-缺少任一文件都是 repository structural error，与 publication status 无关。`lesson.mdx` 存在但内容为空时，effective learner-visible Lesson 报 error，其他 draft/hidden Lesson 报 warning。
+缺少任一文件都是 repository structural error，与 publication status 无关。`lesson.mdx` 存在但内容为空时，effective learner-visible Lesson 报 error，其他 draft 或因上级发布链而非 learner-visible 的 Lesson 报 warning。`hidden` 不是 content status。
 
 ---
 
@@ -237,7 +237,7 @@ solution
 
 MDX 中的 `<Exercise />` 只是对同 Lesson Exercise 的教学引用，不复制其 machine contract。
 
-v1 中 `exercise.order` 是 learner navigation 的唯一 canonical sequence source。MDX 的 Exercise references 只是该 canonical sequence 在教学叙事中的呈现：对 effective learner-visible Lesson，所有 published Exercise 必须各被引用一次，且引用顺序必须与 `exercise.order` 排序完全一致。MDX 不得引用 draft Exercise；hidden/draft Lesson 可以暂时引用 draft Exercise。
+v1 中 `exercise.order` 是 learner navigation 的唯一 canonical sequence source。MDX 的 Exercise references 只是该 canonical sequence 在教学叙事中的呈现：对 effective learner-visible Lesson，所有 published Exercise 必须各被引用一次，且引用顺序必须与 `exercise.order` 排序完全一致。MDX 不得引用 draft Exercise；draft 或因上级发布链而非 learner-visible 的 Lesson 可以暂时引用 draft Exercise。
 
 ---
 

@@ -572,6 +572,35 @@ bridge在 capture phase：
 
 这套 policy只属于当前 HTML/CSS Browser Runtime；未来 JS Browser Lab会显式采用不同策略，不抽成通用 sanitizer framework。
 
+### 11.5 Browser checker selector scope
+
+M6A 必须明确区分：
+
+```text
+runtime-owned document shell
+!=
+learner-authored fragment
+```
+
+当前 Browser DOM check 的 selector 只允许解析 learner fragment 的后代节点。以下 runtime-owned nodes 永远不能成为 `style / exists / count` 的匹配结果，也不能影响 count：
+
+- `html / head / body` shell。
+- `#learner-root` wrapper本身。
+- runtime-owned CSS `<style data-workspace-path>` slots。
+- bridge/control nodes。
+
+实现必须基于 mount 前捕获的 learner-root reference查询，并显式排除 root本身；不能继续直接使用 `document.querySelector()` / `document.querySelectorAll()` 运行 content checks。
+
+因此 M6A checker contract中：
+
+- authoring selector应指向 learner fragment内的元素。
+- 仅命中 runtime shell的 `html/body/:root/style/#learner-root/[data-workspace-path]` 不构成 learner match。
+- 无 learner match -> `target-not-found`。
+- invalid selector语法 -> `checker-error`。
+- CSS仍可按正常 cascade影响 runtime-owned `html/body` shell，但现有 DOM checker不把 shell暴露为验收 target；未来如果真实课程需要验证 document shell，应新增显式 checker capability，而不是放宽默认查询范围。
+
+这条边界同时防止 runtime wrapper/CSS slots让 `exists` 意外通过或让 `count` 产生 off-by-one。
+
 ## 12. runtime:ready 时序
 
 bridge顺序：
@@ -723,6 +752,10 @@ Playwright test直接 import纯 builder/message helpers：
 - wrong-generation host message 被 iframe忽略。
 - CSS edit 后立即 Check，checker读取到 captured snapshot 的最新 CSS。
 - learner DOM clobbering（重复 id/name/data-workspace-path）不能替换 runtime-owned root/CSS slot。
+- `exists("style")` 不能因 runtime CSS slots意外通过。
+- `count("div")` 不包含 learner-root wrapper，只计算 learner fragment后代。
+- `style/exists/count` selector不能命中 runtime-owned `html/head/body/#learner-root/data-workspace-path` nodes。
+- invalid selector返回 `checker-error`，learner subtree中找不到目标返回 `target-not-found`。
 - `<script>` 不执行。
 - onclick等 handler不执行。
 - javascript URL不执行/不导航。
@@ -788,6 +821,8 @@ git status --short
 - [ ] CSP阻断 learner HTML/CSS 的 HTTP(S) network egress，并有 request-level自动化覆盖。
 - [ ] script/event/javascript URL/navigation有 defense-in-depth。
 - [ ] runtime-owned root/CSS slot使用 mount 前捕获 reference，learner DOM clobbering不能劫持。
+- [ ] Browser checker只查询 learner fragment后代；runtime shell、learner-root wrapper与CSS slots不能被 `style/exists/count` 命中或计数。
+- [ ] checker scope isolation、invalid selector与target-not-found语义有自动化覆盖。
 - [ ] CheckResult与 Browser definition type解耦。
 - [ ] structured diagnostics 无回归：mismatch / target-not-found / checker-error 可区分，expected/actual 与 Browser selector/property 仍可展示。
 - [ ] style check 多个语义等价 accepted values 仍可通过。

@@ -322,7 +322,7 @@ runtime.entry = index.html
 
 只有通过 WorkspacePath schema 的 logical path 可以进入 OS `join()`。
 
-### Starter filesystem containment
+### Content filesystem containment
 
 WorkspacePath grammar 只能防止字符串层面的 `../` / separator escape，**不能阻止 filesystem symlink escape**。
 
@@ -353,7 +353,32 @@ starter/
 - 最终 declared file 不得是 symlink，且必须是 regular file。
 - 可使用 `lstat` + segment walk，或等价的 `realpath` containment + no-symlink policy；不能只做 `join().startsWith(...)` 字符串判断。
 - missing / symlink / non-regular / root escape 都属于 hard loading error。
-- Reader 与 ExerciseSourceInspector 应共享窄的安全 content-root/path/file helper，避免两套 filesystem规则漂移；不要因此抽 generic VFS/filesystem framework。
+- Reader、LessonContentInspector 与 ExerciseSourceInspector 应共享窄的安全 content-root/path/file helper，避免多套 filesystem规则漂移；不要因此抽 generic VFS/filesystem framework。
+
+### Metadata、Lesson source 与最终文件
+
+目录祖先安全不等于最终文件安全。当前实现中的 `readJsonFile()`、`readTextFile()` 与 `FileLessonContentInspector` 都会直接调用 `readFile()`；如果不先验证最终文件，它们仍会 follow symlink，或尝试读取 FIFO/socket/device。
+
+因此，同一窄 helper 必须覆盖 File-backed production/Studio 实际读取的最终文件：
+
+```text
+course.json
+module.json
+lesson.json
+exercise.json
+lesson.mdx
+starter/<declared-workspace-path>
+```
+
+要求：
+
+- 读取前验证完整祖先链仍 contained by canonical `coursesRoot`。
+- 除 `FileLessonContentInspector` 明确定义的 missing `lesson.mdx` 检测外，必需最终文件必须存在；任何实际存在并将被读取的最终文件都不得是 symlink，且必须是 regular file。
+- `realpath` containment 不能替代 no-symlink policy；两者都要满足。
+- `FileContentReader` 的四类 metadata JSON 与 declared starter file 使用该边界。
+- `FileLessonContentInspector` 保留“missing lesson.mdx -> exists:false”的既有语义，但 symlink、non-regular、root escape 必须 fail closed，不能按 missing/empty 处理。
+- `FileExerciseSourceInspector` 扫描到的每个 starter/solution file 使用同一 final-file规则。
+- 不把绝对 OS path或文件内容泄露到 learner/client错误对象。
 
 该约束必须由 FileContentReader 自己执行，不能只依赖 Studio Health，因为 learner route 不以“先访问 Studio”为安全前提。
 
@@ -392,6 +417,8 @@ readStudioContentHealth(contentReader, {
 - language/extension mismatch。
 - Browser entry 不存在或不是 HTML。
 - 声明的 starter file 缺失/不可读。
+- Course/Module/Lesson/Exercise metadata final file为 symlink、non-regular或逃离 canonical root。
+- declared starter或其共同祖先为 symlink、non-regular或逃离 canonical root。
 
 不要为把这些变成 Health row 而重写整个 loading pipeline。
 
@@ -448,8 +475,9 @@ File implementation与 FileContentReader使用同一 courses root convention。
 
 - `ExerciseSourceInspector` 只在完整、安全、确定地扫描成功时返回 `ExerciseAssetInspection`。
 - root/ancestor/final symlink、root escape、socket/device及其他 non-regular entry 一律 throw narrow source inspection error；不要返回部分 path set。
-- `readStudioContentHealth` 捕获该 inspector error，并生成 blocking `error` health issue，例如 `exercise-source-inspection-failed`；不要让单个 Exercise source error退化为整个 Studio 的泛化 `Content load failed`。
-- `FileContentReader` 对 learner-facing declared starter 的同类错误仍是 hard loading error；Inspector health issue不能替代 Reader安全边界。
+- 只有在 `FileContentReader` 已成功 hydrate 当前 Exercise 后，`readStudioContentHealth` 才调用 inspector。此时 inspector-only 的错误（例如 `solution/` 或 undeclared starter entry中的 symlink/non-regular file）生成 blocking `error` health issue，例如 `exercise-source-inspection-failed`。
+- 如果错误位于 Reader必须先读取的 metadata、共同祖先或 declared starter，Reader会先 fail closed，Studio保持全局 `Content load failed`。不要要求同一次真实 Studio调用既由 Reader hard fail，又继续生成 per-Exercise health row。
+- `FileContentReader` 的 hard loading error 与 Inspector health issue是按“Reader能否成功 hydrate”划分的互斥结果；Inspector不能替代 Reader安全边界。
 
 ### Scanner rules
 
@@ -463,7 +491,7 @@ File implementation与 FileContentReader使用同一 courses root convention。
 遇到 symlink/socket/device/其他非 regular file：
 
 - 不 follow。
-- 按上述 contract throw source inspection error，由 Studio 转为 blocking health error。
+- 按上述 contract throw source inspection error；若 Reader已成功 hydrate且该错误只存在于 source-only扫描面，由 Studio 转为 blocking health error，否则遵循 Reader hard-load语义。
 - 与 FileContentReader 使用同一 no-symlink / regular-file / containment规则；Inspector 不是 Reader 安全性的替代品。
 
 不得暴露绝对 OS path 到 Studio domain。
@@ -575,12 +603,32 @@ schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 - symlink 指向 starter root 外 -> hard error。
 - course/module/lesson/exercise 任一后代祖先 directory symlink -> hard error。
 - direct `get*BySlug` lookup不能通过祖先 symlink读取 canonical `coursesRoot` 外内容。
-- ExerciseSourceInspector 对 starter/solution root、祖先或内部 symlink fail closed，且 Studio收到 blocking health issue而不是部分扫描结果。
+- `course.json/module.json/lesson.json/exercise.json` final-file symlink与non-regular file -> hard error。
+- `FileLessonContentInspector` 对 `lesson.mdx` final-file symlink/non-regular/root escape fail closed，同时保留 missing -> `exists:false`。
+- ExerciseSourceInspector 对 source-only 的 `solution/` 或 undeclared starter entry中的 symlink/non-regular file fail closed；在 Reader可成功 hydrate该 Exercise的 fixture中，Studio收到 blocking health issue而不是部分扫描结果。
+- declared starter或共同祖先错误由 Reader hard fail，测试不得同时期待同一次 Studio调用产生 inspector health row。
 - non-regular entry 不被当作 starter file。
 - Task 02 compatibility bridge 对当前 3 个 CSS Exercise 正常。
 - compatibility bridge 遇到第二个 editable CSS / editable HTML / 非预期 topology 明确失败，而不是静默取第一个文件。
 
 测试应直接针对 server-side helper/Reader，不依赖 Studio 页面才发现问题。
+
+### Studio Workspace/source health negative tests
+
+当前三个 Exercise 都是健康 happy path，不能证明新增规则真实执行。使用现有 Playwright runner直接 import Studio health纯/server helper，并用最小 fake reader/inspector或临时目录 fixture覆盖：
+
+- visible published zero editable -> error。
+- draft zero editable -> warning。
+- Browser workspace含 javascript/typescript -> error。
+- 第二个 HTML file -> error。
+- undeclared starter path -> error。
+- editable path缺 solution -> error。
+- locked path、undeclared path或extra file出现在 solution -> error。
+- solution path set与 editable path set完全相等 -> 无对应 issue。
+- Reader已成功 hydrate时，source-only inspector failure -> `exercise-source-inspection-failed` blocking issue。
+- existing duplicate stable id/order/check id与 published visibility规则无回归。
+
+断言稳定 issue code/severity/location；不要只断言总数量。
 
 ## 15. E2E
 
@@ -632,17 +680,20 @@ git diff --exit-code -- src/features/learning/generated/lesson-content-registry.
 - [ ] Reader metadata-driven hydrate declared starter files。
 - [ ] declared starter missing 明确为 hard load error。
 - [ ] canonical coursesRoot trust anchor已建立；从该根到 Exercise/starter 的所有后代祖先 segment 与 declared starter final file 都执行 no-symlink/containment/regular-file校验。
+- [ ] `course.json/module.json/lesson.json/exercise.json/lesson.mdx` 最终文件同样执行 no-symlink/containment/regular-file校验。
 - [ ] list flow 与 direct `get*BySlug` lookup使用同一安全路径规则，祖先 symlink不能绕过 Reader边界。
 - [ ] declared starter 的 final/intermediate/ancestor symlink、non-regular file、root escape 明确为 hard load error。
 - [ ] Reader filesystem containment 不依赖 Studio 先运行。
 - [ ] ExerciseSourceInspector server-only。
 - [ ] Inspector 只返回 normalized logical paths。
-- [ ] Inspector扫描失败不返回部分结果；Studio把 narrow source inspection error转成 blocking health issue。
+- [ ] Inspector扫描失败不返回部分结果；Reader成功 hydrate后的 source-only inspection error由 Studio转成 blocking health issue。
+- [ ] Reader必需 metadata/declared starter/共同祖先错误保持 hard loading error，不与 inspector health row形成不可满足的双重要求。
 - [ ] solution 不进入 Exercise。
 - [ ] zero editable 按状态 audit。
 - [ ] JS/TS Browser capability 报 error。
 - [ ] multiple HTML 报 error。
 - [ ] solution path set 等于 editable path set。
+- [ ] zero editable、Browser JS/TS、multiple HTML、undeclared starter、solution equality与 inspector failure均有负向自动化覆盖。
 - [ ] Studio 当前 0 error / 0 warning。
 - [ ] URL/id/revision不变。
 - [ ] `lesson.mdx` / generated registry / LessonContentInspector 未被 Workspace migration 污染。
