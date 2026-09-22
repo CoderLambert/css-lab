@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.custom-properties-and-fallbacks.define-and-use.001",
+  "revision": 1,
+  "slug": "define-and-use",
+  "title": "定义并使用 custom property",
+  "prompt": "在 .card 定义 --gap: 24px；不要在 .content 重复写 24px，让 .content 用 padding: var(--gap) 使用继承到的 custom property。",
+  "order": 1,
+  "status": "draft",
+  "hints": ["普通 --* custom property 默认继承。", "var() 在 property value 中 substitution。", "在 .card 写 --gap: 24px，在 .content 写 padding: var(--gap)。"],
+  "checks": [
+    {"id":"card-gap","type":"style","selector":".card","property":"--gap","equals":"24px","message":"card 应定义 --gap"},
+    {"id":"content-gap","type":"style","selector":".content","property":"--gap","equals":"24px","message":"content 应得到 inherited --gap"},
+    {"id":"content-padding","type":"style","selector":".content","property":"padding-top","equals":"24px","message":"content padding 应解析为 24px"}
+  ]
+}

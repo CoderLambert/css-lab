@@ -1,0 +1,7 @@
+.card {
+  --gap: 24px;
+}
+
+.content {
+  padding: var(--gap);
+}

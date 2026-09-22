@@ -1,0 +1,41 @@
+## Custom property 不是全局常量
+
+以 `--name` 声明的普通 custom property 仍然是 CSS property：它声明在元素上，参与 cascade，并且默认继承。`var()` 则在另一个 property 的 value 中引用它。
+
+<Concept title="先决定 custom property 的 value，再在使用点 substitution">
+`--accent: ...` 的 declaration 会像其他 property 一样参与 cascade。对于未用 `@property` 注册的 custom property，child 默认可以继承 parent 的 value。`color: var(--accent)` 在使用点把当前元素得到的 `--accent` value substitution 进去。
+
+因此 nested override 不是修改某个 JavaScript/global constant；它是在更具体的元素上下文中得到另一个 cascaded custom-property value。
+</Concept>
+
+<Predict
+  question="parent 定义 --tone: teal，child 没有自己的 --tone，但写了 color: var(--tone)。普通未注册 custom property 默认会怎样？"
+  options={["child 继承 --tone，并在 color 使用它", "var() 只能读取 :root", "fallback 一定优先"]}
+  answer="child 继承 --tone，并在 color 使用它"
+  explanation="普通 --* custom property 默认继承；var() 使用当前元素得到的 custom-property value。"
+/>
+
+## Fallback 只在引用值不可用时介入
+
+<Compare
+  leftTitle="已有 usable value"
+  leftCode="var(--space, 12px)"
+  leftMeaning="如果 --space 对当前元素有 usable value，就使用它；fallback 不参与。"
+  rightTitle="没有 usable value"
+  rightCode="var(--missing, 12px)"
+  rightMeaning="引用的 custom property 没有 usable value 时，第二个参数作为 substitution fallback。"
+/>
+
+Fallback 不是“不支持 CSS variables 时的兼容方案”，也不是永远会执行的默认值。它只解决 `var()` 引用值不可用等 substitution 场景。
+
+本 Foundations lesson 不引入 `@property` 注册语义；这里讨论的是普通 `--*` custom properties。
+
+## 从 define/use 到 scoped override
+
+<Exercise slug="define-and-use" label="定义并使用 custom property" goal="在 parent 定义 value，并让 child 通过 var() 使用继承到的 custom property。" />
+
+<Exercise slug="scoped-override" label="局部覆盖 inherited custom property" goal="让两个 sibling 共享 parent value，同时只在一个 subtree 覆盖 custom property。" />
+
+<Exercise slug="fallback-missing-variable" label="为缺失变量提供 fallback" goal="在 referenced custom property 缺失时，用 var() fallback 得到可用 property value。" />
+
+Checker 可以观察 custom property 的 resolved token value和最终 property result，但不能证明 learner 唯一使用了预期 linkage strategy；这些练习因此仍是 checker-limited。
