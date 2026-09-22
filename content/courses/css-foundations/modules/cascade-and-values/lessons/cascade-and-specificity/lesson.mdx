@@ -1,0 +1,51 @@
+## 多个候选声明，最后只能有一个 winner
+
+M1 解决的是“哪些规则匹配这个元素”。一旦多个匹配规则都为**同一个 property**提供 declaration，就出现新的问题：浏览器必须决定哪一个 declaration 获胜。
+
+<Concept title="Cascade 决定同一 property 的 winning declaration">
+完整 cascade 不只看 specificity。浏览器会先处理规则是否 relevant，以及 origin / importance 等更高层级；只有候选 declaration 仍处在可比较的同一层级时，specificity 才参与比较；如果 specificity 也相同，后出现的 declaration 才通过 source order 获胜。
+
+本课的练习把环境固定在同一 author origin、normal importance、无 cascade layer / scope 的简单场景里，因此重点只观察 specificity 与 source order。
+</Concept>
+
+<Predict
+  question="同一个元素同时匹配两个 .notice 规则，它们都设置 font-style，specificity 也相同。哪个 declaration 获胜？"
+  options={["后出现的 declaration", "selector 字符更多的 declaration", "浏览器随机选择"]}
+  answer="后出现的 declaration"
+  explanation="在本课固定的同 origin / importance 条件下，如果 specificity 仍相同，source order 才会打破平局。"
+/>
+
+## Specificity 不是 selector 字符数
+
+<Compare
+  leftTitle="ID selector"
+  leftCode="#summary"
+  leftMeaning="ID selector 在 specificity 比较中属于比 class selector 更高的权重类别。"
+  rightTitle="class selector"
+  rightCode=".copy"
+  rightMeaning="class selector 的权重类别低于 ID selector；即使写在后面，也不会自动越过更高 specificity。"
+/>
+
+不要把“后写覆盖前写”当成普遍规则，也不要把 `!important` 当成冲突出现时的默认修复。先找到真正参与竞争的 declarations，再判断 cascade 为什么选中了 winner。
+
+## 从 source order 到冲突诊断
+
+<Exercise
+  slug="same-specificity-source-order"
+  label="同等 specificity 时看 source order"
+  goal="观察两个同 specificity rules 冲突时，后出现的 declaration 如何打破平局。"
+/>
+
+<Exercise
+  slug="compare-specificity"
+  label="后写不一定赢"
+  goal="识别较高 specificity 的较早 declaration 为什么仍然获胜。"
+/>
+
+<Exercise
+  slug="debug-winning-declaration"
+  label="修复真正的 cascade 冲突"
+  goal="保留已有冲突规则，不使用 !important，让负责目标元素的 rule 在当前简单 cascade 中真正获胜。"
+/>
+
+当前 checker 能验证最终 resolved style 和明确的非目标元素，但**不能证明 learner 是通过正确的 cascade 推理得到结果**，也不能阻止所有“碰巧得到相同结果”的源码写法。因此这些练习训练 reasoning，机器只验证结果边界。

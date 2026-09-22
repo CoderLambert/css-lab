@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.cascade-and-specificity.same-specificity-source-order.001",
+  "revision": 1,
+  "slug": "same-specificity-source-order",
+  "title": "同等 specificity 时看 source order",
+  "prompt": "两个 .status rules 的 specificity 相同。保留两个 rules，不使用 !important；修改较后的 declaration，让最终 .status 显示为 uppercase。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先确认两个 selector 完全相同，因此 specificity 是平局。",
+    "当本课的 origin / importance / specificity 都相同时，后出现的 declaration 决胜。",
+    "修改第二个 .status rule，让它设置 text-transform: uppercase。"
+  ],
+  "checks": [
+    {
+      "id": "status-uppercase",
+      "type": "style",
+      "selector": ".status",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "让最终 .status 显示为 uppercase"
+    }
+  ]
+}

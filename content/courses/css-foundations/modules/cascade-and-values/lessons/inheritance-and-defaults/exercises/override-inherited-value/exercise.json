@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.inheritance-and-defaults.override-inherited-value.001",
+  "revision": 1,
+  "slug": "override-inherited-value",
+  "title": "在 nested child 上覆盖继承值",
+  "prompt": "保留 .panel 的 italic。让 .inherited 继续继承 italic，但让 .plain 用自己的 declaration 变回 normal。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "两个 child 都先从 .panel 得到 inherited font-style。",
+    "只有 .plain 需要一个自己的 winning declaration 来覆盖继承值。",
+    "在 .plain 中设置 font-style: normal；不要修改 .inherited。"
+  ],
+  "checks": [
+    {
+      "id": "panel-stays-italic",
+      "type": "style",
+      "selector": ".panel",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "parent .panel 应保持 italic"
+    },
+    {
+      "id": "inherited-stays-italic",
+      "type": "style",
+      "selector": ".inherited",
+      "property": "font-style",
+      "equals": "italic",
+      "message": ".inherited 应继续继承 italic"
+    },
+    {
+      "id": "plain-overrides-normal",
+      "type": "style",
+      "selector": ".plain",
+      "property": "font-style",
+      "equals": "normal",
+      "message": ".plain 应用自己的 declaration 覆盖为 normal"
+    }
+  ]
+}

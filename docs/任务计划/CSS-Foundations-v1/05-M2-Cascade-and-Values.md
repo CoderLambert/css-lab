@@ -221,3 +221,57 @@ Reviewer 必须检查：
 - [ ] checker limitations explicitly documented。
 - [ ] no new matcher/checker framework。
 - [ ] all gates pass。
+
+
+---
+
+## 10. Scheduled execution status
+
+### Batch A — complete
+
+Produced:
+
+```text
+01 cascade-and-specificity
+02 inheritance-and-defaults
+```
+
+Grounding used for this batch:
+
+- CSS Cascading and Inheritance: cascade first determines the winning/cascaded value; specificity is not the first global step.
+- Exercises intentionally fix the environment to normal author declarations without layers/scope so specificity and source order can be observed without teaching the full cascade surface.
+- If comparable declarations have equal specificity in this controlled context, source order breaks the tie.
+- If an element has no cascaded value for an inherited property, defaulting uses the parent's computed value; a non-inherited property instead uses its own initial value.
+- Property initial value is distinct from user-agent stylesheet rules.
+
+Checker boundary:
+
+```text
+machine-checkable:
+  final resolved style on explicit target/non-target elements
+  parent + child result for inheritance exercises
+
+not machine-proven:
+  learner's cascade reasoning path
+  exact selector/source strategy
+```
+
+No `!important` is used in reference solutions, and exercises explicitly discourage it as a default conflict fix.
+
+Fast-gate evidence:
+
+```text
+Lesson orders: 1 / 2
+Exercise orders per Lesson: 1 / 2 / 3
+all new content: draft
+MDX Exercise refs match exercise.order
+all Exercise assets present
+checker types: existing declarative style DSL only
+no duplicate touched stable IDs
+no TODO placeholders in authored assets
+no H1 in Lesson MDX
+```
+
+Batch B remains pending: `values-units-and-functions` and `custom-properties-and-fallbacks`.
+
+Full generated-registry/build/lint/E2E and exhaustive review remain deferred to Task 13 by the scheduled execution contract.

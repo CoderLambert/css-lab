@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.cascade-and-specificity.debug-winning-declaration.001",
+  "revision": 1,
+  "slug": "debug-winning-declaration",
+  "title": "修复真正的 cascade 冲突",
+  "prompt": "starter 中 .alert rule 写在后面，却输给了更 specific 的 .panel p。保留第一条 rule，不使用 !important；调整负责 alert 的 selector，让 alert 显示为 uppercase，同时普通段落保持 none。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先找出同时命中 .alert 的两个 selectors，再比较 specificity。",
+    ".panel p 包含一个 class 和一个 type；单独的 .alert 只有一个 class。",
+    "可以把后一个 selector 改成 .panel .alert，再保留 text-transform: uppercase。"
+  ],
+  "checks": [
+    {
+      "id": "alert-uppercase",
+      "type": "style",
+      "selector": ".alert",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "让 alert 最终显示为 uppercase"
+    },
+    {
+      "id": "ordinary-none",
+      "type": "style",
+      "selector": ".ordinary",
+      "property": "text-transform",
+      "equals": "none",
+      "message": "普通段落应保持不转换"
+    }
+  ]
+}
