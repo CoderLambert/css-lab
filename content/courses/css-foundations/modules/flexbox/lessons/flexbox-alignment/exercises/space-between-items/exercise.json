@@ -8,8 +8,9 @@
   "order": 2,
   "status": "published",
   "hints": [
-    "先让 .container 进入 flex 布局上下文。",
-    "主轴上的分布由 justify-content 控制。"
+    "先确认 .container 已经是 flex container，否则主轴分布属性不会生效。",
+    "默认 row 方向下，主轴是水平方向；题目描述的“起点到终点”是在主轴上分布。",
+    "使用 justify-content 控制主轴剩余空间；目标分布模式是 space-between，同时让交叉轴保持 center。"
   ],
   "checks": [
     {

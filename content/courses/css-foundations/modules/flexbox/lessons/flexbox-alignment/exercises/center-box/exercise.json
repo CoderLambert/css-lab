@@ -8,8 +8,9 @@
   "order": 1,
   "status": "published",
   "hints": [
-    "先确认容器已经进入 flex 布局上下文。",
-    "分别处理主轴与交叉轴的对齐。"
+    "先确认 .container 已经进入 flex 布局上下文；如果 display 仍是 block，后面的对齐属性不会按 Flexbox 工作。",
+    "默认 flex-direction: row 时，主轴是水平方向，交叉轴是垂直方向。",
+    "主轴居中看 justify-content，交叉轴居中看 align-items；这两个方向都需要设置为 center。"
   ],
   "checks": [
     {

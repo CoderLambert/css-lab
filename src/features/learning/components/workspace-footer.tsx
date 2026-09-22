@@ -14,8 +14,11 @@ interface WorkspaceFooterProps {
   isHydrated: boolean;
   previousHref: string | null;
   nextHref: string | null;
+  hintCount: number;
+  revealedHintCount: number;
   onCheck: () => void;
   onReset: () => void;
+  onRevealHint: () => void;
 }
 
 export function WorkspaceFooter({
@@ -23,8 +26,11 @@ export function WorkspaceFooter({
   isHydrated,
   previousHref,
   nextHref,
+  hintCount,
+  revealedHintCount,
   onCheck,
   onReset,
+  onRevealHint,
 }: WorkspaceFooterProps) {
   const previousButton = previousHref ? (
     <Button variant="ghost" size="sm" render={<Link href={previousHref} />}>
@@ -49,6 +55,9 @@ export function WorkspaceFooter({
     </Button>
   );
 
+  const allHintsRevealed =
+    hintCount === 0 || revealedHintCount >= hintCount;
+
   return (
     <footer className="flex h-14 shrink-0 items-center justify-between gap-3 border-t border-border bg-panel px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-1">
@@ -60,9 +69,18 @@ export function WorkspaceFooter({
       </div>
 
       <div className="flex items-center justify-end gap-2">
-        <Button variant="ghost" size="sm" disabled className="hidden sm:inline-flex">
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={allHintsRevealed}
+          onClick={onRevealHint}
+        >
           <Lightbulb />
-          提示
+          <span>
+            {revealedHintCount > 0
+              ? `提示 ${revealedHintCount}/${hintCount}`
+              : "提示"}
+          </span>
         </Button>
         <Button
           size="sm"

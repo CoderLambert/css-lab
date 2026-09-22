@@ -82,6 +82,7 @@ function LearningWorkspaceSession({
   const [checkState, setCheckState] = useState<CheckState>({
     status: "idle",
   });
+  const [revealedHintCount, setRevealedHintCount] = useState(0);
   const requestCounterRef = useRef(0);
   const activeCheckRef = useRef<{
     requestId: string;
@@ -114,6 +115,12 @@ function LearningWorkspaceSession({
     activeCheckRef.current = null;
     resetCss();
     setCheckState({ status: "idle" });
+  };
+
+  const handleRevealHint = () => {
+    setRevealedHintCount((current) =>
+      Math.min(current + 1, exercise.hints.length),
+    );
   };
 
   const handleCheck = () => {
@@ -176,6 +183,8 @@ function LearningWorkspaceSession({
       css={css}
       checkRequest={checkRequest}
       checkState={checkState}
+      hints={exercise.hints}
+      revealedHintCount={revealedHintCount}
       onCheckResult={handleCheckResult}
     />
   );
@@ -249,8 +258,11 @@ function LearningWorkspaceSession({
         isHydrated={isHydrated}
         previousHref={navigation.previousHref}
         nextHref={navigation.nextHref}
+        hintCount={exercise.hints.length}
+        revealedHintCount={revealedHintCount}
         onCheck={handleCheck}
         onReset={handleReset}
+        onRevealHint={handleRevealHint}
       />
     </div>
   );

@@ -12,6 +12,16 @@ export const PREVIEW_MESSAGE_TYPE = {
   ready: "ready",
 } as const;
 
+export const CHECK_RESULT_REASON = {
+  matched: "matched",
+  mismatch: "mismatch",
+  selectorNotFound: "selector-not-found",
+  checkerError: "checker-error",
+} as const;
+
+export type CheckResultReason =
+  (typeof CHECK_RESULT_REASON)[keyof typeof CHECK_RESULT_REASON];
+
 export interface CssUpdateMessage {
   source: typeof PREVIEW_MESSAGE_SOURCE.parent;
   type: typeof PREVIEW_MESSAGE_TYPE.cssUpdate;
@@ -40,6 +50,9 @@ export interface CheckResult {
   passed: boolean;
   expected: string | number | boolean;
   actual: string | number | boolean | null;
+  selector: string | null;
+  property: string | null;
+  reason: CheckResultReason;
 }
 
 export interface CheckResultMessage {
@@ -105,6 +118,19 @@ function isCheckType(value: unknown): value is Check["type"] {
   return value === "style" || value === "exists" || value === "count";
 }
 
+function isCheckResultReason(value: unknown): value is CheckResultReason {
+  return (
+    value === CHECK_RESULT_REASON.matched ||
+    value === CHECK_RESULT_REASON.mismatch ||
+    value === CHECK_RESULT_REASON.selectorNotFound ||
+    value === CHECK_RESULT_REASON.checkerError
+  );
+}
+
+function isNullableString(value: unknown): value is string | null {
+  return value === null || typeof value === "string";
+}
+
 function isCheckResult(value: unknown): value is CheckResult {
   if (!value || typeof value !== "object") {
     return false;
@@ -125,7 +151,10 @@ function isCheckResult(value: unknown): value is CheckResult {
     (result.actual === null ||
       actualType === "string" ||
       actualType === "number" ||
-      actualType === "boolean")
+      actualType === "boolean") &&
+    isNullableString(result.selector) &&
+    isNullableString(result.property) &&
+    isCheckResultReason(result.reason)
   );
 }
 
