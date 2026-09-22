@@ -1,4 +1,5 @@
-import type { Check } from "./schemas/exercise";
+import type { ExerciseWorkspace } from "../workspace/types";
+import type { BrowserRuntimeDefinition, Check } from "./schemas/exercise";
 
 export type EntityStatus = "draft" | "published";
 
@@ -37,7 +38,7 @@ export interface Lesson {
 }
 
 export interface Exercise {
-  schemaVersion: 1;
+  schemaVersion: 2;
   id: string;
   revision: number;
   slug: string;
@@ -50,7 +51,6 @@ export interface Exercise {
   courseId: string;
   moduleId: string;
   lessonId: string;
-  fixtureHtml: string;
-  baseCss: string;
-  starterCss: string;
+  workspace: ExerciseWorkspace;
+  runtime: BrowserRuntimeDefinition;
 }

@@ -3,62 +3,31 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import type { LessonContentInspection, LessonContentInspector, LessonSourceRef } from "../lesson-content-source";
 import { SlugSchema } from "../schemas/common";
-import type {
-  LessonContentInspection,
-  LessonContentInspector,
-  LessonSourceRef,
-} from "../lesson-content-source";
+import { canonicalContentRoot, safeRegularFile } from "./secure-content-path";
 
 function ensureSlug(slug: string): void {
-  if (!SlugSchema.safeParse(slug).success) {
-    throw new Error(`Invalid content slug "${slug}"`);
-  }
+  if (!SlugSchema.safeParse(slug).success) throw new Error("Invalid content slug");
 }
 
 export class FileLessonContentInspector implements LessonContentInspector {
-  private readonly coursesRoot: string;
+  constructor(private readonly configuredCoursesRoot = join(process.cwd(), "content", "courses")) {}
 
-  constructor(coursesRoot = join(process.cwd(), "content", "courses")) {
-    this.coursesRoot = coursesRoot;
-  }
-
-  async inspectLessonContent(
-    source: LessonSourceRef,
-  ): Promise<LessonContentInspection> {
+  async inspectLessonContent(source: LessonSourceRef): Promise<LessonContentInspection> {
     ensureSlug(source.courseSlug);
     ensureSlug(source.moduleSlug);
     ensureSlug(source.lessonSlug);
-
-    const contentPath = join(
-      this.coursesRoot,
-      source.courseSlug,
-      "modules",
-      source.moduleSlug,
-      "lessons",
-      source.lessonSlug,
-      "lesson.mdx",
-    );
-
-    let content: string;
-
+    const root = await canonicalContentRoot(this.configuredCoursesRoot);
+    const path = await safeRegularFile(root, [
+      source.courseSlug, "modules", source.moduleSlug, "lessons", source.lessonSlug, "lesson.mdx",
+    ], { allowMissing: true });
+    if (!path) return { exists: false, isEmpty: true };
     try {
-      content = await readFile(contentPath, "utf8");
+      const content = await readFile(path, "utf8");
+      return { exists: true, isEmpty: content.trim().length === 0 };
     } catch (error) {
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        (error as NodeJS.ErrnoException).code === "ENOENT"
-      ) {
-        return { exists: false, isEmpty: true };
-      }
-
       throw new Error("Failed to inspect lesson content", { cause: error });
     }
-
-    return {
-      exists: true,
-      isEmpty: content.trim().length === 0,
-    };
   }
 }

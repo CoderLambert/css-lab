@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "css.flexbox.alignment.center-box.001",
   "revision": 1,
   "slug": "center-box",
@@ -13,29 +13,14 @@
     "主轴居中看 justify-content，交叉轴居中看 align-items；这两个方向都需要设置为 center。"
   ],
   "checks": [
-    {
-      "id": "container-display-flex",
-      "type": "style",
-      "selector": ".container",
-      "property": "display",
-      "equals": "flex",
-      "message": "将 .container 设置为 flex 布局"
-    },
-    {
-      "id": "container-justify-content-center",
-      "type": "style",
-      "selector": ".container",
-      "property": "justify-content",
-      "equals": "center",
-      "message": "将主轴上的内容居中"
-    },
-    {
-      "id": "container-align-items-center",
-      "type": "style",
-      "selector": ".container",
-      "property": "align-items",
-      "equals": "center",
-      "message": "将交叉轴上的内容居中"
-    }
-  ]
+    {"id":"container-display-flex","type":"style","selector":".container","property":"display","equals":"flex","message":"将 .container 设置为 flex 布局"},
+    {"id":"container-justify-content-center","type":"style","selector":".container","property":"justify-content","equals":"center","message":"将主轴上的内容居中"},
+    {"id":"container-align-items-center","type":"style","selector":".container","property":"align-items","equals":"center","message":"将交叉轴上的内容居中"}
+  ],
+  "workspace": {"files":[
+    {"path":"index.html","language":"html","editable":false},
+    {"path":"base.css","language":"css","editable":false},
+    {"path":"style.css","language":"css","editable":true}
+  ]},
+  "runtime": {"type":"browser","entry":"index.html"}
 }

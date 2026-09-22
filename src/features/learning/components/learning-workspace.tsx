@@ -18,6 +18,7 @@ import type { CheckResultMessage } from "@/features/exercise/lib/preview-message
 import { useExerciseProgress } from "@/features/progress/hooks/use-exercise-progress";
 import { useLearningProgress } from "@/features/progress/hooks/use-learning-progress";
 import type { Course, Exercise, Lesson, Module } from "@/lib/content/types";
+import { deriveLegacyCssExerciseInputs } from "../lib/legacy-css-exercise-bridge";
 import type { LearnerNavigation } from "../lib/learner-navigation";
 import { EditorPanel } from "./editor-panel";
 import { LessonPanel } from "./lesson-panel";
@@ -39,38 +40,23 @@ const DESKTOP_WORKSPACE_QUERY = "(min-width: 1200px)";
 function subscribeToDesktopWorkspace(onStoreChange: () => void): () => void {
   const mediaQuery = window.matchMedia(DESKTOP_WORKSPACE_QUERY);
   mediaQuery.addEventListener("change", onStoreChange);
-
-  return () => {
-    mediaQuery.removeEventListener("change", onStoreChange);
-  };
+  return () => mediaQuery.removeEventListener("change", onStoreChange);
 }
-
 function getDesktopWorkspaceSnapshot(): boolean {
   return window.matchMedia(DESKTOP_WORKSPACE_QUERY).matches;
 }
-
 function getDesktopWorkspaceServerSnapshot(): boolean {
   return false;
 }
 
 function LearningWorkspaceSession({
-  course,
-  module,
-  lesson,
-  lessonContent,
-  exercise,
-  navigation,
+  course, module, lesson, lessonContent, exercise, navigation,
 }: LearningWorkspaceProps) {
-  const {
-    css,
-    isHydrated,
-    updateCss,
-    resetCss,
-    markCompleted,
-  } = useExerciseProgress({
+  const legacyCss = useMemo(() => deriveLegacyCssExerciseInputs(exercise), [exercise]);
+  const { css, isHydrated, updateCss, resetCss, markCompleted } = useExerciseProgress({
     exerciseId: exercise.id,
     revision: exercise.revision,
-    starterCss: exercise.starterCss,
+    starterCss: legacyCss.starterCss,
   });
   const [progressRefreshToken, setProgressRefreshToken] = useState(0);
   const { isHydrated: isProgressHydrated, progress } = useLearningProgress({
@@ -79,15 +65,10 @@ function LearningWorkspaceSession({
     currentLessonId: lesson.id,
     refreshToken: progressRefreshToken,
   });
-  const [checkState, setCheckState] = useState<CheckState>({
-    status: "idle",
-  });
+  const [checkState, setCheckState] = useState<CheckState>({ status: "idle" });
   const [revealedHintCount, setRevealedHintCount] = useState(0);
   const requestCounterRef = useRef(0);
-  const activeCheckRef = useRef<{
-    requestId: string;
-    code: string;
-  } | null>(null);
+  const activeCheckRef = useRef<{ requestId: string; code: string } | null>(null);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
     getDesktopWorkspaceSnapshot,
@@ -95,13 +76,9 @@ function LearningWorkspaceSession({
   );
 
   const checkRequest = useMemo(
-    () =>
-      checkState.status === "checking"
-        ? {
-            requestId: checkState.requestId,
-            checks: exercise.checks,
-          }
-        : null,
+    () => checkState.status === "checking"
+      ? { requestId: checkState.requestId, checks: exercise.checks }
+      : null,
     [checkState, exercise.checks],
   );
 
@@ -110,44 +87,24 @@ function LearningWorkspaceSession({
     updateCss(nextCss);
     setCheckState({ status: "idle" });
   };
-
   const handleReset = () => {
     activeCheckRef.current = null;
     resetCss();
     setCheckState({ status: "idle" });
   };
-
   const handleRevealHint = () => {
-    setRevealedHintCount((current) =>
-      Math.min(current + 1, exercise.hints.length),
-    );
+    setRevealedHintCount((current) => Math.min(current + 1, exercise.hints.length));
   };
-
   const handleCheck = () => {
-    if (!isHydrated) {
-      return;
-    }
-
+    if (!isHydrated) return;
     requestCounterRef.current += 1;
-    const requestId = `${exercise.id}:${requestCounterRef.current}`;
-
-    activeCheckRef.current = {
-      requestId,
-      code: css,
-    };
-    setCheckState({
-      status: "checking",
-      requestId,
-    });
+    const requestId = exercise.id + ":" + requestCounterRef.current;
+    activeCheckRef.current = { requestId, code: css };
+    setCheckState({ status: "checking", requestId });
   };
-
   const handleCheckResult = (result: CheckResultMessage) => {
     const activeCheck = activeCheckRef.current;
-
-    if (!activeCheck || activeCheck.requestId !== result.requestId) {
-      return;
-    }
-
+    if (!activeCheck || activeCheck.requestId !== result.requestId) return;
     activeCheckRef.current = null;
     setCheckState({
       status: "complete",
@@ -155,31 +112,20 @@ function LearningWorkspaceSession({
       passed: result.passed,
       results: result.results,
     });
-
     if (result.passed) {
       void markCompleted(activeCheck.code)
-        .then(() => {
-          setProgressRefreshToken((current) => current + 1);
-        })
-        .catch(() => {
-          // The checker result remains successful if persistence is unavailable.
-        });
+        .then(() => setProgressRefreshToken((current) => current + 1))
+        .catch(() => {});
     }
   };
 
   const lessonPanel = (
-    <LessonPanel
-      moduleTitle={module.title}
-      lesson={lesson}
-      lessonContent={lessonContent}
-      exercise={exercise}
-    />
+    <LessonPanel moduleTitle={module.title} lesson={lesson} lessonContent={lessonContent} exercise={exercise} />
   );
-
   const previewPanel = (
     <PreviewPanel
-      html={exercise.fixtureHtml}
-      baseCss={exercise.baseCss}
+      html={legacyCss.html}
+      baseCss={legacyCss.baseCss}
       css={css}
       checkRequest={checkRequest}
       checkState={checkState}
@@ -199,38 +145,20 @@ function LearningWorkspaceSession({
         progressPercent={progress.course.percent}
         isProgressHydrated={isProgressHydrated}
       />
-
       <main className="min-h-0 flex-1 bg-workspace">
         {isDesktopWorkspace ? (
           <ResizablePanelGroup orientation="horizontal" className="h-full">
-            <ResizablePanel
-              defaultSize="34"
-              minSize="28"
-              maxSize="42"
-              className="min-w-0"
-            >
+            <ResizablePanel defaultSize="34" minSize="28" maxSize="42" className="min-w-0">
               {lessonPanel}
             </ResizablePanel>
-
             <ResizableHandle />
-
             <ResizablePanel defaultSize="66" minSize="58" className="min-w-0">
               <ResizablePanelGroup orientation="horizontal" className="h-full">
-                <ResizablePanel
-                  defaultSize="62"
-                  minSize="48"
-                  className="min-w-0"
-                >
+                <ResizablePanel defaultSize="62" minSize="48" className="min-w-0">
                   <EditorPanel value={css} onChange={handleCssChange} />
                 </ResizablePanel>
-
                 <ResizableHandle />
-
-                <ResizablePanel
-                  defaultSize="38"
-                  minSize="30"
-                  className="min-w-0"
-                >
+                <ResizablePanel defaultSize="38" minSize="30" className="min-w-0">
                   {previewPanel}
                 </ResizablePanel>
               </ResizablePanelGroup>
@@ -239,20 +167,15 @@ function LearningWorkspaceSession({
         ) : (
           <div className="h-full overflow-y-auto">
             <div className="grid min-h-full grid-cols-1 min-[800px]:grid-cols-2">
-              <div className="min-h-[620px] min-w-0 border-b border-border min-[800px]:border-r">
-                {lessonPanel}
-              </div>
+              <div className="min-h-[620px] min-w-0 border-b border-border min-[800px]:border-r">{lessonPanel}</div>
               <div className="min-h-[620px] min-w-0 border-b border-border">
                 <EditorPanel value={css} onChange={handleCssChange} />
               </div>
-              <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
-                {previewPanel}
-              </div>
+              <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">{previewPanel}</div>
             </div>
           </div>
         )}
       </main>
-
       <WorkspaceFooter
         isChecking={checkState.status === "checking"}
         isHydrated={isHydrated}
@@ -268,23 +191,6 @@ function LearningWorkspaceSession({
   );
 }
 
-export function LearningWorkspace({
-  course,
-  module,
-  lesson,
-  lessonContent,
-  exercise,
-  navigation,
-}: LearningWorkspaceProps) {
-  return (
-    <LearningWorkspaceSession
-      key={`${exercise.id}:${exercise.revision}`}
-      course={course}
-      module={module}
-      lesson={lesson}
-      lessonContent={lessonContent}
-      exercise={exercise}
-      navigation={navigation}
-    />
-  );
+export function LearningWorkspace(props: LearningWorkspaceProps) {
+  return <LearningWorkspaceSession key={props.exercise.id + ":" + props.exercise.revision} {...props} />;
 }

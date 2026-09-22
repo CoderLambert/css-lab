@@ -1,57 +1,25 @@
 # Exercise Design Guide
 
-Each Exercise should test one primary learning objective while remaining realistic enough to make the result observable.
+Each Exercise should test one primary learning objective.
 
-Before writing files, define:
-
-- objective
-- editable surface
-- fixture purpose
-- starter state
-- expected behavior
-- progressive hints
-- checker strategy
-- reference solution
+Before writing files, define objective, editable surface, starter state, expected behavior, progressive hints, checker strategy, and reference solution.
 
 ## File responsibilities
 
-### fixture.html
+### starter/index.html
+Use the smallest DOM needed to make the objective concrete.
 
-Use the smallest DOM needed to make the learning objective concrete.
+### starter/base.css
+Fixed visual/setup CSS only. Never hide answer properties here.
 
-### base.css
+### starter/style.css
+Learner starting CSS only.
 
-Contains fixed visual/setup CSS only.
-
-Never hide answer properties here.
-
-### starter.css
-
-Contains only the learner's starting point.
-
-Do not repeatedly make learners re-enter knowledge already established unless repetition is itself the objective.
-
-### solution.css
-
+### solution/style.css
 Authoring/reference solution only. It must not be relied on by learner runtime code.
 
 ## Progressive hints
-
-Hints move from conceptual to concrete:
-
-1. locate the problem domain
-2. remind the relevant mental model
-3. provide a near-implementation direction
-
-Do not reveal the final answer in the first hint.
+Move from conceptual to concrete: locate the problem domain, remind the mental model, then provide near-implementation direction. Do not reveal the final answer in the first hint.
 
 ## Difficulty progression
-
-A sequence should change the reasoning demand, not just the selector names.
-
-Examples:
-
-- identify the relevant axis
-- apply the property in a straightforward case
-- handle a changed direction/layout context
-- diagnose a plausible failure
+Change reasoning demand, not just selector names.
