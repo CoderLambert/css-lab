@@ -36,8 +36,10 @@ class ColorSwatchWidget extends WidgetType {
     super();
   }
 
-  eq(other: ColorSwatchWidget): boolean {
-    return other.color === this.color;
+  eq(other: WidgetType): boolean {
+    return (
+      other instanceof ColorSwatchWidget && other.color === this.color
+    );
   }
 
   toDOM(): HTMLElement {
