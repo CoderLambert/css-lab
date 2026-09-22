@@ -1,0 +1,22 @@
+## TODO: define the core idea
+
+TODO: explain the learner-facing problem for {{LESSON_TITLE}}.
+
+<Concept title="TODO: define the mental model">
+
+TODO: explain why the concept works.
+
+</Concept>
+
+## TODO: test the mental model
+
+<Predict
+  question="TODO: write a prediction question."
+  options={["TODO option A", "TODO option B"]}
+  answer="TODO option A"
+  explanation="TODO: explain the result."
+/>
+
+## TODO: connect to practice
+
+TODO: add Compare or Exercise activities only after the lesson flow is designed.
