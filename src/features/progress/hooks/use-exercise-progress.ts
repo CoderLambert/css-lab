@@ -13,9 +13,10 @@ interface UseExerciseProgressInput {
 
 interface UseExerciseProgressResult {
   css: string;
+  isHydrated: boolean;
   updateCss: (nextCss: string) => void;
   resetCss: () => void;
-  markCompleted: () => void;
+  markCompleted: (code: string) => void;
 }
 
 const progressStore: ProgressStore = new IndexedDbProgressStore();
@@ -32,30 +33,42 @@ export function useExerciseProgress({
   starterCss,
 }: UseExerciseProgressInput): UseExerciseProgressResult {
   const [css, setCss] = useState(starterCss);
+  const [hydratedExerciseKey, setHydratedExerciseKey] = useState<string | null>(
+    null,
+  );
   const hasLocalMutationRef = useRef(false);
+  const exerciseKey = `${exerciseId}:${revision}`;
 
   useEffect(() => {
     let cancelled = false;
+    hasLocalMutationRef.current = false;
 
     void progressStore
       .getExercise(exerciseId, revision)
       .then((savedProgress) => {
-        if (
-          cancelled ||
-          hasLocalMutationRef.current ||
-          !savedProgress
-        ) {
+        if (cancelled) {
           return;
         }
 
-        setCss(savedProgress.code);
+        if (!hasLocalMutationRef.current && savedProgress) {
+          setCss(savedProgress.code);
+        }
+
+        setHydratedExerciseKey(exerciseKey);
       })
-      .catch(reportPersistenceError);
+      .catch((error: unknown) => {
+        if (cancelled) {
+          return;
+        }
+
+        reportPersistenceError(error);
+        setHydratedExerciseKey(exerciseKey);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [exerciseId, revision]);
+  }, [exerciseId, exerciseKey, revision]);
 
   const saveCode = (nextCss: string) => {
     void progressStore
@@ -80,7 +93,7 @@ export function useExerciseProgress({
     saveCode(starterCss);
   };
 
-  const markCompleted = () => {
+  const markCompleted = (code: string) => {
     hasLocalMutationRef.current = true;
     const now = Date.now();
 
@@ -88,7 +101,7 @@ export function useExerciseProgress({
       .markCompleted({
         exerciseId,
         revision,
-        code: css,
+        code,
         updatedAt: now,
         completedAt: now,
       })
@@ -97,6 +110,7 @@ export function useExerciseProgress({
 
   return {
     css,
+    isHydrated: hydratedExerciseKey === exerciseKey,
     updateCss,
     resetCss,
     markCompleted,

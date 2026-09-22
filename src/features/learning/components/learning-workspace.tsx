@@ -47,6 +47,7 @@ function LearningWorkspaceSession({
 }: LearningWorkspaceProps) {
   const {
     css,
+    isHydrated,
     updateCss,
     resetCss,
     markCompleted,
@@ -59,7 +60,10 @@ function LearningWorkspaceSession({
     status: "idle",
   });
   const requestCounterRef = useRef(0);
-  const activeCheckRequestIdRef = useRef<string | null>(null);
+  const activeCheckRef = useRef<{
+    requestId: string;
+    code: string;
+  } | null>(null);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
     getDesktopWorkspaceSnapshot,
@@ -78,22 +82,29 @@ function LearningWorkspaceSession({
   );
 
   const handleCssChange = (nextCss: string) => {
-    activeCheckRequestIdRef.current = null;
+    activeCheckRef.current = null;
     updateCss(nextCss);
     setCheckState({ status: "idle" });
   };
 
   const handleReset = () => {
-    activeCheckRequestIdRef.current = null;
+    activeCheckRef.current = null;
     resetCss();
     setCheckState({ status: "idle" });
   };
 
   const handleCheck = () => {
+    if (!isHydrated) {
+      return;
+    }
+
     requestCounterRef.current += 1;
     const requestId = `${exercise.id}:${requestCounterRef.current}`;
 
-    activeCheckRequestIdRef.current = requestId;
+    activeCheckRef.current = {
+      requestId,
+      code: css,
+    };
     setCheckState({
       status: "checking",
       requestId,
@@ -101,11 +112,13 @@ function LearningWorkspaceSession({
   };
 
   const handleCheckResult = (result: CheckResultMessage) => {
-    if (activeCheckRequestIdRef.current !== result.requestId) {
+    const activeCheck = activeCheckRef.current;
+
+    if (!activeCheck || activeCheck.requestId !== result.requestId) {
       return;
     }
 
-    activeCheckRequestIdRef.current = null;
+    activeCheckRef.current = null;
     setCheckState({
       status: "complete",
       requestId: result.requestId,
@@ -114,7 +127,7 @@ function LearningWorkspaceSession({
     });
 
     if (result.passed) {
-      markCompleted();
+      markCompleted(activeCheck.code);
     }
   };
 
@@ -177,6 +190,7 @@ function LearningWorkspaceSession({
 
         <WorkspaceFooter
           isChecking={checkState.status === "checking"}
+          isHydrated={isHydrated}
           onCheck={handleCheck}
           onReset={handleReset}
         />

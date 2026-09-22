@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 
 interface WorkspaceFooterProps {
   isChecking: boolean;
+  isHydrated: boolean;
   onCheck: () => void;
   onReset: () => void;
 }
 
 export function WorkspaceFooter({
   isChecking,
+  isHydrated,
   onCheck,
   onReset,
 }: WorkspaceFooterProps) {
@@ -30,9 +32,13 @@ export function WorkspaceFooter({
           <Lightbulb />
           提示
         </Button>
-        <Button size="sm" disabled={isChecking} onClick={onCheck}>
+        <Button
+          size="sm"
+          disabled={isChecking || !isHydrated}
+          onClick={onCheck}
+        >
           <Check />
-          {isChecking ? "检查中…" : "检查答案"}
+          {!isHydrated ? "准备中…" : isChecking ? "检查中…" : "检查答案"}
         </Button>
       </div>
     </footer>
