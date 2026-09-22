@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.box-model-and-box-sizing.debug-sizing-assumption.001",
+  "revision": 1,
+  "slug": "debug-sizing-assumption",
+  "title": "修复尺寸假设",
+  "prompt": "starter 中 .notice 需要保留 100% width、20px padding 和 4px border。不要删 spacing；改用正确的 box-sizing，让 width 不再只描述 content box。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先找出是哪一个 sizing assumption 让 padding/border 被加到 100% width 外面。",
+    "padding 和 border 都是设计要求，不是应该删除的 bug。",
+    "把 .notice 改成 border-box。"
+  ],
+  "checks": [
+    {
+      "id": "box-sizing",
+      "type": "style",
+      "selector": ".notice",
+      "property": "box-sizing",
+      "equals": "border-box",
+      "message": "用 border-box 修复 sizing assumption"
+    },
+    {
+      "id": "padding-kept",
+      "type": "style",
+      "selector": ".notice",
+      "property": "padding-left",
+      "equals": "20px",
+      "message": "保留 20px padding"
+    },
+    {
+      "id": "border-kept",
+      "type": "style",
+      "selector": ".notice",
+      "property": "border-left-width",
+      "equals": "4px",
+      "message": "保留 4px border"
+    }
+  ]
+}
