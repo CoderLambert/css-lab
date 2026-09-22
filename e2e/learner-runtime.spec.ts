@@ -172,14 +172,20 @@ test("failed checks explain actual values, hints reveal progressively, and equiv
 
   await page.getByRole("button", { name: "检查答案" }).click();
 
+  const checkResults = page.getByRole("region", { name: "检查结果" });
+
   await expect(
-    page.getByText("当前实现还未满足全部条件"),
+    checkResults.getByText("当前实现还未满足全部条件"),
   ).toBeVisible();
-  await expect(page.getByText("当前值")).toBeVisible();
-  await expect(page.getByText("stretch", { exact: true })).toBeVisible();
-  await expect(page.getByText("flex-end / end", { exact: true })).toBeVisible();
+  await expect(checkResults.getByText("当前值")).toBeVisible();
   await expect(
-    page.getByText("检测器已正常执行；这里是当前实现与验收条件不一致，不是检测器运行失败。"),
+    checkResults.getByText("stretch", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    checkResults.getByText("flex-end / end", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    checkResults.getByText("检测器已正常执行；这里是当前实现与验收条件不一致，不是检测器运行失败。"),
   ).toBeVisible();
 
   await page.getByRole("button", { name: "提示" }).click();
