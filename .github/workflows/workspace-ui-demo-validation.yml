@@ -1,1 +1,35 @@
-name: Workspace UI Demo Validation\n\non:\n  push:\n    branches:\n      - feat/mdx-learning-flow-demo\n\npermissions:\n  contents: read\n\njobs:\n  validate:\n    runs-on: ubuntu-latest\n    timeout-minutes: 20\n\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v7\n\n      - name: Setup pnpm and Node\n        uses: pnpm/setup@v3\n        with:\n          version: 12.5.1\n          runtime: node@24\n          cache: true\n          install: false\n\n      - name: Install dependencies\n        run: pnpm install --frozen-lockfile\n\n      - name: Lint\n        run: pnpm lint\n\n      - name: Build\n        run: pnpm build\n
+name: Workspace UI Demo Validation
+
+on:
+  push:
+    branches:
+      - feat/mdx-learning-flow-demo
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          version: 12.5.1
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
