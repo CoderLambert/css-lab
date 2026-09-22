@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css",
+  "slug": "responsive-css",
+  "title": "响应式 CSS",
+  "description": "理解 CSS 如何根据可用空间与环境条件调整布局与表现。",
+  "order": 8,
+  "status": "draft"
+}

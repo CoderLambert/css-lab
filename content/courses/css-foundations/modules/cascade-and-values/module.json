@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values",
+  "slug": "cascade-and-values",
+  "title": "层叠、继承与值",
+  "description": "理解候选声明如何经过层叠、继承和值处理得到最终样式结果。",
+  "order": 2,
+  "status": "draft"
+}

@@ -174,3 +174,58 @@ git diff --check
 - [ ] all gates pass。
 
 完成后，Course 已具备按 Module 小批生产内容的结构基础。
+
+
+---
+
+## 9. Scheduled execution status
+
+Task 03 is complete under the scheduled execution override.
+
+### Deterministic operations executed
+
+- `inspect-context.mjs --course css-foundations --module flexbox` executed against the current branch baseline.
+- `reorder.mjs module` dry-run then apply: `flexbox 1 → 5`.
+- `reorder.mjs lesson` dry-run then apply: `flexbox-alignment 1 → 2`.
+- Eight missing Modules created with `scaffold.mjs module` and explicit final orders.
+- Final full Module mapping dry-run reports `changed: 0`.
+- Final Flexbox Lesson mapping dry-run reports `changed: 0`.
+
+### Stable Module IDs frozen by this task
+
+```text
+css-language-and-selection       css.language-and-selection
+cascade-and-values               css.cascade-and-values
+box-model-and-flow               css.box-model-and-flow
+visual-styling-and-typography    css.visual-styling-and-typography
+flexbox                          css.flexbox
+grid                             css.grid
+flow-positioning-and-layering    css.flow-positioning-and-layering
+responsive-css                   css.responsive-css
+integration-and-debugging        css.integration-and-debugging
+```
+
+The IDs follow the existing `css.<semantic-identity>` convention and now form the stable identity baseline for subsequent curriculum production.
+
+### Fast-gate evidence
+
+```text
+9 Module metadata records present
+orders exactly 1..9
+all Module IDs unique
+all Module slugs unique
+8 new Modules status = draft
+existing flexbox status = published
+flexbox stable id/slug preserved
+flexbox-alignment stable id/slug/status preserved
+flexbox-alignment order = 2
+existing three Exercise directories remain present
+no additional Lesson created
+deterministic final reorder dry-runs = no-op
+metadata validation = passed
+main still docs-only M6A v5; no Exercise contract cutover
+```
+
+Full `content:generate / content:check / test:content / lint / build / E2E` verification remains deferred to Task 13 by the scheduled execution contract. No learner-facing prose or Exercise assets were changed in Task 03.
+
+Lane B may begin Task 04 from this point.
