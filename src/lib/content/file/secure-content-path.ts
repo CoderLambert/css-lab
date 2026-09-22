@@ -1,5 +1,3 @@
-import "server-only";
-
 import { lstat, readdir, realpath } from "node:fs/promises";
 import { isAbsolute, join, relative, sep } from "node:path";
 

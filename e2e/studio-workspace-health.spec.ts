@@ -283,3 +283,51 @@ test("existing duplicate order and duplicate check id rules remain active", asyn
     }),
   );
 });
+
+
+test("duplicate stable id and published-child-hidden rules remain active", async () => {
+  const duplicateStableId = await audit(
+    makeExercise({ id: lesson.id }),
+    {
+      starterPaths: ["index.html", "style.css"],
+      solutionPaths: ["style.css"],
+    },
+  );
+
+  expect(duplicateStableId.issues).toContainEqual(
+    expect.objectContaining({
+      code: "duplicate-stable-id",
+      severity: "error",
+    }),
+  );
+
+  const draftModule = {
+    ...courseModule,
+    status: "draft" as const,
+  };
+  const exercise = makeExercise();
+  const hiddenReader: ContentReader = {
+    ...reader(exercise),
+    listModules: async () => [draftModule],
+    getModuleBySlug: async () => draftModule,
+  };
+  const hidden = await readStudioContentHealth(
+    hiddenReader,
+    {
+      lessonContentInspector,
+      exerciseSourceInspector: exerciseInspector({
+        starterPaths: ["index.html", "style.css"],
+        solutionPaths: ["style.css"],
+      }),
+    },
+  );
+
+  expect(hidden.issues).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        code: "published-child-hidden",
+        severity: "warning",
+      }),
+    ]),
+  );
+});

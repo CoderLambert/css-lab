@@ -1,5 +1,3 @@
-import "server-only";
-
 import type { ExerciseAssetInspection, ExerciseSourceInspector } from "@/lib/content/exercise-source";
 import type { ContentReader } from "@/lib/content/reader";
 import type { LessonContentInspector } from "@/lib/content/lesson-content-source";

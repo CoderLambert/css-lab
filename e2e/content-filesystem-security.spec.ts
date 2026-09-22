@@ -2,16 +2,20 @@ import { expect, test } from "@playwright/test";
 import {
   mkdir,
   mkdtemp,
+  readFile,
+  rename,
   rm,
   symlink,
   writeFile,
 } from "node:fs/promises";
+import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
-import { FileContentReader } from "../src/lib/content/file/file-content-reader";
-import { FileExerciseSourceInspector } from "../src/lib/content/file/file-exercise-source-inspector";
-import { FileLessonContentInspector } from "../src/lib/content/file/file-lesson-content-inspector";
+import { readStudioContentHealth } from "../src/features/studio/lib/content-health";
+import { FileContentReader } from "../src/lib/content/file/file-content-reader-impl";
+import { FileExerciseSourceInspector } from "../src/lib/content/file/file-exercise-source-inspector-impl";
+import { FileLessonContentInspector } from "../src/lib/content/file/file-lesson-content-inspector-impl";
 
 async function writeJson(path: string, value: unknown): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
@@ -283,5 +287,276 @@ test("source inspector rejects unsafe undeclared starter entry", async () => {
     ).rejects.toThrow(/Failed to inspect exercise source/);
   } finally {
     await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+
+async function createUnixSocket(path: string) {
+  const server = createServer();
+
+  await new Promise<void>((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(path, resolve);
+  });
+
+  return server;
+}
+
+test("configured coursesRoot symlink is allowed but descendant symlinks are not", async () => {
+  test.skip(process.platform === "win32");
+
+  const rootAliasFixture = await fixture();
+
+  try {
+    const alias = join(rootAliasFixture.root, "courses-alias");
+    await symlink(rootAliasFixture.courses, alias, "dir");
+
+    await expect(
+      new FileContentReader(alias).getExerciseBySlug(
+        "course",
+        "module",
+        "lesson",
+        "exercise",
+      ),
+    ).resolves.toMatchObject({ id: "exercise-id" });
+  } finally {
+    await rm(rootAliasFixture.root, { recursive: true, force: true });
+  }
+
+  const cases = [
+    {
+      label: "course",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        join(f.courses, "course"),
+      direct: (reader: FileContentReader) =>
+        reader.getCourseBySlug("course"),
+      list: (reader: FileContentReader) =>
+        reader.listCourses(),
+    },
+    {
+      label: "module",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        join(f.courses, "course", "modules", "module"),
+      direct: (reader: FileContentReader) =>
+        reader.getModuleBySlug("course", "module"),
+      list: (reader: FileContentReader) =>
+        reader.listModules("course"),
+    },
+    {
+      label: "lesson",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        f.lesson,
+      direct: (reader: FileContentReader) =>
+        reader.getLessonBySlug("course", "module", "lesson"),
+      list: (reader: FileContentReader) =>
+        reader.listLessons("course", "module"),
+    },
+    {
+      label: "exercise",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        f.exercise,
+      direct: (reader: FileContentReader) =>
+        reader.getExerciseBySlug("course", "module", "lesson", "exercise"),
+      list: (reader: FileContentReader) =>
+        reader.listExercises("course", "module", "lesson"),
+    },
+  ];
+
+  for (const entry of cases) {
+    const f = await fixture();
+
+    try {
+      const original = entry.path(f);
+      const outside = join(f.root, "outside-" + entry.label);
+      await rename(original, outside);
+      await symlink(outside, original, "dir");
+
+      const reader = new FileContentReader(f.courses);
+
+      await expect(entry.direct(reader)).rejects.toThrow();
+      await expect(entry.list(reader)).rejects.toThrow();
+    } finally {
+      await rm(f.root, { recursive: true, force: true });
+    }
+  }
+});
+
+test("all metadata final files reject symlink and non-regular targets", async () => {
+  test.skip(process.platform === "win32");
+
+  const cases = [
+    {
+      label: "course",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        join(f.courses, "course", "course.json"),
+      read: (reader: FileContentReader) =>
+        reader.getCourseBySlug("course"),
+    },
+    {
+      label: "module",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        join(f.courses, "course", "modules", "module", "module.json"),
+      read: (reader: FileContentReader) =>
+        reader.getModuleBySlug("course", "module"),
+    },
+    {
+      label: "lesson",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        join(f.lesson, "lesson.json"),
+      read: (reader: FileContentReader) =>
+        reader.getLessonBySlug("course", "module", "lesson"),
+    },
+    {
+      label: "exercise",
+      path: (f: Awaited<ReturnType<typeof fixture>>) =>
+        join(f.exercise, "exercise.json"),
+      read: (reader: FileContentReader) =>
+        reader.getExerciseBySlug("course", "module", "lesson", "exercise"),
+    },
+  ];
+
+  for (const entry of cases) {
+    const linked = await fixture();
+
+    try {
+      const path = entry.path(linked);
+      const outside = join(linked.root, entry.label + ".json");
+      await writeFile(outside, await readFile(path, "utf8"), "utf8");
+      await rm(path);
+      await symlink(outside, path);
+
+      await expect(
+        entry.read(new FileContentReader(linked.courses)),
+      ).rejects.toThrow(/regular file|non-symlink|Content/);
+    } finally {
+      await rm(linked.root, { recursive: true, force: true });
+    }
+
+    const nonRegular = await fixture();
+
+    try {
+      const path = entry.path(nonRegular);
+      await rm(path);
+      await mkdir(path);
+
+      await expect(
+        entry.read(new FileContentReader(nonRegular.courses)),
+      ).rejects.toThrow(/regular file|Content/);
+    } finally {
+      await rm(nonRegular.root, { recursive: true, force: true });
+    }
+  }
+});
+
+test("lesson.mdx non-regular target fails closed while missing semantics stay separate", async () => {
+  const f = await fixture();
+
+  try {
+    const path = join(f.lesson, "lesson.mdx");
+    await rm(path);
+    await mkdir(path);
+
+    await expect(
+      new FileLessonContentInspector(f.courses).inspectLessonContent({
+        courseSlug: "course",
+        moduleSlug: "module",
+        lessonSlug: "lesson",
+      }),
+    ).rejects.toThrow(/regular file|Content/);
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("source inspector rejects non-regular source-only starter and solution entries", async () => {
+  test.skip(process.platform === "win32");
+
+  for (const directory of ["starter", "solution"] as const) {
+    const f = await fixture();
+    let server: ReturnType<typeof createServer> | null = null;
+
+    try {
+      server = await createUnixSocket(
+        join(f.exercise, directory, "rogue.sock"),
+      );
+
+      await expect(
+        new FileExerciseSourceInspector(f.courses).inspectExercise({
+          courseSlug: "course",
+          moduleSlug: "module",
+          lessonSlug: "lesson",
+          exerciseSlug: "exercise",
+        }),
+      ).rejects.toThrow(/Failed to inspect exercise source/);
+    } finally {
+      if (server) {
+        await new Promise<void>((resolve) => {
+          server!.close(() => resolve());
+        });
+      }
+      await rm(f.root, { recursive: true, force: true });
+    }
+  }
+});
+
+test("Reader hard-load and source-only Studio health are mutually exclusive", async () => {
+  test.skip(process.platform === "win32");
+
+  const declared = await fixture();
+
+  try {
+    const outside = join(declared.root, "declared.css");
+    await writeFile(outside, "outside", "utf8");
+    const path = join(declared.exercise, "starter", "style.css");
+    await rm(path);
+    await symlink(outside, path);
+
+    await expect(
+      readStudioContentHealth(
+        new FileContentReader(declared.courses),
+        {
+          lessonContentInspector:
+            new FileLessonContentInspector(declared.courses),
+          exerciseSourceInspector:
+            new FileExerciseSourceInspector(declared.courses),
+        },
+      ),
+    ).rejects.toThrow();
+  } finally {
+    await rm(declared.root, { recursive: true, force: true });
+  }
+
+  const sourceOnly = await fixture();
+
+  try {
+    const outside = join(sourceOnly.root, "solution.css");
+    await writeFile(outside, "outside", "utf8");
+    const path = join(sourceOnly.exercise, "solution", "style.css");
+    await rm(path);
+    await symlink(outside, path);
+
+    const report = await readStudioContentHealth(
+      new FileContentReader(sourceOnly.courses),
+      {
+        lessonContentInspector:
+          new FileLessonContentInspector(sourceOnly.courses),
+        exerciseSourceInspector:
+          new FileExerciseSourceInspector(sourceOnly.courses),
+      },
+    );
+
+    const issue = report.issues.find(
+      (candidate) =>
+        candidate.code === "exercise-source-inspection-failed",
+    );
+
+    expect(issue).toMatchObject({
+      severity: "error",
+      location: expect.stringContaining("exercise:exercise"),
+    });
+    expect(issue?.message).not.toContain(sourceOnly.root);
+    expect(issue?.location).not.toContain(sourceOnly.root);
+  } finally {
+    await rm(sourceOnly.root, { recursive: true, force: true });
   }
 });
