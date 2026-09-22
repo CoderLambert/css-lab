@@ -210,10 +210,11 @@ When creating, revising, or reviewing CSS curriculum content, use the repo-level
 For deterministic authoring operations, prefer the Skill scripts over hand-writing structure:
 
 - inspect Course/Module/Lesson context with `inspect-context.mjs`
-- scaffold Lesson/Exercise skeletons with `scaffold.mjs`
+- scaffold Module/Lesson/Exercise skeletons with `scaffold.mjs`
+- migrate existing Module/Lesson order with `reorder.mjs` (dry-run first)
 - validate reusable source packs with `inspect-source-pack.mjs`
 
-Do not bypass the scaffolder for orders, draft skeletons, duplicate-ID checks, or overwrite protection when it covers the operation. Model reasoning should focus on teaching design, lesson narrative, exercise objectives, hints, and checker semantics.
+Do not bypass the deterministic authoring tools for Module/Lesson/Exercise scaffolding, existing Module/Lesson order migration, draft skeletons, duplicate-ID checks, or overwrite protection when they cover the operation. Do not batch hand-write Module metadata or manually renumber existing Module/Lesson JSON. Model reasoning should focus on teaching design, lesson narrative, exercise objectives, hints, and checker semantics.
 
 User-provided source files may be used as curriculum grounding. Follow the Skill's source-grounding workflow and never turn source text directly into exercises without deriving learning claims and outcomes first.
 

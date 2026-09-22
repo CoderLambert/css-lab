@@ -215,3 +215,17 @@ git diff --check
 - [ ] 没有新增课程 Module。
 
 完成后提交，进入 Task 03。
+
+
+---
+
+## 10. Scheduled execution status
+
+Task 02 implementation is split into atomic Lane A commits:
+
+- Module deterministic scaffold: implemented.
+- Module/Lesson deterministic reorder with dry-run and validation: implemented.
+- Skill / content-contract / AGENTS synchronization: implemented in the Task 02 closing unit.
+- Verification evidence must be recorded before Task 03 begins.
+
+Task 03 remains blocked until the Task 02 fast gate is actually checked.

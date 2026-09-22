@@ -2,9 +2,9 @@
 name: css-lesson-authoring
 description: >
   Create, revise, or review CSS Lab curriculum content under content/courses.
-  Use when adding CSS lessons or exercises, turning provided source files into
-  grounded curriculum, reviewing lesson quality, or scaffolding authoring files.
-  Use deterministic scripts for context inspection, scaffolding, and source-pack
+  Use when adding CSS modules, lessons, or exercises, turning provided source files into
+  grounded curriculum, reviewing lesson quality, or scaffolding/migrating authoring files.
+  Use deterministic scripts for context inspection, scaffolding, order migration, and source-pack
   validation. Do not use for learner UI, runtime, Workspace, MDX component
   implementation, or M6A architecture work.
 ---
@@ -25,7 +25,7 @@ This Skill supports two modes.
 
 ### Create
 
-Use when the user wants a new Lesson or Exercise, including when source files are provided.
+Use when the user wants a new Module, Lesson, or Exercise, including when source files are provided.
 
 ### Review
 
@@ -85,6 +85,48 @@ node .agents/skills/css-lesson-authoring/scripts/inspect-context.mjs \
 ```
 
 Use the returned order/status/context instead of inferring it manually.
+
+## Scaffold a Module
+
+Use the deterministic scaffolder instead of hand-writing new Module metadata:
+
+```bash
+node .agents/skills/css-lesson-authoring/scripts/scaffold.mjs module \
+  --course <course-slug> \
+  --slug <module-slug> \
+  --id <stable-id> \
+  --title "<title>" \
+  --description "<description>"
+```
+
+The script validates the parent Course, slug, repository-wide stable-ID uniqueness, order availability, and overwrite protection. It creates only `module.json` plus `lessons/`; new Modules default to `draft`.
+
+Stable IDs, titles, descriptions, and curriculum position are semantic decisions supplied by the caller. Do not let the model batch-create Module metadata by hand.
+
+## Reorder existing Modules or Lessons
+
+Existing sibling order migrations must use:
+
+```bash
+node .agents/skills/css-lesson-authoring/scripts/reorder.mjs module \
+  --course <course-slug> \
+  --orders '{"module-a":1,"module-b":2}' \
+  --dry-run
+```
+
+or:
+
+```bash
+node .agents/skills/css-lesson-authoring/scripts/reorder.mjs lesson \
+  --course <course-slug> \
+  --module <module-slug> \
+  --orders '{"lesson-a":1,"lesson-b":2}' \
+  --dry-run
+```
+
+Review the dry-run plan, then rerun without `--dry-run` to apply it.
+
+The reorder tool validates current sibling orders and the final mapping before writing. It changes only `order`; stable `id`, `slug`, `status`, and other metadata must remain unchanged. Do not manually renumber existing Module/Lesson JSON when this tool covers the migration.
 
 ## Scaffold a Lesson
 
@@ -190,9 +232,9 @@ If the checker DSL cannot validate the real objective reliably, stop and report 
 
 ## 4. Scaffold deterministic structure
 
-Use `scaffold.mjs`.
+Use `scaffold.mjs` for new Module/Lesson/Exercise structure and `reorder.mjs` for existing Module/Lesson order migration.
 
-Do not manually create `lesson.json`, exercise directory skeletons, orders, or draft statuses when the script covers the operation.
+Do not manually create structural metadata, directory skeletons, orders, or draft statuses when the scripts cover the operation.
 
 ## 5. Author the Lesson
 

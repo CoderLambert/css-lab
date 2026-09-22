@@ -36,6 +36,18 @@ Exercise additionally uses positive integer `revision`.
 
 Stable IDs are semantic identity. Do not derive or change them casually. The scaffolder requires the caller to provide the ID and then checks repository-wide uniqueness.
 
+## Deterministic authoring operations
+
+Structural curriculum changes use the repository Skill scripts:
+
+- New Modules: `scaffold.mjs module`.
+- New Lessons/Exercises: their existing `scaffold.mjs` commands.
+- Existing Module/Lesson order migration: `reorder.mjs`.
+
+Newly scaffolded content defaults to `draft`.
+
+Do not batch hand-write Module metadata or manually renumber existing Module/Lesson JSON when the deterministic tools cover the operation. Reorder migrations must preserve stable `id`, `slug`, `status`, and all metadata other than `order`, and should be reviewed with `--dry-run` before apply.
+
 ## Lesson MDX
 
 `lesson.json.title` is the only H1.
