@@ -1,0 +1,8 @@
+.mouse-action:focus {
+  outline: 3px solid rgb(71, 114, 92);
+}
+
+.keyboard-action:focus-visible {
+  outline: 3px dashed rgb(71, 114, 92);
+  outline-offset: 3px;
+}
