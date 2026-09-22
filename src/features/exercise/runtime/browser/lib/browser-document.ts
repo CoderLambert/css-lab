@@ -222,7 +222,7 @@ function createRuntimeBridge(
 
     if (
       target instanceof Element &&
-      target.closest("a[href],area[href]")
+      target.closest("a,area")
     ) {
       event.preventDefault();
     }
