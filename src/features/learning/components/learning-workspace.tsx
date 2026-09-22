@@ -245,6 +245,7 @@ export function LearningWorkspace({
   course,
   module,
   lesson,
+  lessonContent,
   exercise,
   navigation,
 }: LearningWorkspaceProps) {
