@@ -226,6 +226,15 @@ Task 02 implementation is split into atomic Lane A commits:
 - Module deterministic scaffold: implemented.
 - Module/Lesson deterministic reorder with dry-run and validation: implemented.
 - Skill / content-contract / AGENTS synchronization: implemented in the Task 02 closing unit.
-- Verification evidence must be recorded before Task 03 begins.
+- Fast-gate verification: complete.
 
-Task 03 remains blocked until the Task 02 fast gate is actually checked.
+Verification evidence for scheduled mode:
+
+```text
+authoring-skill focused suite: 11/11 passed
+diff whitespace/range check: passed on Task 02 implementation commits
+scripts/content / schema / generator changed: no
+test:content required by scheduled fast gate: no
+```
+
+Task 02 is complete under the scheduled execution override. Full repository gates from the original Task 02 plan remain deferred to Task 13. Task 03 may begin on the next Lane A unit.
