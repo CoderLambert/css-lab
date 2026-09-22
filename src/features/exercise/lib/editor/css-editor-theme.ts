@@ -56,7 +56,7 @@ export const cssLabTheme = EditorView.theme(
       borderRadius: "0.625rem",
       backgroundColor: "var(--editor-gutter)",
       color: "var(--editor-foreground)",
-      boxShadow: "0 10px 30px color-mix(in oklch, black 24%, transparent)",
+      boxShadow:\n        "0 10px 30px color-mix(in oklch, var(--editor-gutter) 60%, transparent)",
     },
     ".cm-tooltip-autocomplete > ul": {
       maxHeight: "15rem",

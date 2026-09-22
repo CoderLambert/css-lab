@@ -26,9 +26,7 @@ export function EditorPanel({ value, onChange }: EditorPanelProps) {
       return;
     }
 
-    if (result.status !== "stale" && result.status !== "cancelled") {
-      setFormatError(null);
-    }
+    setFormatError(null);
   };
 
   const handleFormat = async () => {
