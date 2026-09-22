@@ -1,25 +1,67 @@
-# Task 02 — Content Assets、ContentReader 与 Studio Content Health
+# Task 02 — Content Assets、Exercise v2 Atomic Cutover、ContentReader 与 Studio Health
 
 ## 目标
 
-把现有 CSS-only asset convention 迁移为 Workspace asset convention，并保证 learner domain 永远拿不到 solution。
-
-## 开始前读取
+在一个阶段内原子完成：
 
 ```text
+content assets v1 -> workspace layout
+exercise.json v1 -> v2
+runtime Exercise type -> Workspace
+FileContentReader -> workspace hydration
+Studio -> workspace/source health
+```
+
+Task 02 结束后不再存在 production v1 Exercise runtime contract。
+
+## 1. 开始前读取
+
+```text
+docs/任务计划/01-M6A-Workspace-Domain与Exercise-Schema-v2.md
+src/lib/workspace/*
 src/lib/content/file/file-content-reader.ts
 src/lib/content/file/file-utils.ts
 src/lib/content/reader.ts
 src/lib/content/types.ts
+src/lib/content/schemas/exercise.ts
 src/features/studio/lib/content-health.ts
 src/app/studio/page.tsx
+src/features/learning/lib/learner-content.ts
 content/courses/**
 e2e/studio-content-health.spec.ts
 ```
 
-## 1. 当前 Exercise asset 迁移
+全局搜索：
 
-每个现有 exercise：
+```text
+fixtureHtml
+baseCss
+starterCss
+fixture.html
+base.css
+starter.css
+solution.css
+ExerciseRecordSchema
+```
+
+## 2. 原子 cutover 原则
+
+这个阶段同一 commit 必须同时包含：
+
+- metadata v2
+- asset relocation
+- Exercise runtime type
+- production ExerciseRecordSchema -> v2
+- FileContentReader v2 hydration
+- Studio updates
+
+不要提交“Reader 只认 v2，但磁盘还是 v1”的中间态。
+
+不要长期保留 v1/v2 双读 fallback。
+
+## 3. 现有 Exercise asset 迁移
+
+每个当前 exercise：
 
 ```text
 exercise.json
@@ -29,7 +71,7 @@ starter.css
 solution.css
 ```
 
-迁移成：
+迁移：
 
 ```text
 exercise.json
@@ -52,34 +94,20 @@ starter.css   -> starter/style.css
 solution.css  -> solution/style.css
 ```
 
-不要创建 `support/`。
+不创建 `support/`。
 
-现有三个 Exercise stable id、slug、order、revision 保持不变；这只是表示层迁移，不应仅因目录布局变化 bump revision。
+当前 3 个 Exercise 的 id/slug/order/revision/URL 不变；仅 asset representation 改变不 bump revision。
 
-## 2. exercise.json 升级
+## 4. exercise.json v2
 
-所有当前 exercise 改为 schemaVersion 2。
-
-Workspace 对当前 CSS exercise 统一声明：
+当前 CSS exercises：
 
 ```json
 "workspace": {
   "files": [
-    {
-      "path": "index.html",
-      "language": "html",
-      "editable": false
-    },
-    {
-      "path": "base.css",
-      "language": "css",
-      "editable": false
-    },
-    {
-      "path": "style.css",
-      "language": "css",
-      "editable": true
-    }
+    { "path": "index.html", "language": "html", "editable": false },
+    { "path": "base.css", "language": "css", "editable": false },
+    { "path": "style.css", "language": "css", "editable": true }
   ]
 },
 "runtime": {
@@ -88,7 +116,7 @@ Workspace 对当前 CSS exercise 统一声明：
 }
 ```
 
-必须保持顺序：
+顺序固定：
 
 ```text
 index.html
@@ -96,209 +124,253 @@ base.css
 style.css
 ```
 
-其中 CSS injection 的 declaration order 后续会影响 cascade。
+CSS cascade 后续依赖 declaration order。
 
-## 3. FileContentReader hydration
+## 5. Production Exercise type cutover
 
-`readExercise()` 不再固定读取三个文件名。
+Task 02 完成后 `Exercise`：
 
-正确逻辑：
+- `schemaVersion: 2`。
+- 保留 metadata/checks/parent ids。
+- 增加 `workspace: ExerciseWorkspace`。
+- 增加 `runtime: BrowserRuntimeDefinition`。
+- 删除 `fixtureHtml/baseCss/starterCss`。
 
-1. 读取并 validate `exercise.json`。
-2. 遍历 `record.workspace.files`。
-3. 对每个 path 读取 `starter/<path>`。
-4. hydrate 成：
-   - WorkspaceDefinition
-   - StarterWorkspace.files
-5. 返回 solution-free Exercise。
+不要保留 optional legacy fields、legacyAssets 或 v1/v2 UI union。
 
-概念结果：
+Task 01 transitional alias如已无用，本阶段删除/收敛。
 
-```ts
-exercise.workspace = {
-  definition: {
-    files: record.workspace.files
-  },
-  starter: {
-    files: {
-      "index.html": "...",
-      "base.css": "...",
-      "style.css": "..."
-    }
-  }
-}
-```
+## 6. FileContentReader hydration
 
-ContentReader 只做读取 + hydration，不做 learner published visibility policy。
+`readExercise()`：
 
-## 4. 防目录穿越
+1. 读取 `exercise.json`。
+2. 使用 production ExerciseRecordSchema(v2) validate。
+3. 遍历 `record.workspace.files`。
+4. 读取 `starter/<logical-path>`。
+5. hydrate `StarterWorkspace.files`。
+6. 返回 solution-free Exercise。
 
-因为 path 来自 content metadata，文件读取前仍必须通过 WorkspacePath schema。
+只有通过 WorkspacePath schema 的 logical path 可以进入 OS `join()`。
 
-禁止直接：
+Runtime 永远看不到 OS path。
 
-```ts
-join(starterRoot, uncheckedPath)
-```
+## 7. Hard loading errors 与 Content Health 分工
 
-只有经过 path validation 的 logical path 可以进入 join。
+### Hard loading/schema error
 
-保持 OS path 与 Workspace logical path 两个概念分离。
+以下继续让 FileContentReader throw，Studio 显示已有 `Content load failed`：
 
-## 5. Solution 必须采用独立 server-only inspection
+- JSON parse 失败。
+- ExerciseRecordV2Schema 不合法。
+- Workspace path 不合法。
+- duplicate/case-collision path。
+- language/extension mismatch。
+- Browser entry 不存在或不是 HTML。
+- 声明的 starter file 缺失/不可读。
 
-不要把 solution 添加到 `Exercise`。
+不要为把这些变成 Health row 而重写整个 loading pipeline。
 
-不要实现：
+### Content Health issue
 
-```ts
-interface Exercise {
-  solutionFiles: ...
-}
-```
+Reader 成功 hydrate 后才做：
 
-也不要在 learner route 上再 omit。
+- zero editable
+- unsupported Browser language
+- multiple HTML
+- undeclared starter
+- solution completeness
+- 原有 stable-id/order/published/check rules
 
-推荐新建窄的 source inspection，例如：
+这样 schema/read error 与 authoring quality 不冲突。
+
+## 8. Server-only ContentSourceInspector
+
+Solution 不进入 Exercise，因此 Studio 使用窄 source inspection。
+
+推荐：
 
 ```text
 src/lib/content/file/file-content-source-inspector.ts
 ```
 
-或命名等价、边界明确的 server-only 文件。
+必须 `import "server-only"`。
 
-它只为 Studio 提供 authoring/source facts，例如：
+建议 contract：
 
 ```ts
+interface ExerciseSourceRef {
+  courseSlug: string;
+  moduleSlug: string;
+  lessonSlug: string;
+  exerciseSlug: string;
+}
+
 interface ExerciseAssetInspection {
-  starterPaths: readonly string[];
-  solutionPaths: readonly string[];
+  starterPaths: readonly WorkspacePath[];
+  solutionPaths: readonly WorkspacePath[];
+}
+
+interface ContentSourceInspector {
+  inspectExercise(
+    source: ExerciseSourceRef,
+  ): Promise<ExerciseAssetInspection>;
 }
 ```
 
-不要把它扩展成第二个完整 ContentReader。
+File implementation与 FileContentReader使用同一 courses root convention。
 
-## 6. Studio Health 新规则
+### Scanner rules
+
+递归扫描 `starter/` / `solution/`，返回：
+
+- 相对对应 root 的 logical path。
+- separator 永远 `/`。
+- sorted，报告 deterministic。
+- 只包含 regular files。
+
+遇到 symlink/socket/device/其他非 regular file：
+
+- 不 follow。
+- 作为 source inspection error/health error。
+
+不得暴露绝对 OS path 到 Studio domain。
+
+## 9. Studio Workspace Health
 
 保留现有：
 
-- stable ID
-- duplicate order
-- published chain
+- duplicate stable id
+- sibling duplicate order
+- published-child-hidden
 - empty lesson body
-- empty checks
+- published empty lesson/module/course
+- exercise without checks
 - duplicate check id
 
-移除旧的 `empty-fixture` 概念。
+删除 `empty-fixture`。
 
-新增 Workspace rules：
-
-- duplicate workspace path -> error
-- invalid workspace path -> error
-- declared starter file missing -> error
-- undeclared starter file -> error
-- language/path mismatch -> error
-- zero editable files -> published error / draft warning
-- browser entry missing -> error
-- browser entry not HTML -> error
-- current Browser exercise contains JS/TS executable file -> error
-- 当前 M6A Browser exercise 多个 HTML 文件 -> error
-
-### 为什么多个 HTML 当前阻止
-
-M6A 只有一个 Browser document entry，尚未定义 multi-page navigation/resource semantics。不要默默支持无法正确执行的额外 HTML。
-
-## 7. Solution completeness
-
-定义：
+### zero editable
 
 ```text
-editablePaths = WorkspaceDefinition 中 editable=true 的 path 集合
-solutionPaths = solution/ 下所有受支持文本文件 path 集合
+visible published exercise -> error
+draft/hidden exercise      -> warning
 ```
 
-要求：
+### Browser current capability
+
+`runtime.type === "browser"` 且 workspace 含 `javascript/typescript` -> error。
+
+这是 authoring capability error，不改变 Workspace schema vocabulary。
+
+### Multiple HTML
+
+M6A Browser exercise 中 HTML files 必须正好 1。
+
+0 HTML 已由 entry structural validation挡住；>1 -> Health error。
+
+不定义 multi-page semantics。
+
+### Undeclared starter
 
 ```text
-solutionPaths === editablePaths
+actual starter paths - declared workspace paths
+```
+
+非空 -> error。
+
+声明但缺 starter 已属于 Reader hard error，不重复诊断。
+
+## 10. Solution completeness
+
+```text
+editablePaths = declared files where editable=true
+solutionPaths = ContentSourceInspector.solutionPaths
+
+set(solutionPaths) === set(editablePaths)
 ```
 
 因此：
 
-- editable file 缺 solution -> error
-- solution 存在 locked file 对应 path -> error
+- editable path 缺 solution -> error
+- locked path 出现在 solution -> error
 - undeclared solution path -> error
+- extra solution file -> error
 
-当前 CSS exercise 的 solution 只应有：
+当前 CSS Exercise 只能有 `solution/style.css`，不要复制 locked `index.html/base.css`。
 
-```text
-solution/style.css
+## 11. Solution boundary
+
+禁止：
+
+```ts
+interface Exercise {
+  solution: ...
+  solutionFiles: ...
+}
 ```
 
-不要复制 `index.html` / `base.css`。
+也禁止“先读进 Exercise 再 omit”。
 
-## 8. Undeclared starter file
-
-需要检查 `starter/` 实际文件集合。
-
-若作者放入：
+正确边界：
 
 ```text
-starter/debug.css
+FileContentReader
+  -> learner-safe hydrated Exercise
+
+FileContentSourceInspector
+  -> server-only authoring source facts
 ```
 
-但 exercise.json 未声明，应报 error，而不是让 reader/runtime无声忽略。
+Studio可依赖两者；learner只能依赖前者。
 
-递归扫描应只用于 content authoring inspection，不要由 learner runtime 自己扫描文件系统。
+## 12. JS/TS interim rule
 
-## 9. Studio loading failure
+Task 02-04 期间不得向 content 添加 JS/TS workspace file。
 
-当前 Studio 已能在 ContentReader throw 时显示 Content load failed。保留这一行为。
+schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
-如果某类 health issue 可以在不让 Reader 崩溃的情况下报告，应优先 health issue；但 schema JSON 无法解析、声明文件缺失等 reader hard error 是否转为 inspector issue，需要保持实现简单，不能为此重写完整 content loading pipeline。
+## 13. E2E
 
-至少保证正常迁移后的 content health 为 0 blocking / 0 warnings。
-
-## 10. E2E 更新
-
-更新 `e2e/studio-content-health.spec.ts`，保留原有意图：
+更新 `e2e/studio-content-health.spec.ts`：
 
 - Studio 正常打开。
-- 3 个 exercise。
-- 0 blocking issues。
+- exercise count 3。
+- published exercise count 3。
+- 0 errors。
 - 0 warnings。
-- learner link 数量仍为 3。
-- 第一个 learner href 不变。
+- learner links 3。
+- learner href不变。
 
-若 UI 展示 Workspace metadata，可增加稳定、非脆弱的断言；不要依赖纯样式 class。
+不要依赖样式 class。
 
-## 11. 验证
+## 14. 验证
 
 ```bash
 pnpm lint
 pnpm build
 pnpm test:e2e
+git diff --check
+git status --short
 ```
 
-同时人工检查 Git diff，确认旧文件：
+人工确认旧 root assets不与新结构双存。注意 `starter/base.css` 是合法新路径。
 
-```text
-fixture.html
-base.css
-starter.css
-solution.css
-```
+## 15. Acceptance Criteria
 
-已被正确迁移而非同时保留两份 source of truth。
-
-## 12. Acceptance Criteria
-
-- [ ] 当前三个 exercise 已迁移到 starter/solution。
-- [ ] fixture 概念从 content runtime domain 消失。
-- [ ] base.css 是 locked workspace file，不是 support asset。
-- [ ] solution 只覆盖 editable paths。
-- [ ] FileContentReader 基于 metadata hydrate starter workspace。
-- [ ] learner-facing Exercise 无 solution。
-- [ ] Studio 能验证 starter/solution file set。
-- [ ] Studio 当前为 0 blocking / 0 warning。
-- [ ] learner URL/stable ID/revision 未因 asset relocation 改变。
+- [ ] 当前 3 个 exercise 已迁移 starter/solution。
+- [ ] Exercise production schema/type 原子切 v2。
+- [ ] 不存在 v1/v2 UI union。
+- [ ] fixtureHtml/baseCss/starterCss 从 runtime Exercise 删除。
+- [ ] Reader metadata-driven hydrate declared starter files。
+- [ ] declared starter missing 明确为 hard load error。
+- [ ] ContentSourceInspector server-only。
+- [ ] Inspector 只返回 normalized logical paths。
+- [ ] solution 不进入 Exercise。
+- [ ] zero editable 按状态 audit。
+- [ ] JS/TS Browser capability 报 error。
+- [ ] multiple HTML 报 error。
+- [ ] solution path set 等于 editable path set。
+- [ ] Studio 当前 0 error / 0 warning。
+- [ ] URL/id/revision不变。
+- [ ] lint/build/e2e通过。

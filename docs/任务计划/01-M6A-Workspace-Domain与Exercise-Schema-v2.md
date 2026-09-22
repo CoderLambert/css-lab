@@ -1,12 +1,24 @@
-# Task 01 — Workspace Domain 与 Exercise Schema v2
+# Task 01 — Workspace Domain 与 Exercise v2 Definitions
 
 ## 目标
 
-建立 M6A 的领域基础。此阶段只修改类型、schema 和纯 domain helper，不改 learner UI、不改 IndexedDB、不实现 Browser Runtime 新行为。
+建立 Workspace / Draft / Execution Snapshot / Exercise v2 的纯领域基础，同时保持现有 Exercise v1 production flow 完整可运行。
 
-## 开始前读取
+**本阶段禁止切换生产 ContentReader 到 v2。**
 
-至少重新读取：
+Task 01 完成后应是：
+
+```text
+旧 content v1 + 旧 learner runtime 仍可运行
++
+新 Workspace/v2 domain 已存在并可验证
+```
+
+而不是半迁移状态。
+
+## 1. 开始前读取
+
+至少：
 
 ```text
 AGENTS.md
@@ -15,25 +27,39 @@ src/lib/content/schemas/common.ts
 src/lib/content/schemas/exercise.ts
 src/lib/content/file/file-content-reader.ts
 src/features/exercise/lib/preview-messages.ts
+package.json
+tsconfig.json
 ```
 
-## 1. 新建 Workspace Domain
+全局搜索：
 
-推荐目录：
+```text
+SchemaVersionSchema
+CommonRecordSchema
+ExerciseRecordSchema
+fixtureHtml
+baseCss
+starterCss
+```
+
+## 2. 新建 Workspace Domain
+
+推荐：
 
 ```text
 src/lib/workspace/
   types.ts
   path.ts
+  schemas.ts
   draft.ts
   execution-snapshot.ts
 ```
 
-不要创建 barrel file，除非现有项目风格明确需要。
+不要创建 VirtualFileSystem、WorkspacePlugin、registry。
 
-### 1.1 核心类型
+### 2.1 Core types
 
-类型语义必须等价于：
+语义等价于：
 
 ```ts
 export type WorkspaceLanguage =
@@ -78,25 +104,33 @@ export interface ExecutionSnapshot {
 }
 ```
 
-如实现时能减少无意义 wrapper，可调整文件拆分，但不要改变这些领域边界。
+不要把 `editable` 复制到 Draft 或 ExecutionFile。
 
-### 1.2 Workspace path 规则
+## 3. WorkspacePath 使用 allow-list grammar
 
-实现一个单一 path validator/schema，Content schema 和纯 helper 共享。
+每个 segment：
 
-必须拒绝：
+```text
+[A-Za-z0-9][A-Za-z0-9._-]*
+```
 
-- 空字符串
-- 绝对路径
-- 以 `/` 开头
-- 反斜杠 `\`
-- `.` path segment
-- `..` path segment
-- 空 segment，例如 `foo//bar.css`
-- trailing slash
-- 与 language 不一致的扩展名
+完整 path：
 
-M6A 固定扩展名映射：
+```text
+segment("/"segment)*
+```
+
+额外要求：
+
+- 非空。
+- 不能以 `/` 开头/结尾。
+- 不允许 `\`。
+- 不允许空 segment。
+- segment 不能是 `.` / `..`。
+- extension 只允许 lower-case `.html/.css/.js/.ts`。
+- extension 与 language 一致。
+
+固定映射：
 
 ```text
 .html -> html
@@ -116,23 +150,61 @@ utils/math.ts
 styles/card.css
 ```
 
-不要支持 jsx/tsx/mjs/cjs/vue/svelte。
+拒绝：
 
-### 1.3 WorkspaceDefinition invariants
+```text
+/index.html
+foo\bar.css
+foo//bar.css
+./style.css
+../style.css
+foo/../style.css
+style.CSS
+a b.css
+<script>.html
+```
 
-Exercise schema validation必须保证：
+### Case collision
 
-- `files` 非空。
-- path 唯一。
-- 至少存在一个 `editable: true` 文件。
-- declaration order 保留；不要自动排序。
-- language 与 extension 匹配。
+schema 必须拒绝 case-insensitive collision：
 
-不要为 file 增加 `order` 字段，数组顺序就是稳定顺序。
+```text
+Foo.css
+foo.css
+```
 
-## 2. Draft helpers
+不能同时存在。
 
-实现纯函数，职责明确：
+不要自动 lowercase；发现 collision 就报错。
+
+## 4. Workspace structural schema
+
+必须保证：
+
+- `files` 至少 1 个。
+- path 合法。
+- 无 exact duplicate。
+- 无 case-insensitive collision。
+- language/extension 一致。
+- declaration order 保留。
+
+**不要要求至少一个 editable file。**
+
+零 editable 是合法结构；是否为合格 learner Exercise 由 Task 02 Content Health 判断。
+
+不要增加：
+
+```text
+order
+locked
+visible
+readOnlyVisible
+role
+```
+
+## 5. Draft helpers
+
+实现：
 
 ```ts
 createInitialDraft(workspace: ExerciseWorkspace): ExerciseDraft
@@ -153,25 +225,19 @@ resetDraftFile(
 resetDraft(workspace: ExerciseWorkspace): ExerciseDraft
 ```
 
-规则：
+要求：
 
-- initial draft 只包含 editable files。
-- update locked file 必须失败，不允许静默加入。
-- update unknown path 必须失败。
-- reset single file 恢复对应 starter content。
-- reset all 只产生 editable files。
-- helper 不操作 React state、不操作 IndexedDB。
+- initial draft 只含 editable paths。
+- unknown path update 必须显式失败。
+- locked path update 必须显式失败。
+- resetFile 只允许 editable path。
+- reset all 只返回 editable paths。
+- 不 mutate 输入。
+- 不操作 React / IndexedDB。
 
-可以额外提供：
+dirty helpers可加，但 dirty只能派生。
 
-```ts
-isDraftDirty(...)
-isDraftFileDirty(...)
-```
-
-但 dirty 必须是 derived state，不得成为持久化字段。
-
-## 3. Execution Snapshot helper
+## 6. Execution Snapshot
 
 实现：
 
@@ -184,30 +250,36 @@ createExecutionSnapshot(
 
 规则：
 
-1. 按 `WorkspaceDefinition.files` declaration order 输出。
-2. editable file 使用 draft content。
-3. locked file 使用 starter content。
-4. draft 缺少 editable path 时应视为 domain invariant violation；不要静默生成不完整 snapshot。
-5. snapshot 不包含 `editable`。
-6. snapshot 不引用 React state，不做 side effect。
+1. 按 declaration order 输出。
+2. editable -> draft content。
+3. locked -> starter content。
+4. starter 必须覆盖全部 declared paths。
+5. draft 必须覆盖全部 editable paths。
+6. draft 出现 unknown/locked path 视为 invariant violation。
+7. snapshot 不含 `editable`。
+8. 不 mutate workspace/draft。
 
-## 4. Schema version 重构
+不要在这里自动补错误 draft；Progress defensive reconciliation 在 Task 03。
 
-当前 `SchemaVersionSchema = z.literal(1)` 不应继续作为所有 entity 的统一 version。
+## 7. Common schema version 重构
 
-要求：
+当前全局 `SchemaVersionSchema = z.literal(1)` 需要拆成 common fields + entity version。
 
-- CourseRecordSchema 仍只接受 v1。
-- ModuleRecordSchema 仍只接受 v1。
-- LessonRecordSchema 仍只接受 v1。
-- ExerciseRecordSchema 改为只接受 v2。
-- 不允许 Course/Module/Lesson 因通用 union 而接受 v2。
+目标：
 
-可把 common fields 与 version literal 拆开，但保持 strict object 语义。
+- CourseRecordSchema 只接受 v1。
+- ModuleRecordSchema 只接受 v1。
+- LessonRecordSchema 只接受 v1。
+- 新增 ExerciseRecordV2Schema，只接受 v2。
+- **Task 01 结束时 production `ExerciseRecordSchema` 仍保持 v1 行为。**
 
-## 5. ExerciseRecordSchema v2
+不要创建全局 `z.union([1, 2])` 让所有 entity 自动接受两版。
 
-推荐磁盘结构：
+## 8. ExerciseRecordV2Schema
+
+新增 v2 definition，但本阶段不替换 production alias。
+
+概念：
 
 ```json
 {
@@ -222,21 +294,9 @@ createExecutionSnapshot(
   "hints": [],
   "workspace": {
     "files": [
-      {
-        "path": "index.html",
-        "language": "html",
-        "editable": false
-      },
-      {
-        "path": "base.css",
-        "language": "css",
-        "editable": false
-      },
-      {
-        "path": "style.css",
-        "language": "css",
-        "editable": true
-      }
+      { "path": "index.html", "language": "html", "editable": false },
+      { "path": "base.css", "language": "css", "editable": false },
+      { "path": "style.css", "language": "css", "editable": true }
     ]
   },
   "runtime": {
@@ -247,80 +307,110 @@ createExecutionSnapshot(
 }
 ```
 
-M6A Browser Runtime validation必须保证：
+Browser structural invariant：
 
-- runtime.type 固定为 `browser`。
+- `type === "browser"`。
 - entry 是合法 WorkspacePath。
-- entry 存在于 workspace files。
-- entry language 是 `html`。
+- entry 存在于 workspace。
+- entry language 为 `html`。
 
-此阶段不要加入：
+### JS/TS 唯一规则
 
-- worker runtime variant
-- no-runtime variant
-- toolchain metadata
-- TypeScript compiler options
+**ExerciseRecordV2Schema 允许 javascript/typescript vocabulary。**
 
-### 当前 Browser capability 限制
+不要在 v2 schema 禁止它们。
 
-虽然 WorkspaceLanguage 已包含 JS/TS，为长期 domain 稳定性保留；但当前 M6A Browser exercise 只能声明 HTML/CSS workspace file。
+```text
+Schema/domain vocabulary
+!=
+current Browser runtime capability
+```
 
-因此 ExerciseRecord v2 应明确拒绝 published/current Browser exercise 中的 javascript/typescript 文件，避免 schema 表达能力被误认为 runtime capability。
+当前 capability 约束放：
 
-如果为了未来 schema 迁移更合理，也可把该限制放在 content health，而不是基础 Workspace schema；但当前所有 learner-facing Browser v2 内容必须被阻止运行 JS/TS。
+- Task 02：Studio Content Health
+- Task 05：Browser Runtime fail-closed
 
-## 6. Exercise runtime type
+Task 05 前不向 content 添加 JS/TS。
 
-重写 `src/lib/content/types.ts` 中 Exercise：
+## 9. Transitional type boundary
 
-- `schemaVersion: 2`
-- 删除 `fixtureHtml`
-- 删除 `baseCss`
-- 删除 `starterCss`
-- 增加 `workspace: ExerciseWorkspace`
-- 增加 `runtime: BrowserRuntimeDefinition`
-- checks 保留当前 Browser checks
+本阶段不要删除当前 `Exercise` 的：
 
-Solution 绝对不能加到 Exercise。
+```text
+fixtureHtml
+baseCss
+starterCss
+```
 
-## 7. CheckResult 解耦准备
+可以新增清晰 transitional type，如 `ExerciseV2` / `HydratedExerciseV2` / `BrowserRuntimeDefinition`。
 
-当前 `CheckState` 从 preview message module 获取 CheckResult。此阶段可新增一个 exercise/check result domain type，为 Task 05 做准备，但不要顺手做 CheckerRegistry。
+但：
 
-## 8. 本阶段不要做
+- Task 02 cutover 后删除无必要 alias。
+- learner production components 不得同时兼容 v1/v2。
 
-- 不移动 Preview 文件。
-- 不改 Content assets。
-- 不改 DB。
+禁止：
+
+```ts
+type Exercise = ExerciseV1 | ExerciseV2
+```
+
+然后 UI 到处分支。
+
+## 10. CheckResult 准备
+
+可新增 neutral type：
+
+```ts
+export interface CheckResult {
+  id: string;
+  message: string;
+  passed: boolean;
+  expected: string | number | boolean | null;
+  actual: string | number | boolean | null;
+}
+```
+
+不要包含 `type: Check["type"]`。
+
+Task 05 再切 protocol。
+
+## 11. 本阶段禁止
+
+- 不移动 content assets。
+- 不切 FileContentReader。
+- 不删除 v1 runtime fields。
+- 不改 IndexedDB。
+- 不改 learner UI/Preview。
 - 不实现 HTML editor。
-- 不实现 JS/TS runtime。
-- 不创建 runtime registry。
+- 不创建 Worker/Toolchain/runtime registry。
 
-如果 Exercise v2 schema 导致当前 content 暂时不能通过 ContentReader，可在 Task 02 紧接着迁移；但提交前至少 TypeScript/schema 单元逻辑应一致，且不要留下一个无法编译的 commit。
-
-## 9. 验证
-
-至少：
+## 12. 验证
 
 ```bash
 pnpm lint
 pnpm build
+pnpm test:e2e
+git diff --check
+git status --short
 ```
 
-如仓库没有 unit test runner，不要为本任务引入新的测试框架。可用已有 build/typecheck 保证 schema/type 正确，并在后续 E2E 覆盖行为。
+Task 01 核心就是“新定义存在，但旧 production flow 无回归”，所以要跑 E2E。
 
-## 10. Acceptance Criteria
+## 13. Acceptance Criteria
 
-- [ ] WorkspaceLanguage 是闭合 union。
-- [ ] path validator 实现上述约束。
-- [ ] Workspace path 支持受控子目录。
-- [ ] Definition path 唯一。
-- [ ] 至少一个 editable file。
-- [ ] Draft 只包含 editable files。
-- [ ] locked/unknown path 不可被 update。
-- [ ] Execution Snapshot 是完整文件输入且保持 declaration order。
-- [ ] Course/Module/Lesson 仍为 schema v1。
-- [ ] Exercise 为 schema v2。
-- [ ] runtime entry 属于 Browser Runtime metadata。
-- [ ] Exercise domain 没有 solution。
-- [ ] 没有加入 Toolchain/Worker 的提前抽象。
+- [ ] Workspace domain types 已建立。
+- [ ] WorkspacePath 使用 allow-list grammar。
+- [ ] case-insensitive path collision 被拒绝。
+- [ ] language/extension 一致。
+- [ ] structural schema 不强制 editable >= 1。
+- [ ] Draft 只含 editable files。
+- [ ] locked/unknown path 不可 update。
+- [ ] Execution Snapshot 完整且保持 declaration order。
+- [ ] Course/Module/Lesson 仍只接受 v1。
+- [ ] ExerciseRecordV2Schema 已存在且只接受 v2。
+- [ ] production ExerciseRecordSchema/Reader 仍可读取当前 v1 content。
+- [ ] v2 schema 接受 JS/TS vocabulary，但没有执行能力。
+- [ ] production learner flow 无 v1/v2 union 分支污染。
+- [ ] lint/build/e2e 全过。
