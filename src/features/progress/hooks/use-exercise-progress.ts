@@ -2,47 +2,65 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import {
+  createInitialDraft,
+  resetDraft,
+  resetDraftFile,
+  updateDraftFile,
+} from "@/lib/workspace/draft";
+import type {
+  ExerciseDraft,
+  ExerciseWorkspace,
+  WorkspacePath,
+} from "@/lib/workspace/types";
 import { IndexedDbProgressStore } from "../lib/indexeddb-progress-store";
+import { reconcileDraft } from "../lib/reconcile-draft";
 import type { ProgressStore } from "../lib/progress-store";
 
 interface UseExerciseProgressInput {
   exerciseId: string;
   revision: number;
-  starterCss: string;
+  workspace: ExerciseWorkspace;
 }
 
 interface UseExerciseProgressResult {
-  css: string;
+  draft: ExerciseDraft;
   isHydrated: boolean;
-  updateCss: (nextCss: string) => void;
-  resetCss: () => void;
-  markCompleted: (code: string) => Promise<void>;
+  updateFile: (path: WorkspacePath, content: string) => void;
+  resetFile: (path: WorkspacePath) => void;
+  resetAll: () => void;
+  markCompleted: (draft: ExerciseDraft) => Promise<void>;
 }
 
 const progressStore: ProgressStore = new IndexedDbProgressStore();
 
 function reportPersistenceError(error: unknown): void {
   if (process.env.NODE_ENV !== "production") {
-    console.warn("CSS Lab progress persistence failed", error);
+    console.warn("Lab progress persistence failed", error);
   }
 }
 
 export function useExerciseProgress({
   exerciseId,
   revision,
-  starterCss,
+  workspace,
 }: UseExerciseProgressInput): UseExerciseProgressResult {
-  const [css, setCss] = useState(starterCss);
-  const [hydratedExerciseKey, setHydratedExerciseKey] = useState<string | null>(
-    null,
-  );
+  const initialDraft = createInitialDraft(workspace);
+  const [draft, setDraft] = useState<ExerciseDraft>(initialDraft);
+  const draftRef = useRef<ExerciseDraft>(initialDraft);
+  const [hydratedExerciseKey, setHydratedExerciseKey] = useState<
+    string | null
+  >(null);
   const hasLocalMutationRef = useRef(false);
   const currentExerciseKey = `${exerciseId}:${revision}`;
 
   useEffect(() => {
     let cancelled = false;
-    hasLocalMutationRef.current = false;
     const exerciseKey = `${exerciseId}:${revision}`;
+    const nextInitialDraft = createInitialDraft(workspace);
+
+    hasLocalMutationRef.current = false;
+    draftRef.current = nextInitialDraft;
 
     void progressStore
       .getExercise(exerciseId, revision)
@@ -51,8 +69,13 @@ export function useExerciseProgress({
           return;
         }
 
-        if (!hasLocalMutationRef.current && savedProgress) {
-          setCss(savedProgress.code);
+        if (!hasLocalMutationRef.current) {
+          const nextDraft = reconcileDraft(
+            workspace,
+            savedProgress?.files ?? {},
+          );
+          draftRef.current = nextDraft;
+          setDraft(nextDraft);
         }
 
         setHydratedExerciseKey(exerciseKey);
@@ -69,32 +92,57 @@ export function useExerciseProgress({
     return () => {
       cancelled = true;
     };
-  }, [exerciseId, revision]);
+  }, [exerciseId, revision, workspace]);
 
-  const saveCode = (nextCss: string) => {
+  const persistDraft = (nextDraft: ExerciseDraft) => {
     void progressStore
-      .saveCode({
+      .saveDraft({
         exerciseId,
         revision,
-        code: nextCss,
+        files: { ...nextDraft.files },
         updatedAt: Date.now(),
       })
       .catch(reportPersistenceError);
   };
 
-  const updateCss = (nextCss: string) => {
+  const applyDraft = (nextDraft: ExerciseDraft) => {
     hasLocalMutationRef.current = true;
-    setCss(nextCss);
-    saveCode(nextCss);
+    draftRef.current = nextDraft;
+    setDraft(nextDraft);
+    persistDraft(nextDraft);
   };
 
-  const resetCss = () => {
-    hasLocalMutationRef.current = true;
-    setCss(starterCss);
-    saveCode(starterCss);
+  const updateFile = (
+    path: WorkspacePath,
+    content: string,
+  ) => {
+    applyDraft(
+      updateDraftFile(
+        workspace,
+        draftRef.current,
+        path,
+        content,
+      ),
+    );
   };
 
-  const markCompleted = (code: string): Promise<void> => {
+  const resetFile = (path: WorkspacePath) => {
+    applyDraft(
+      resetDraftFile(
+        workspace,
+        draftRef.current,
+        path,
+      ),
+    );
+  };
+
+  const resetAll = () => {
+    applyDraft(resetDraft(workspace));
+  };
+
+  const markCompleted = (
+    capturedDraft: ExerciseDraft,
+  ): Promise<void> => {
     hasLocalMutationRef.current = true;
     const now = Date.now();
 
@@ -102,7 +150,7 @@ export function useExerciseProgress({
       .markCompleted({
         exerciseId,
         revision,
-        code,
+        files: { ...capturedDraft.files },
         updatedAt: now,
         completedAt: now,
       })
@@ -113,10 +161,11 @@ export function useExerciseProgress({
   };
 
   return {
-    css,
+    draft,
     isHydrated: hydratedExerciseKey === currentExerciseKey,
-    updateCss,
-    resetCss,
+    updateFile,
+    resetFile,
+    resetAll,
     markCompleted,
   };
 }

@@ -8,20 +8,22 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# CSS Lab — Project Context
+# Front-end Lab Platform — Project Context
 
-CSS Lab is an interactive CSS learning platform. The core learner loop is:
+This repository is a focused front-end learning-lab platform. CSS Lab is the current curriculum track; JavaScript Lab and TypeScript Lab are long-term tracks, not already-implemented runtimes.
+
+The current learner loop is:
 
 ```text
 Learn a concept
-→ edit CSS
-→ see an isolated live preview
-→ run exercise checks
+→ edit author-enabled Workspace files
+→ execute an immutable snapshot in the appropriate runtime
+→ run checks
 → get feedback
 → continue to the next exercise
 ```
 
-The product is intentionally small and focused. Prefer simple, explicit architecture over adding infrastructure.
+Current M6A production capability is content-defined HTML/CSS Workspace + Browser Runtime. Prefer simple, explicit architecture over infrastructure or generic IDE abstractions.
 
 The application has two product areas inside one Next.js app:
 
@@ -41,8 +43,8 @@ The content system is file-backed by design. A database, authentication system, 
 - idb for typed IndexedDB access
 - pnpm
 
-CodeMirror 6 is the intended CSS editor.
-Exercise preview is intended to run inside a sandboxed iframe.
+CodeMirror 6 is the Workspace editor foundation for the currently supported HTML/CSS editors.
+Browser exercises run inside a sandboxed iframe.
 
 Do not re-run `create-next-app`, `shadcn init`, or reinstall existing shadcn components.
 
@@ -115,7 +117,7 @@ Exceptions to the Tailwind-only UI rule:
 
 1. Design-token values live in `globals.css`.
 2. Third-party editor APIs such as CodeMirror may use CSS variable references through their theme API.
-3. Exercise content files (`base.css`, `starter.css`, `solution.css`) are raw CSS because CSS itself is the subject being taught.
+3. Exercise CSS source files under `starter/` and `solution/` are raw CSS because CSS itself is the subject being taught.
 
 # shadcn/ui
 
@@ -186,7 +188,7 @@ Rules:
 - Learner routes must explicitly reject non-`published` content.
 - Studio will eventually need access to both draft and published content.
 
-Exercises additionally have a positive integer `revision`.
+Exercises additionally have a positive integer `revision`, a declared Workspace file list and a Runtime definition. Course/Module/Lesson remain schemaVersion 1; Exercise is schemaVersion 2.
 
 Lesson content rules:
 
@@ -196,7 +198,7 @@ Lesson content rules:
 - Lesson MDX is compiled through the generated registry and may use only `Concept`, `Predict`, `Compare`, and `Exercise`.
 - Lesson MDX must not contain imports/exports, arbitrary JavaScript expressions, raw HTML/custom JSX, or level-one headings.
 - `Exercise` activities use a lesson-local `slug`, plus `label` and `goal`; do not hard-code learner absolute routes in MDX.
-- `exercise.order` is the canonical learner navigation sequence. Effective learner-visible Lessons must reference every published Exercise exactly once and in that order; they must not reference draft Exercises. Hidden/draft Lessons may reference draft Exercises while still requiring existing, slug-matching, non-duplicate references.
+- `exercise.order` is the canonical learner navigation sequence. Effective learner-visible Lessons must reference every published Exercise exactly once and in that order; they must not reference draft Exercises. Draft Lessons, or Lessons hidden only because an ancestor is unpublished, may reference draft Exercises while still requiring existing, slug-matching, non-duplicate references.
 - The generated registry is not edited by hand. Run `pnpm content:generate` after adding or moving lesson content, then run `pnpm content:check` before completing content changes.
 
 # Curriculum Authoring Skill
@@ -223,22 +225,28 @@ The intended exercise directory is:
 
 ```text
 exercise.json
-fixture.html
-base.css
-starter.css
-solution.css
+starter/
+  index.html
+  base.css
+  style.css
+solution/
+  style.css
 ```
 
 Responsibilities:
 
-- `fixture.html`: trusted exercise markup.
-- `base.css`: fixed visual/setup CSS the learner does not edit.
-- `starter.css`: learner-editable initial CSS.
-- `solution.css`: authoring/reference solution only.
+- `starter/index.html`: initial HTML workspace file; current CSS curriculum keeps it locked.
+- `starter/base.css`: fixed visual/setup CSS; current CSS curriculum keeps it locked.
+- `starter/style.css`: learner-editable initial CSS.
+- `solution/style.css`: authoring/reference solution for the editable workspace file.
 
-`solution.css` must never be part of the learner runtime `Exercise` type or be sent to learner client props.
+Exercise metadata uses `schemaVersion: 2` and declares Workspace files plus a Browser runtime entry. Course/Module/Lesson metadata remain `schemaVersion: 1`.
 
-Do not put answer properties into `base.css`.
+`solution/` must never be part of the learner runtime `Exercise` type or be sent to learner client props.
+
+Do not put answer properties into `starter/base.css`.
+
+Workspace declaration order is runtime-significant. The current CSS curriculum keeps `index.html` and `base.css` locked and `style.css` editable, but the platform supports content marking HTML as editable. `runtime.entry` is an HTML fragment, not a complete HTML document.
 
 # Exercise Check DSL
 
@@ -252,28 +260,48 @@ Checks are declarative content data. Do not create per-exercise custom JavaScrip
 
 Extend the DSL only when a real exercise requires a new capability.
 
-# Editor and Preview Runtime
+# Workspace, Toolchain and Runtime
 
-When implementing the editor/runtime:
+Use this architecture vocabulary:
 
-- CodeMirror 6 is the CSS editor.
-- Reuse existing CSS Lab editor tokens instead of importing a canned editor theme.
-- Keep editable CSS in React local state unless persistence is explicitly required.
-- Do not introduce Zustand/Redux/etc. for exercise editing state.
+```text
+Content
+→ Workspace
+→ optional Toolchain
+→ optional Runtime
+→ Checker
+→ Progress / Learning Shell
+```
 
-Preview runs in an iframe so learner CSS cannot affect the application UI.
+CSS / JavaScript / TypeScript are curriculum/language domains. Browser / Worker are runtimes. A TypeScript compiler is a toolchain.
 
-Security/runtime rules:
+Current M6A rules:
 
-- use `sandbox="allow-scripts"`
-- do not add `allow-same-origin` unless a future task gives a concrete requirement
-- do not support learner JavaScript
+- Workspace files are author-defined and fixed; learners cannot create/delete/rename files.
+- `editable` controls learner ownership, not secrecy. Locked files are still runtime inputs and must never hide solutions.
+- Progress stores learner-owned mutable Draft files only.
+- `ExecutionSnapshot` combines locked starter content with the captured learner Draft in declaration order.
+- Browser Runtime consumes only Runtime Definition + ExecutionSnapshot + check request; it does not read ProgressStore, editable metadata, solutions, or OS filesystem paths.
+- Browser `runtime.entry` is an HTML fragment. The Runtime owns the document shell, CSP, CSS slots and bridge.
+- CodeMirror has explicit HTML and CSS wrappers over a narrow shared lifecycle. Do not introduce LanguageRegistry/LanguagePlugin abstractions.
+- CSS swatches and CSS formatting remain CSS-specific; HTML formatting remains HTML-specific.
+
+Browser security/runtime rules:
+
+- use only `sandbox="allow-scripts"`
+- do not add `allow-same-origin`, forms, popups or top-navigation capability
+- do not enable learner JavaScript execution until the dedicated JavaScript runtime milestone
 - do not use `eval` or `new Function`
-- communicate through a typed `postMessage` protocol
-- validate `event.source` and message shape
-- CSS edits should update the iframe's user style without reloading the iframe on each keystroke
+- use the typed `lab-host` / `lab-runtime` postMessage protocol
+- validate `event.source`, source discriminator, shape, generationId and requestId
+- generationId is protocol identity; CSP nonce is a separate cryptographic authorization secret
+- CSS-only edits update CSS slots without rebuilding the iframe document
+- HTML edits create a new document generation
+- learner HTML is mounted into a runtime-owned root rather than raw-concatenated into srcDoc
+- checker selectors are scoped to learner fragment descendants; runtime shell/root/CSS slots are not checker targets
+- HTTP(S) egress from learner HTML/CSS remains blocked by CSP
 
-Keep the preview messaging protocol small and explicit.
+Keep runtime protocols small and explicit. Do not add generic RuntimeRegistry, CheckerRegistry, VFS, execution graph or plugin systems.
 
 # State and Persistence
 
@@ -290,37 +318,55 @@ Do not add a global state library by default.
 
 Learner progress uses an asynchronous `ProgressStore` abstraction backed by IndexedDB through the `idb` package.
 
+Current storage contract is database `css-lab`, version 2, store `exercise-progress`, key `[exerciseId, revision]`, with learner Draft `files` rather than a CSS-only `code` field.
+
 Persistence rules:
 
 - Feature/UI code must not call raw `indexedDB` APIs directly.
+- Progress stores only learner-owned mutable Workspace files plus completion achievement; it does not store locked files, active tab, dirty state, Predict state, hints or Lesson UI state.
 - Keep the storage contract asynchronous so alternative adapters can be introduced without rewriting React consumers.
 - Use `idb`'s typed `DBSchema` support and promise-based API instead of maintaining custom request/transaction wrappers.
 - Keep IndexedDB transactions short. Do not await network requests or unrelated async work inside an active transaction.
 - For read-modify-write operations, use a single `readwrite` transaction and await `tx.done`.
-- Treat persistence as a progressive enhancement: storage failures must not break Editor, Preview, Checker, or Reset behavior.
-- Exercise revision is part of the persistence key/compatibility boundary; progress from a different revision must not be restored as current progress.
+- Treat persistence as a progressive enhancement: storage failures and blocked upgrades must not break Editor, Preview, Checker or Reset.
+- Exercise revision is part of the persistence key/compatibility boundary; progress from a different revision must not be restored.
+- DB v2 is a forward migration. Production rollback/hotfix code must still understand DB v2; never use `DATABASE_VERSION = 1` or `deleteDatabase` as rollback.
 
 # Product Scope
 
-Do not expand CSS Lab into a generic online IDE.
+Do not expand Front-end Lab into a generic online IDE.
 
-Unless explicitly requested, do not add:
+Current implemented platform capability includes content-defined HTML/CSS editing and Browser Runtime. HTML editability is controlled by content metadata.
 
-- HTML editing
-- JavaScript editing
+Planned but not implemented:
+
+- JavaScript Worker Runtime
+- JavaScript Browser Runtime
+- TypeScript Toolchain
+- TypeScript no-runtime/type-check workflow
+
+Do not proactively add:
+
+- learner JavaScript execution before its dedicated runtime milestone
 - npm execution
 - WebContainer
-- arbitrary package installation
+- terminal
+- arbitrary package installation/runtime
+- framework lab runtime
+- generic VFS/FileExplorer
+- LanguagePlugin/LanguageRegistry
+- RuntimeRegistry/RuntimeFactory
+- ToolchainRegistry/CompilerRegistry
+- CheckerRegistry
 - collaboration
 - community features
 - authentication
-- database
+- database-backed CMS
 - cloud sync
-- CMS
 - AI tutor
 - payments
 
-Implement the current task only; do not proactively build adjacent milestones.
+When the first real curriculum Exercise enables editable HTML, that content change must add learner-route E2E for HTML edit, CSS edit, multi-file reload restore, Reset All and Check. Do not create fake published content or a test-only product route to prove platform capability.
 
 # Coding Conventions
 

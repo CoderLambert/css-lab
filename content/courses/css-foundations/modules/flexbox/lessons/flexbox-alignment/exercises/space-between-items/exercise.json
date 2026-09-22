@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "css.flexbox.alignment.space-between-items.001",
   "revision": 1,
   "slug": "space-between-items",
@@ -13,29 +13,14 @@
     "使用 justify-content 控制主轴剩余空间；目标分布模式是 space-between，同时让交叉轴保持 center。"
   ],
   "checks": [
-    {
-      "id": "container-display-flex",
-      "type": "style",
-      "selector": ".container",
-      "property": "display",
-      "equals": "flex",
-      "message": "将 .container 设置为 flex 布局"
-    },
-    {
-      "id": "container-justify-space-between",
-      "type": "style",
-      "selector": ".container",
-      "property": "justify-content",
-      "equals": "space-between",
-      "message": "让项目在主轴上使用 space-between 分布"
-    },
-    {
-      "id": "container-align-center",
-      "type": "style",
-      "selector": ".container",
-      "property": "align-items",
-      "equals": "center",
-      "message": "让项目在交叉轴上保持居中"
-    }
-  ]
+    {"id":"container-display-flex","type":"style","selector":".container","property":"display","equals":"flex","message":"将 .container 设置为 flex 布局"},
+    {"id":"container-justify-space-between","type":"style","selector":".container","property":"justify-content","equals":"space-between","message":"让项目在主轴上使用 space-between 分布"},
+    {"id":"container-align-center","type":"style","selector":".container","property":"align-items","equals":"center","message":"让项目在交叉轴上保持居中"}
+  ],
+  "workspace": {"files":[
+    {"path":"index.html","language":"html","editable":false},
+    {"path":"base.css","language":"css","editable":false},
+    {"path":"style.css","language":"css","editable":true}
+  ]},
+  "runtime": {"type":"browser","entry":"index.html"}
 }

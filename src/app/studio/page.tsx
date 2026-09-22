@@ -3,11 +3,13 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { readStudioContentHealth } from "@/features/studio/lib/content-health";
 import { FileContentReader } from "@/lib/content/file/file-content-reader";
+import { FileExerciseSourceInspector } from "@/lib/content/file/file-exercise-source-inspector";
 import { FileLessonContentInspector } from "@/lib/content/file/file-lesson-content-inspector";
 import { cn } from "@/lib/utils";
 
 const contentReader = new FileContentReader();
 const lessonContentInspector = new FileLessonContentInspector();
+const exerciseSourceInspector = new FileExerciseSourceInspector();
 
 function statusClasses(status: "draft" | "published"): string {
   return status === "published"
@@ -18,10 +20,10 @@ function statusClasses(status: "draft" | "published"): string {
 async function loadContentHealth() {
   try {
     return {
-      report: await readStudioContentHealth(
-        contentReader,
+      report: await readStudioContentHealth(contentReader, {
         lessonContentInspector,
-      ),
+        exerciseSourceInspector,
+      }),
       error: null,
     };
   } catch (error) {

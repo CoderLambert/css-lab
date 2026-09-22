@@ -6,7 +6,7 @@ Before writing files, define:
 
 - objective
 - editable surface
-- fixture purpose
+- starter markup purpose
 - starter state
 - expected behavior
 - progressive hints
@@ -15,23 +15,23 @@ Before writing files, define:
 
 ## File responsibilities
 
-### fixture.html
+### starter/index.html
 
 Use the smallest DOM needed to make the learning objective concrete.
 
-### base.css
+### starter/base.css
 
 Contains fixed visual/setup CSS only.
 
 Never hide answer properties here.
 
-### starter.css
+### starter/style.css
 
 Contains only the learner's starting point.
 
 Do not repeatedly make learners re-enter knowledge already established unless repetition is itself the objective.
 
-### solution.css
+### solution/style.css
 
 Authoring/reference solution only. It must not be relied on by learner runtime code.
 

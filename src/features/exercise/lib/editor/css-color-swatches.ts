@@ -3,7 +3,7 @@ import type { Range } from "@codemirror/state";
 import {
   Decoration,
   type DecorationSet,
-  type EditorView,
+  EditorView,
   ViewPlugin,
   type ViewUpdate,
   WidgetType,
@@ -189,3 +189,18 @@ export const cssColorSwatches = ViewPlugin.fromClass(
     decorations: (plugin) => plugin.decorations,
   },
 );
+
+
+export const cssColorSwatchTheme = EditorView.theme({
+  ".cm-css-color-swatch": {
+    display: "inline-block",
+    width: "0.7rem",
+    height: "0.7rem",
+    marginRight: "0.35rem",
+    border:
+      "1px solid color-mix(in oklch, var(--editor-foreground) 35%, transparent)",
+    borderRadius: "0.2rem",
+    verticalAlign: "-0.05rem",
+    pointerEvents: "none",
+  },
+});

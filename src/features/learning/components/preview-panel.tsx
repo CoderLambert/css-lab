@@ -4,12 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Lightbulb } from "lucide-react";
 
 import { CheckResults } from "@/features/exercise/components/check-results";
-import { PreviewFrame } from "@/features/exercise/components/preview-frame";
+import { BrowserRuntimeFrame } from "@/features/exercise/runtime/browser/components/browser-runtime-frame";
 import type { CheckState } from "@/features/exercise/lib/check-state";
-import type {
-  CheckRequest,
-  CheckResultMessage,
-} from "@/features/exercise/lib/preview-messages";
+import type { BrowserCheckRequest } from "@/features/exercise/runtime/browser/lib/browser-host";
+import type { CheckResultMessage } from "@/features/exercise/runtime/browser/lib/browser-messages";
+import type { BrowserRuntimeDefinition } from "@/lib/content/schemas/exercise";
+import type { ExecutionSnapshot } from "@/lib/workspace/types";
 
 type ViewportPresetId = "responsive" | "small" | "tablet" | "desktop";
 
@@ -50,24 +50,24 @@ const VIEWPORT_PRESETS: readonly ViewportPreset[] = [
 const BROWSER_CHROME_HEIGHT = 32;
 
 interface PreviewPanelProps {
-  html: string;
-  baseCss: string;
-  css: string;
-  checkRequest: CheckRequest | null;
+  runtime: BrowserRuntimeDefinition;
+  snapshot: ExecutionSnapshot;
+  checkRequest: BrowserCheckRequest | null;
   checkState: CheckState;
   hints: string[];
   revealedHintCount: number;
+  hasEditableHtml: boolean;
   onCheckResult: (result: CheckResultMessage) => void;
 }
 
 export function PreviewPanel({
-  html,
-  baseCss,
-  css,
+  runtime,
+  snapshot,
   checkRequest,
   checkState,
   hints,
   revealedHintCount,
+  hasEditableHtml,
   onCheckResult,
 }: PreviewPanelProps) {
   const [viewportPresetId, setViewportPresetId] =
@@ -115,10 +115,9 @@ export function PreviewPanel({
       : "Responsive";
 
   const previewFrame = (
-    <PreviewFrame
-      html={html}
-      baseCss={baseCss}
-      css={css}
+    <BrowserRuntimeFrame
+      runtime={runtime}
+      snapshot={snapshot}
       checkRequest={checkRequest}
       onCheckResult={onCheckResult}
       width={viewportPreset.width ?? "100%"}
@@ -233,7 +232,11 @@ export function PreviewPanel({
             修改代码后点击底部“检查答案”。失败时会显示检测器读取到的实际值和期望值。
           </p>
         ) : (
-          <CheckResults state={checkState} compact />
+          <CheckResults
+            state={checkState}
+            compact
+            hasEditableHtml={hasEditableHtml}
+          />
         )}
 
         {revealedHints.length > 0 ? (

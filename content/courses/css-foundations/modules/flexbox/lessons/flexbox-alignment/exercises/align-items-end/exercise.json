@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "css.flexbox.alignment.align-items-end.001",
   "revision": 1,
   "slug": "align-items-end",
@@ -13,24 +13,13 @@
     "用 align-items 控制整组项目的交叉轴对齐。经典 Flexbox 写法是 flex-end；现代 Box Alignment 的 end 在本题中也视为正确。"
   ],
   "checks": [
-    {
-      "id": "container-display-flex",
-      "type": "style",
-      "selector": ".container",
-      "property": "display",
-      "equals": "flex",
-      "message": "将 .container 设置为 flex 布局"
-    },
-    {
-      "id": "container-align-flex-end",
-      "type": "style",
-      "selector": ".container",
-      "property": "align-items",
-      "equals": "flex-end",
-      "alsoAccepts": [
-        "end"
-      ],
-      "message": "让项目沿交叉轴末端对齐"
-    }
-  ]
+    {"id":"container-display-flex","type":"style","selector":".container","property":"display","equals":"flex","message":"将 .container 设置为 flex 布局"},
+    {"id":"container-align-flex-end","type":"style","selector":".container","property":"align-items","equals":"flex-end","alsoAccepts":["end"],"message":"让项目沿交叉轴末端对齐"}
+  ],
+  "workspace": {"files":[
+    {"path":"index.html","language":"html","editable":false},
+    {"path":"base.css","language":"css","editable":false},
+    {"path":"style.css","language":"css","editable":true}
+  ]},
+  "runtime": {"type":"browser","entry":"index.html"}
 }

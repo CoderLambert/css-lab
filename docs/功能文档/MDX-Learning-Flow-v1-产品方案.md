@@ -229,11 +229,13 @@ Exercise 是独立机器可验证任务。
 prompt
 hints
 checks
-fixture
-base styles
-starter
-solution
+WorkspaceDefinition
+starter Workspace
+RuntimeDefinition
+server-only solution reference
 ```
+
+Exercise 使用 schemaVersion 2。Workspace metadata 声明固定 file set、language 与 editable；`starter/` 提供 runtime starter content；`solution/` 仅供 server-side authoring inspection，不进入 learner Exercise、Draft 或 Runtime。
 
 MDX 中的 `<Exercise />` 只是对同 Lesson Exercise 的教学引用，不复制其 machine contract。
 

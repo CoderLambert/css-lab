@@ -194,19 +194,21 @@ export async function scaffoldExercise({
   });
 
   const [fixtureHtml, baseCss, starterCss, solutionCss] = await Promise.all([
-    renderAsset("fixture.html.template"),
-    renderAsset("base.css.template"),
-    renderAsset("starter.css.template"),
-    renderAsset("solution.css.template"),
+    renderAsset("starter/index.html.template"),
+    renderAsset("starter/base.css.template"),
+    renderAsset("starter/style.css.template"),
+    renderAsset("solution/style.css.template"),
   ]);
 
   await mkdir(paths.exercisesRoot, { recursive: true });
   await createDirectoryAtomicallyEnough(targetDirectory, [
     { path: "exercise.json", content: exerciseJson },
-    { path: "fixture.html", content: fixtureHtml },
-    { path: "base.css", content: baseCss },
-    { path: "starter.css", content: starterCss },
-    { path: "solution.css", content: solutionCss },
+    { path: "starter", directory: true },
+    { path: "solution", directory: true },
+    { path: "starter/index.html", content: fixtureHtml },
+    { path: "starter/base.css", content: baseCss },
+    { path: "starter/style.css", content: starterCss },
+    { path: "solution/style.css", content: solutionCss },
   ]);
 
   return {
@@ -218,10 +220,10 @@ export async function scaffoldExercise({
     revision: exerciseRevision,
     status: "draft",
     next: [
-      "Replace TODO prompt and fixture with the real learning task.",
-      "Keep answer properties out of base.css.",
+      "Replace TODO prompt and starter/index.html with the real learning task.",
+      "Keep answer properties out of starter/base.css.",
       "Add progressive hints and declarative checks to exercise.json.",
-      "Write solution.css only as an authoring reference.",
+      "Write solution/style.css only as an authoring reference.",
       "Add the Exercise activity to lesson.mdx only when its teaching position is decided.",
     ],
   };

@@ -29,6 +29,41 @@ async function readEditorCss(page: Page): Promise<string> {
     );
 }
 
+async function installRuntimeReadyProbe(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const probeWindow = window as typeof window & {
+      __labRuntimeReadyGenerations?: string[];
+    };
+
+    probeWindow.__labRuntimeReadyGenerations = [];
+    window.addEventListener("message", (event) => {
+      const message = event.data as {
+        source?: unknown;
+        type?: unknown;
+        generationId?: unknown;
+      };
+
+      if (
+        message?.source === "lab-runtime" &&
+        message.type === "runtime:ready" &&
+        typeof message.generationId === "string"
+      ) {
+        probeWindow.__labRuntimeReadyGenerations?.push(message.generationId);
+      }
+    });
+  });
+}
+
+async function readRuntimeReadyGenerations(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const probeWindow = window as typeof window & {
+      __labRuntimeReadyGenerations?: string[];
+    };
+
+    return [...(probeWindow.__labRuntimeReadyGenerations ?? [])];
+  });
+}
+
 test("learner navigation follows the published exercise sequence", async ({
   page,
 }) => {
@@ -52,7 +87,7 @@ test("learner navigation follows the published exercise sequence", async ({
   await page.getByRole("button", { name: "align-items", exact: true }).click();
   await expect(page.getByRole("status").getByText("预测正确")).toBeVisible();
 
-  const previewFrame = page.locator('iframe[title="CSS exercise preview"]');
+  const previewFrame = page.locator('iframe[title="Browser exercise preview"]');
   await expect(previewFrame).toBeVisible();
   await page.getByRole("button", { name: "390", exact: true }).click();
   await expect(page.getByText("390 × 300", { exact: true })).toBeVisible();
@@ -90,18 +125,23 @@ test("learner navigation follows the published exercise sequence", async ({
 test("editing updates preview, checking persists completion, and reload restores progress", async ({
   page,
 }) => {
+  await installRuntimeReadyProbe(page);
   await page.goto(FIRST_EXERCISE_URL);
   await waitForExerciseHydration(page);
 
-  const source = `.container {
+  await expect
+    .poll(async () => (await readRuntimeReadyGenerations(page)).length)
+    .toBe(1);
+  const baselineReadyGenerations = await readRuntimeReadyGenerations(page);
+
+  const preview = page.frameLocator('iframe[title="Browser exercise preview"]');
+  const livePreviewSource = `.container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }`;
 
-  await replaceEditorCss(page, source);
-
-  const preview = page.frameLocator('iframe[title="CSS exercise preview"]');
+  await replaceEditorCss(page, livePreviewSource);
   await expect
     .poll(() =>
       preview
@@ -115,11 +155,31 @@ test("editing updates preview, checking persists completion, and reload restores
         .locator(".container")
         .evaluate((element) => getComputedStyle(element).alignItems),
     )
-    .toBe("center");
+    .toBe("flex-start");
+  await expect
+    .poll(() => readRuntimeReadyGenerations(page))
+    .toEqual(baselineReadyGenerations);
 
+  const source = `.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}`;
+
+  await replaceEditorCss(page, source);
   await page.getByRole("button", { name: "检查答案" }).click();
   await expect(page.getByText("全部检查通过")).toBeVisible();
   await expect(page.getByText("33%")).toBeVisible();
+  await expect
+    .poll(() => readRuntimeReadyGenerations(page))
+    .toEqual(baselineReadyGenerations);
+  await expect
+    .poll(() =>
+      preview
+        .locator(".container")
+        .evaluate((element) => getComputedStyle(element).alignItems),
+    )
+    .toBe("center");
 
   const storedProgress = await page.evaluate(
     ({ exerciseId, revision }) =>
@@ -146,7 +206,9 @@ test("editing updates preview, checking persists completion, and reload restores
 
   expect(storedProgress).toMatchObject({
     status: "completed",
-    code: source,
+    files: {
+      "style.css": source,
+    },
   });
 
   await page.reload();

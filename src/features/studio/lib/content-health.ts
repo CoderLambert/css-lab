@@ -1,5 +1,4 @@
-import "server-only";
-
+import type { ExerciseAssetInspection, ExerciseSourceInspector } from "@/lib/content/exercise-source";
 import type { ContentReader } from "@/lib/content/reader";
 import type { LessonContentInspector } from "@/lib/content/lesson-content-source";
 import type {
@@ -185,20 +184,107 @@ function auditExerciseChecks(
     checkIds.add(check.id);
   }
 
-  if (visibleInLearner && exercise.fixtureHtml.trim().length === 0) {
+}
+
+
+interface StudioSourceDependencies {
+  lessonContentInspector: LessonContentInspector;
+  exerciseSourceInspector: ExerciseSourceInspector;
+}
+
+function auditExerciseWorkspace(
+  issues: ContentHealthIssue[],
+  exercise: Exercise,
+  inspection: ExerciseAssetInspection,
+  visibleInLearner: boolean,
+  location: string,
+): void {
+  const workspaceFiles = exercise.workspace.definition.files;
+  const editablePaths = workspaceFiles
+    .filter((file) => file.editable)
+    .map((file) => file.path);
+
+  if (editablePaths.length === 0) {
+    addIssue(
+      issues,
+      visibleInLearner ? "error" : "warning",
+      "workspace-zero-editable",
+      `Exercise “${exercise.title}” 没有 editable workspace file。`,
+      location,
+    );
+  }
+
+  if (
+    exercise.runtime.type === "browser" &&
+    workspaceFiles.some(
+      (file) =>
+        file.language === "javascript" || file.language === "typescript",
+    )
+  ) {
     addIssue(
       issues,
       "error",
-      "empty-fixture",
-      `Published exercise “${exercise.title}” 的 fixture.html 为空。`,
+      "browser-unsupported-language",
+      `Exercise “${exercise.title}” 包含当前 Browser Runtime 不支持的 JS/TS file。`,
       location,
     );
+  }
+
+  if (workspaceFiles.filter((file) => file.language === "html").length > 1) {
+    addIssue(
+      issues,
+      "error",
+      "browser-multiple-html",
+      `Exercise “${exercise.title}” 包含多个 HTML files。`,
+      location,
+    );
+  }
+
+  const declaredPaths = new Set(workspaceFiles.map((file) => file.path));
+
+  for (const path of inspection.starterPaths) {
+    if (!declaredPaths.has(path)) {
+      addIssue(
+        issues,
+        "error",
+        "undeclared-starter-file",
+        `Starter source 包含未声明 workspace path “${path}”。`,
+        location,
+      );
+    }
+  }
+
+  const editablePathSet = new Set(editablePaths);
+  const solutionPathSet = new Set(inspection.solutionPaths);
+
+  for (const path of editablePathSet) {
+    if (!solutionPathSet.has(path)) {
+      addIssue(
+        issues,
+        "error",
+        "missing-solution-file",
+        `Editable workspace path “${path}” 缺少 solution file。`,
+        location,
+      );
+    }
+  }
+
+  for (const path of solutionPathSet) {
+    if (!editablePathSet.has(path)) {
+      addIssue(
+        issues,
+        "error",
+        "unexpected-solution-file",
+        `Solution path “${path}” 不是 editable workspace path。`,
+        location,
+      );
+    }
   }
 }
 
 export async function readStudioContentHealth(
   contentReader: ContentReader,
-  lessonContentInspector: LessonContentInspector,
+  sources: StudioSourceDependencies,
 ): Promise<StudioContentHealth> {
   const issues: ContentHealthIssue[] = [];
   const stableIds = new Map<string, RegisteredEntity>();
@@ -267,7 +353,7 @@ export async function readStudioContentHealth(
           lessonLocation,
         );
 
-        const lessonContent = await lessonContentInspector.inspectLessonContent(
+        const lessonContent = await sources.lessonContentInspector.inspectLessonContent(
           {
             courseSlug: course.slug,
             moduleSlug: courseModule.slug,
@@ -336,6 +422,31 @@ export async function readStudioContentHealth(
             visibleInLearner,
             exerciseLocation,
           );
+
+          try {
+            const inspection = await sources.exerciseSourceInspector.inspectExercise({
+              courseSlug: course.slug,
+              moduleSlug: courseModule.slug,
+              lessonSlug: lesson.slug,
+              exerciseSlug: exercise.slug,
+            });
+
+            auditExerciseWorkspace(
+              issues,
+              exercise,
+              inspection,
+              visibleInLearner,
+              exerciseLocation,
+            );
+          } catch {
+            addIssue(
+              issues,
+              "error",
+              "exercise-source-inspection-failed",
+              `Exercise “${exercise.title}” 的 source inspection 失败。`,
+              exerciseLocation,
+            );
+          }
 
           if (visibleInLearner) {
             lessonPublishedExercises += 1;

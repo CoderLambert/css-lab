@@ -1,9 +1,7 @@
-import type { CheckResult } from "./preview-messages";
+import type { CheckResult } from "./check-result";
 
 export type CheckState =
-  | {
-      status: "idle";
-    }
+  | { status: "idle" }
   | {
       status: "checking";
       requestId: string;
@@ -12,5 +10,5 @@ export type CheckState =
       status: "complete";
       requestId: string;
       passed: boolean;
-      results: CheckResult[];
+      results: readonly CheckResult[];
     };

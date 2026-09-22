@@ -1,14 +1,21 @@
 import { AlertTriangle, Check, X } from "lucide-react";
 
-import type { CheckResult } from "../lib/preview-messages";
+import {
+  getBrowserCheckDiagnostic,
+  isCheckResultFault,
+  type CheckResult,
+} from "../lib/check-result";
 import type { CheckState } from "../lib/check-state";
 
 interface CheckResultsProps {
   state: CheckState;
   compact?: boolean;
+  hasEditableHtml?: boolean;
 }
 
-function formatValue(value: CheckResult["actual"] | CheckResult["expected"]): string {
+function formatValue(
+  value: CheckResult["actual"] | CheckResult["expected"],
+): string {
   if (value === null) {
     return "未获得";
   }
@@ -20,33 +27,58 @@ function formatValue(value: CheckResult["actual"] | CheckResult["expected"]): st
   return String(value);
 }
 
-function Diagnostic({ result }: { result: CheckResult }) {
+function Diagnostic({
+  result,
+  hasEditableHtml,
+}: {
+  result: CheckResult;
+  hasEditableHtml: boolean;
+}) {
   if (result.passed) {
     return null;
   }
 
+  const diagnostic = getBrowserCheckDiagnostic(result);
+  const selector = diagnostic?.selector ?? null;
+  const property = diagnostic?.property ?? null;
+
   if (result.reason === "checker-error") {
     return (
       <div className="mt-2 flex gap-2 border-l-2 border-warning pl-3 text-xs leading-5 text-muted-foreground">
-        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden="true" />
+        <AlertTriangle
+          className="mt-0.5 size-3.5 shrink-0 text-warning"
+          aria-hidden="true"
+        />
         <p>
-          检测器执行异常。这更可能是题目检查规则的问题，而不是你的 CSS。可以保留当前代码并反馈这道题。
+          检测器执行异常。这更可能是题目检查规则或运行时的问题，而不是你的实现。可以保留当前代码并反馈这道题。
         </p>
       </div>
     );
   }
 
-  if (result.reason === "selector-not-found") {
+  if (result.reason === "target-not-found") {
     return (
-      <div className="mt-2 flex gap-2 border-l-2 border-warning pl-3 text-xs leading-5 text-muted-foreground">
-        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden="true" />
+      <div
+        className={[
+          "mt-2 flex gap-2 border-l-2 pl-3 text-xs leading-5 text-muted-foreground",
+          hasEditableHtml ? "border-border" : "border-warning",
+        ].join(" ")}
+      >
+        {!hasEditableHtml ? (
+          <AlertTriangle
+            className="mt-0.5 size-3.5 shrink-0 text-warning"
+            aria-hidden="true"
+          />
+        ) : null}
         <p>
-          检测器没有找到
-          {" "}
+          检测器没有在当前 learner HTML 中找到{" "}
           <code className="bg-panel-subtle px-1 py-0.5 font-mono text-panel-foreground">
-            {result.selector ?? "目标元素"}
+            {selector ?? "目标元素"}
           </code>
-          。如果本题没有要求你修改 HTML，这可能是题目配置问题。
+          。
+          {hasEditableHtml
+            ? " 本题允许编辑 HTML，请检查元素结构是否仍满足题目要求。"
+            : " 本题 HTML 为锁定内容，这更可能是题目检查规则或内容配置问题。"}
         </p>
       </div>
     );
@@ -56,8 +88,8 @@ function Diagnostic({ result }: { result: CheckResult }) {
     <div className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 border-l-2 border-border pl-3 text-xs leading-5">
       <span className="text-muted-foreground">检测对象</span>
       <code className="min-w-0 break-all font-mono text-panel-foreground">
-        {result.selector ?? "—"}
-        {result.property ? ` · ${result.property}` : ""}
+        {selector ?? "—"}
+        {property ? ` · ${property}` : ""}
       </code>
       <span className="text-muted-foreground">当前值</span>
       <code className="break-all font-mono text-destructive">
@@ -77,6 +109,7 @@ function Diagnostic({ result }: { result: CheckResult }) {
 export function CheckResults({
   state,
   compact = false,
+  hasEditableHtml = false,
 }: CheckResultsProps) {
   if (state.status === "idle") {
     return null;
@@ -85,12 +118,18 @@ export function CheckResults({
   if (state.status === "checking") {
     return (
       <section
-        className={compact ? "mt-4" : "mt-7 border-t border-border pt-5"}
+        className={
+          compact
+            ? "mt-4"
+            : "mt-7 border-t border-border pt-5"
+        }
         aria-live="polite"
         aria-label="检查结果"
       >
         {!compact ? (
-          <p className="text-sm font-semibold text-panel-foreground">检查结果</p>
+          <p className="text-sm font-semibold text-panel-foreground">
+            检查结果
+          </p>
         ) : null}
         <p
           className={
@@ -105,16 +144,20 @@ export function CheckResults({
     );
   }
 
-  const passedCount = state.results.filter((result) => result.passed).length;
-  const hasCheckerError = state.results.some(
-    (result) =>
-      result.reason === "checker-error" ||
-      result.reason === "selector-not-found",
+  const passedCount = state.results.filter(
+    (result) => result.passed,
+  ).length;
+  const hasCheckerFault = state.results.some((result) =>
+    isCheckResultFault(result, { hasEditableHtml }),
   );
 
   return (
     <section
-      className={compact ? "mt-4" : "mt-7 border-t border-border pt-5"}
+      className={
+        compact
+          ? "mt-4"
+          : "mt-7 border-t border-border pt-5"
+      }
       aria-live="polite"
       aria-label="检查结果"
     >
@@ -123,14 +166,14 @@ export function CheckResults({
           className={
             state.passed
               ? "text-sm font-semibold text-success"
-              : hasCheckerError
+              : hasCheckerFault
                 ? "text-sm font-semibold text-warning"
                 : "text-sm font-semibold text-destructive"
           }
         >
           {state.passed
             ? "全部检查通过"
-            : hasCheckerError
+            : hasCheckerFault
               ? "检测规则需要检查"
               : "当前实现还未满足全部条件"}
         </p>
@@ -165,7 +208,10 @@ export function CheckResults({
               </span>
             </div>
             <div className="ml-6">
-              <Diagnostic result={result} />
+              <Diagnostic
+                result={result}
+                hasEditableHtml={hasEditableHtml}
+              />
             </div>
           </li>
         ))}

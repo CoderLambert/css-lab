@@ -14,25 +14,28 @@ content/courses/<course>/
       lesson.mdx
       exercises/<exercise>/
         exercise.json
-        fixture.html
-        base.css
-        starter.css
-        solution.css
+        starter/
+          index.html
+          base.css
+          style.css
+        solution/
+          style.css
 ```
 
 Every direct Lesson directory must contain both `lesson.json` and `lesson.mdx`.
 
 ## Metadata
 
+Course, Module, and Lesson use `schemaVersion: 1`. Exercise uses `schemaVersion: 2`.
+
 All content entities use:
 
-- `schemaVersion: 1`
 - stable `id`
 - mutable kebab-case `slug`
 - positive integer `order`
 - `status: draft | published`
 
-Exercise additionally uses positive integer `revision`.
+Exercise additionally uses positive integer `revision`, a declared Workspace file list, and a Browser runtime entry.
 
 Stable IDs are semantic identity. Do not derive or change them casually. The scaffolder requires the caller to provide the ID and then checks repository-wide uniqueness.
 

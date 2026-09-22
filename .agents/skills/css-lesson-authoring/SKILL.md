@@ -6,7 +6,7 @@ description: >
   grounded curriculum, reviewing lesson quality, or scaffolding authoring files.
   Use deterministic scripts for context inspection, scaffolding, and source-pack
   validation. Do not use for learner UI, runtime, Workspace, MDX component
-  implementation, or M6A architecture work.
+  implementation, or platform architecture work.
 ---
 
 # CSS Lesson Authoring
@@ -127,7 +127,7 @@ node .agents/skills/css-lesson-authoring/scripts/scaffold.mjs exercise \
   --prompt "<prompt>"
 ```
 
-The script creates a draft Exercise with the current v1 asset layout and refuses overwrite.
+The script creates a draft Exercise with the current Exercise v2 `starter/` + `solution/` Workspace layout and refuses overwrite.
 
 Do not manually renumber existing exercises to make a new Exercise fit. Use explicit `--order` only when the teaching sequence requires it and no collision exists.
 
@@ -208,12 +208,12 @@ Keep MDX Exercise references aligned with canonical `exercise.order`.
 
 For every Exercise:
 
-- keep fixture minimal
-- keep answer properties out of `base.css`
-- choose starter state based on what the learner already knows
+- keep `starter/index.html` minimal
+- keep answer properties out of `starter/base.css`
+- choose `starter/style.css` based on what the learner already knows
 - create progressive hints
 - create declarative checks
-- write `solution.css` only as authoring reference
+- write `solution/style.css` only as authoring reference
 
 Review checks against equivalent valid solutions.
 
@@ -293,8 +293,8 @@ This Skill must not:
 - redesign learner UI
 - modify Preview/runtime protocol
 - add new MDX Activity components
-- implement M6A
-- introduce Exercise v2
+- refactor learner UI, Workspace domain, Runtime protocol, or platform architecture
+- redesign the established Exercise v2 Workspace/Runtime contract
 - invent Checker Registry/Matcher DSL
 - add CMS/database/auth infrastructure
 - auto-publish newly scaffolded content

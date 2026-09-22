@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": {{ID_JSON}},
   "revision": {{REVISION}},
   "slug": {{SLUG_JSON}},
@@ -8,5 +8,13 @@
   "order": {{ORDER}},
   "status": "draft",
   "hints": [],
-  "checks": []
+  "checks": [],
+  "workspace": {
+    "files": [
+      { "path": "index.html", "language": "html", "editable": false },
+      { "path": "base.css", "language": "css", "editable": false },
+      { "path": "style.css", "language": "css", "editable": true }
+    ]
+  },
+  "runtime": { "type": "browser", "entry": "index.html" }
 }

@@ -14,12 +14,15 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import type { CheckState } from "@/features/exercise/lib/check-state";
-import type { CheckResultMessage } from "@/features/exercise/lib/preview-messages";
+import type { BrowserCheckRequest } from "@/features/exercise/runtime/browser/lib/browser-host";
+import type { CheckResultMessage } from "@/features/exercise/runtime/browser/lib/browser-messages";
 import { useExerciseProgress } from "@/features/progress/hooks/use-exercise-progress";
 import { useLearningProgress } from "@/features/progress/hooks/use-learning-progress";
 import type { Course, Exercise, Lesson, Module } from "@/lib/content/types";
+import { createExecutionSnapshot } from "@/lib/workspace/execution-snapshot";
+import type { ExerciseDraft } from "@/lib/workspace/types";
 import type { LearnerNavigation } from "../lib/learner-navigation";
-import { EditorPanel } from "./editor-panel";
+import { WorkspaceEditorPanel } from "@/features/exercise/workspace/components/workspace-editor-panel";
 import { LessonPanel } from "./lesson-panel";
 import { PreviewPanel } from "./preview-panel";
 import { WorkspaceFooter } from "./workspace-footer";
@@ -62,16 +65,29 @@ function LearningWorkspaceSession({
   navigation,
 }: LearningWorkspaceProps) {
   const {
-    css,
+    draft,
     isHydrated,
-    updateCss,
-    resetCss,
+    updateFile,
+    resetAll,
     markCompleted,
   } = useExerciseProgress({
     exerciseId: exercise.id,
     revision: exercise.revision,
-    starterCss: exercise.starterCss,
+    workspace: exercise.workspace,
   });
+  const snapshot = useMemo(
+    () => createExecutionSnapshot(exercise.workspace, draft),
+    [draft, exercise.workspace],
+  );
+  const hasEditableHtml = useMemo(
+    () =>
+      exercise.workspace.definition.files.some(
+        (file) =>
+          file.editable &&
+          file.language === "html",
+      ),
+    [exercise.workspace],
+  );
   const [progressRefreshToken, setProgressRefreshToken] = useState(0);
   const { isHydrated: isProgressHydrated, progress } = useLearningProgress({
     exercises: navigation.progressExercises,
@@ -84,36 +100,37 @@ function LearningWorkspaceSession({
   });
   const [revealedHintCount, setRevealedHintCount] = useState(0);
   const requestCounterRef = useRef(0);
-  const activeCheckRef = useRef<{
+  type ActiveCheck = {
     requestId: string;
-    code: string;
-  } | null>(null);
+    draft: ExerciseDraft;
+    request: BrowserCheckRequest;
+  };
+  const activeCheckRef = useRef<ActiveCheck | null>(null);
+  const [activeCheck, setActiveCheck] =
+    useState<ActiveCheck | null>(null);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
     getDesktopWorkspaceSnapshot,
     getDesktopWorkspaceServerSnapshot,
   );
 
-  const checkRequest = useMemo(
-    () =>
-      checkState.status === "checking"
-        ? {
-            requestId: checkState.requestId,
-            checks: exercise.checks,
-          }
-        : null,
-    [checkState, exercise.checks],
-  );
+  const checkRequest =
+    checkState.status === "checking" &&
+    activeCheck?.requestId === checkState.requestId
+      ? activeCheck.request
+      : null;
 
-  const handleCssChange = (nextCss: string) => {
+  const handleFileChange = (path: string, content: string) => {
     activeCheckRef.current = null;
-    updateCss(nextCss);
+    setActiveCheck(null);
+    updateFile(path, content);
     setCheckState({ status: "idle" });
   };
 
   const handleReset = () => {
     activeCheckRef.current = null;
-    resetCss();
+    setActiveCheck(null);
+    resetAll();
     setCheckState({ status: "idle" });
   };
 
@@ -131,10 +148,25 @@ function LearningWorkspaceSession({
     requestCounterRef.current += 1;
     const requestId = `${exercise.id}:${requestCounterRef.current}`;
 
-    activeCheckRef.current = {
-      requestId,
-      code: css,
+    const capturedDraft: ExerciseDraft = {
+      files: { ...draft.files },
     };
+    const request: BrowserCheckRequest = {
+      requestId,
+      checks: exercise.checks,
+      snapshot: createExecutionSnapshot(
+        exercise.workspace,
+        capturedDraft,
+      ),
+    };
+
+    const nextActiveCheck = {
+      requestId,
+      draft: capturedDraft,
+      request,
+    };
+    activeCheckRef.current = nextActiveCheck;
+    setActiveCheck(nextActiveCheck);
     setCheckState({
       status: "checking",
       requestId,
@@ -149,6 +181,7 @@ function LearningWorkspaceSession({
     }
 
     activeCheckRef.current = null;
+    setActiveCheck(null);
     setCheckState({
       status: "complete",
       requestId: result.requestId,
@@ -157,7 +190,7 @@ function LearningWorkspaceSession({
     });
 
     if (result.passed) {
-      void markCompleted(activeCheck.code)
+      void markCompleted(activeCheck.draft)
         .then(() => {
           setProgressRefreshToken((current) => current + 1);
         })
@@ -178,13 +211,13 @@ function LearningWorkspaceSession({
 
   const previewPanel = (
     <PreviewPanel
-      html={exercise.fixtureHtml}
-      baseCss={exercise.baseCss}
-      css={css}
+      runtime={exercise.runtime}
+      snapshot={snapshot}
       checkRequest={checkRequest}
       checkState={checkState}
       hints={exercise.hints}
       revealedHintCount={revealedHintCount}
+      hasEditableHtml={hasEditableHtml}
       onCheckResult={handleCheckResult}
     />
   );
@@ -221,7 +254,11 @@ function LearningWorkspaceSession({
                   minSize="48"
                   className="min-w-0"
                 >
-                  <EditorPanel value={css} onChange={handleCssChange} />
+                  <WorkspaceEditorPanel
+                    workspace={exercise.workspace}
+                    draft={draft}
+                    onFileChange={handleFileChange}
+                  />
                 </ResizablePanel>
 
                 <ResizableHandle />
@@ -243,7 +280,11 @@ function LearningWorkspaceSession({
                 {lessonPanel}
               </div>
               <div className="min-h-[620px] min-w-0 border-b border-border">
-                <EditorPanel value={css} onChange={handleCssChange} />
+                <WorkspaceEditorPanel
+                    workspace={exercise.workspace}
+                    draft={draft}
+                    onFileChange={handleFileChange}
+                  />
               </div>
               <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
                 {previewPanel}
