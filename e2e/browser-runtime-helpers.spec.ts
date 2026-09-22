@@ -429,3 +429,119 @@ test("ready and result acceptance reject stale generation and stale request ids"
   expect(acceptsCheckResult(result, "old", "request-1")).toBe(false);
   expect(acceptsCheckResult(result, "current", "request-2")).toBe(false);
 });
+
+
+test("DOM policy neutralizes executable markup, navigation surfaces, and clobbering attempts", async ({
+  page,
+}) => {
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: snapshot(
+      [
+        '<div id="learner-root"></div>',
+        '<style data-runtime-workspace-path="style.css"></style>',
+        '<script>window.__scriptRan = true</script>',
+        '<iframe srcdoc="<script>parent.__frameRan=true<\\/script>"></iframe>',
+        '<object data="https://m6a-egress.invalid/object"></object>',
+        '<embed src="https://m6a-egress.invalid/embed">',
+        '<meta http-equiv="refresh" content="0;url=https://m6a-egress.invalid/refresh">',
+        '<a class="javascript-link" href="javascript:window.__javascriptUrl=true">go</a>',
+        '<button class="handler" onclick="window.__handlerRan=true">click</button>',
+        '<div class="target">target</div>',
+      ].join(""),
+    ),
+    generationId: "generation-policy",
+    nonce: "30112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  await page.evaluate((srcDoc) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    if (!iframe) throw new Error("missing iframe");
+    iframe.srcdoc = srcDoc;
+  }, descriptor.srcDoc);
+
+  const frame = page.frames().find((candidate) => candidate !== page.mainFrame());
+  expect(frame).toBeTruthy();
+
+  await expect(frame!.locator("script")).toHaveCount(1);
+  await expect(frame!.locator("iframe, object, embed")).toHaveCount(0);
+  await expect(frame!.locator('meta[http-equiv="refresh" i]')).toHaveCount(0);
+  await expect(frame!.locator(".javascript-link")).not.toHaveAttribute(
+    "href",
+    /javascript:/i,
+  );
+  await expect(frame!.locator(".handler")).not.toHaveAttribute("onclick");
+
+  await frame!.locator(".handler").click();
+  expect(
+    await frame!.evaluate(() => ({
+      script: Boolean((window as Window & { __scriptRan?: boolean }).__scriptRan),
+      handler: Boolean((window as Window & { __handlerRan?: boolean }).__handlerRan),
+      javascriptUrl: Boolean(
+        (window as Window & { __javascriptUrl?: boolean }).__javascriptUrl,
+      ),
+    })),
+  ).toEqual({
+    script: false,
+    handler: false,
+    javascriptUrl: false,
+  });
+
+  await page.evaluate((generationId) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    iframe?.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "css:update",
+        generationId,
+        path: "style.css",
+        content: ".target { color: rgb(7, 8, 9) }",
+      },
+      "*",
+    );
+  }, descriptor.generationId);
+
+  await expect(frame!.locator(".target")).toHaveCSS("color", "rgb(7, 8, 9)");
+  await expect(
+    frame!.locator('style[data-runtime-workspace-path="style.css"]'),
+  ).toHaveCount(2);
+});
+
+test("unknown CSS path is ignored and cannot create a runtime slot", async ({ page }) => {
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: snapshot(),
+    generationId: "generation-unknown-css",
+    nonce: "40112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  await page.evaluate((srcDoc) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    if (!iframe) throw new Error("missing iframe");
+    iframe.srcdoc = srcDoc;
+  }, descriptor.srcDoc);
+
+  const frame = page.frames().find((candidate) => candidate !== page.mainFrame());
+  expect(frame).toBeTruthy();
+
+  await page.evaluate((generationId) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    iframe?.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "css:update",
+        generationId,
+        path: "unknown.css",
+        content: ".target { color: rgb(9, 9, 9) }",
+      },
+      "*",
+    );
+  }, descriptor.generationId);
+
+  await expect(
+    frame!.locator('style[data-runtime-workspace-path="unknown.css"]'),
+  ).toHaveCount(0);
+  await expect(frame!.locator(".target")).not.toHaveCSS("color", "rgb(9, 9, 9)");
+});
