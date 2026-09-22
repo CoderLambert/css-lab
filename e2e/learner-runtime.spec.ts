@@ -52,7 +52,7 @@ test("learner navigation follows the published exercise sequence", async ({
   await page.getByRole("button", { name: "align-items", exact: true }).click();
   await expect(page.getByRole("status").getByText("预测正确")).toBeVisible();
 
-  const previewFrame = page.locator('iframe[title="CSS exercise preview"]');
+  const previewFrame = page.locator('iframe[title="Browser exercise preview"]');
   await expect(previewFrame).toBeVisible();
   await page.getByRole("button", { name: "390", exact: true }).click();
   await expect(page.getByText("390 × 300", { exact: true })).toBeVisible();
@@ -101,7 +101,7 @@ test("editing updates preview, checking persists completion, and reload restores
 
   await replaceEditorCss(page, source);
 
-  const preview = page.frameLocator('iframe[title="CSS exercise preview"]');
+  const preview = page.frameLocator('iframe[title="Browser exercise preview"]');
   await expect
     .poll(() =>
       preview

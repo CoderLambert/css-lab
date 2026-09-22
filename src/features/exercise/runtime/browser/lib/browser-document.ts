@@ -295,11 +295,12 @@ function createRuntimeBridge(
             ? check.alsoAccepts.filter((value) => typeof value === "string")
             : []),
         ];
+        const passed = accepted.includes(actual);
         return result(
           check,
-          accepted.includes(actual),
-          accepted.includes(actual) ? "matched" : "mismatch",
-          check.equals,
+          passed,
+          passed ? "matched" : "mismatch",
+          accepted.join(" / "),
           actual,
           check.property,
         );

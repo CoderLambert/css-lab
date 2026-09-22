@@ -14,11 +14,13 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import type { CheckState } from "@/features/exercise/lib/check-state";
-import type { CheckResultMessage } from "@/features/exercise/lib/preview-messages";
+import type { BrowserCheckRequest } from "@/features/exercise/runtime/browser/lib/browser-host";
+import type { CheckResultMessage } from "@/features/exercise/runtime/browser/lib/browser-messages";
 import { useExerciseProgress } from "@/features/progress/hooks/use-exercise-progress";
 import { useLearningProgress } from "@/features/progress/hooks/use-learning-progress";
 import type { Course, Exercise, Lesson, Module } from "@/lib/content/types";
-import { deriveLegacyCssExerciseInputs } from "../lib/legacy-css-exercise-bridge";
+import { createExecutionSnapshot } from "@/lib/workspace/execution-snapshot";
+import type { ExerciseDraft } from "@/lib/workspace/types";
 import type { LearnerNavigation } from "../lib/learner-navigation";
 import { WorkspaceEditorPanel } from "@/features/exercise/workspace/components/workspace-editor-panel";
 import { LessonPanel } from "./lesson-panel";
@@ -62,10 +64,6 @@ function LearningWorkspaceSession({
   exercise,
   navigation,
 }: LearningWorkspaceProps) {
-  const legacyCss = useMemo(
-    () => deriveLegacyCssExerciseInputs(exercise),
-    [exercise],
-  );
   const {
     draft,
     isHydrated,
@@ -77,8 +75,10 @@ function LearningWorkspaceSession({
     revision: exercise.revision,
     workspace: exercise.workspace,
   });
-  // Transitional Task 03/04 adapter. Task 05 removes the CSS-only Preview path.
-  const css = draft.files["style.css"] ?? legacyCss.starterCss;
+  const snapshot = useMemo(
+    () => createExecutionSnapshot(exercise.workspace, draft),
+    [draft, exercise.workspace],
+  );
   const [progressRefreshToken, setProgressRefreshToken] = useState(0);
   const { isHydrated: isProgressHydrated, progress } = useLearningProgress({
     exercises: navigation.progressExercises,
@@ -93,7 +93,8 @@ function LearningWorkspaceSession({
   const requestCounterRef = useRef(0);
   const activeCheckRef = useRef<{
     requestId: string;
-    draft: typeof draft;
+    draft: ExerciseDraft;
+    request: BrowserCheckRequest;
   } | null>(null);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
@@ -101,16 +102,11 @@ function LearningWorkspaceSession({
     getDesktopWorkspaceServerSnapshot,
   );
 
-  const checkRequest = useMemo(
-    () =>
-      checkState.status === "checking"
-        ? {
-            requestId: checkState.requestId,
-            checks: exercise.checks,
-          }
-        : null,
-    [checkState, exercise.checks],
-  );
+  const checkRequest =
+    checkState.status === "checking" &&
+    activeCheckRef.current?.requestId === checkState.requestId
+      ? activeCheckRef.current.request
+      : null;
 
   const handleFileChange = (path: string, content: string) => {
     activeCheckRef.current = null;
@@ -138,9 +134,22 @@ function LearningWorkspaceSession({
     requestCounterRef.current += 1;
     const requestId = `${exercise.id}:${requestCounterRef.current}`;
 
+    const capturedDraft: ExerciseDraft = {
+      files: { ...draft.files },
+    };
+    const request: BrowserCheckRequest = {
+      requestId,
+      checks: exercise.checks,
+      snapshot: createExecutionSnapshot(
+        exercise.workspace,
+        capturedDraft,
+      ),
+    };
+
     activeCheckRef.current = {
       requestId,
-      draft,
+      draft: capturedDraft,
+      request,
     };
     setCheckState({
       status: "checking",
@@ -185,9 +194,8 @@ function LearningWorkspaceSession({
 
   const previewPanel = (
     <PreviewPanel
-      html={legacyCss.html}
-      baseCss={legacyCss.baseCss}
-      css={css}
+      runtime={exercise.runtime}
+      snapshot={snapshot}
       checkRequest={checkRequest}
       checkState={checkState}
       hints={exercise.hints}

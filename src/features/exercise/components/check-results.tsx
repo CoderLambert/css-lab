@@ -1,6 +1,6 @@
 import { AlertTriangle, Check, X } from "lucide-react";
 
-import type { CheckResult } from "../lib/preview-messages";
+import type { BrowserCheckResult } from "../runtime/browser/lib/browser-messages";
 import type { CheckState } from "../lib/check-state";
 
 interface CheckResultsProps {
@@ -8,7 +8,7 @@ interface CheckResultsProps {
   compact?: boolean;
 }
 
-function formatValue(value: CheckResult["actual"] | CheckResult["expected"]): string {
+function formatValue(value: BrowserCheckResult["actual"] | BrowserCheckResult["expected"]): string {
   if (value === null) {
     return "未获得";
   }
@@ -20,7 +20,7 @@ function formatValue(value: CheckResult["actual"] | CheckResult["expected"]): st
   return String(value);
 }
 
-function Diagnostic({ result }: { result: CheckResult }) {
+function Diagnostic({ result }: { result: BrowserCheckResult }) {
   if (result.passed) {
     return null;
   }
@@ -36,7 +36,7 @@ function Diagnostic({ result }: { result: CheckResult }) {
     );
   }
 
-  if (result.reason === "selector-not-found") {
+  if (result.reason === "target-not-found") {
     return (
       <div className="mt-2 flex gap-2 border-l-2 border-warning pl-3 text-xs leading-5 text-muted-foreground">
         <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden="true" />
@@ -44,7 +44,7 @@ function Diagnostic({ result }: { result: CheckResult }) {
           检测器没有找到
           {" "}
           <code className="bg-panel-subtle px-1 py-0.5 font-mono text-panel-foreground">
-            {result.selector ?? "目标元素"}
+            {result.diagnostic?.selector ?? "目标元素"}
           </code>
           。如果本题没有要求你修改 HTML，这可能是题目配置问题。
         </p>
@@ -56,8 +56,8 @@ function Diagnostic({ result }: { result: CheckResult }) {
     <div className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 border-l-2 border-border pl-3 text-xs leading-5">
       <span className="text-muted-foreground">检测对象</span>
       <code className="min-w-0 break-all font-mono text-panel-foreground">
-        {result.selector ?? "—"}
-        {result.property ? ` · ${result.property}` : ""}
+        {result.diagnostic?.selector ?? "—"}
+        {result.diagnostic?.property ? ` · ${result.diagnostic.property}` : ""}
       </code>
       <span className="text-muted-foreground">当前值</span>
       <code className="break-all font-mono text-destructive">
@@ -109,7 +109,7 @@ export function CheckResults({
   const hasCheckerError = state.results.some(
     (result) =>
       result.reason === "checker-error" ||
-      result.reason === "selector-not-found",
+      result.reason === "target-not-found",
   );
 
   return (
