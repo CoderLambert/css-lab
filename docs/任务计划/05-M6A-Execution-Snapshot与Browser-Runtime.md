@@ -728,6 +728,7 @@ Playwright test直接 import纯 builder/message helpers：
 - javascript URL不执行/不导航。
 - meta refresh被 neutralize。
 - iframe/object/embed无效。
+- learner HTML remote resource与 learner CSS `url()` / `@import` 不产生 HTTP(S) network request；测试应使用 request interception/计数证明 CSP egress boundary，而不只检查最终 DOM。
 - unknown CSS path不会生成 slot。
 - forged source/message被忽略。
 
@@ -784,6 +785,7 @@ git status --short
 - [ ] learner HTML不 raw-concat。
 - [ ] nonce每 document generation随机。
 - [ ] CSP不开放 unsafe JS。
+- [ ] CSP阻断 learner HTML/CSS 的 HTTP(S) network egress，并有 request-level自动化覆盖。
 - [ ] script/event/javascript URL/navigation有 defense-in-depth。
 - [ ] runtime-owned root/CSS slot使用 mount 前捕获 reference，learner DOM clobbering不能劫持。
 - [ ] CheckResult与 Browser definition type解耦。

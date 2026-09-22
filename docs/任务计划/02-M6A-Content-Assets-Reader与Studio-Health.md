@@ -326,7 +326,26 @@ runtime.entry = index.html
 
 WorkspacePath grammar 只能防止字符串层面的 `../` / separator escape，**不能阻止 filesystem symlink escape**。
 
-FileContentReader 读取每个 declared starter file 时必须 fail closed：
+FileContentReader 必须先把构造时配置的 `coursesRoot` 解析为 canonical trust anchor。允许部署者把配置入口本身指向 symlink，但 canonical root一旦建立，所有 content descendants 都必须位于该 root 内，且不能通过后代 symlink重新定向。
+
+从 canonical `coursesRoot` 到当前 Exercise 的路径链必须逐段验证：
+
+```text
+<course>/
+modules/<module>/
+lessons/<lesson>/
+exercises/<exercise>/
+starter/
+```
+
+要求：
+
+- 上述每一个已存在的后代 directory segment 都必须是 non-symlink directory。
+- `getCourseBySlug/getModuleBySlug/getLessonBySlug/getExerciseBySlug` 的 direct slug lookup 与 list flow 使用同一安全解析规则；不能让 list忽略 symlink、但 direct route通过 `stat()` follow symlink。
+- canonical Exercise/starter path 必须仍 contained by canonical `coursesRoot`。
+- 不能只对最终 `starter/` 调用 `lstat`；若 `exercise/` 或更早祖先是 symlink，`starter/` 自身仍可能表现为普通目录。
+
+在 validated starter root 内读取每个 declared starter file 时继续 fail closed：
 
 - Exercise `starter/` root 本身必须是 non-symlink directory。
 - 从该已验证 root 开始解析。
@@ -334,7 +353,7 @@ FileContentReader 读取每个 declared starter file 时必须 fail closed：
 - 最终 declared file 不得是 symlink，且必须是 regular file。
 - 可使用 `lstat` + segment walk，或等价的 `realpath` containment + no-symlink policy；不能只做 `join().startsWith(...)` 字符串判断。
 - missing / symlink / non-regular / root escape 都属于 hard loading error。
-- Reader 与 ExerciseSourceInspector 应共享窄的安全 path/file helper，避免两套 filesystem规则漂移；不要因此抽 generic VFS/filesystem framework。
+- Reader 与 ExerciseSourceInspector 应共享窄的安全 content-root/path/file helper，避免两套 filesystem规则漂移；不要因此抽 generic VFS/filesystem framework。
 
 该约束必须由 FileContentReader 自己执行，不能只依赖 Studio Health，因为 learner route 不以“先访问 Studio”为安全前提。
 
@@ -425,6 +444,13 @@ interface ExerciseSourceInspector {
 
 File implementation与 FileContentReader使用同一 courses root convention。
 
+错误语义写死：
+
+- `ExerciseSourceInspector` 只在完整、安全、确定地扫描成功时返回 `ExerciseAssetInspection`。
+- root/ancestor/final symlink、root escape、socket/device及其他 non-regular entry 一律 throw narrow source inspection error；不要返回部分 path set。
+- `readStudioContentHealth` 捕获该 inspector error，并生成 blocking `error` health issue，例如 `exercise-source-inspection-failed`；不要让单个 Exercise source error退化为整个 Studio 的泛化 `Content load failed`。
+- `FileContentReader` 对 learner-facing declared starter 的同类错误仍是 hard loading error；Inspector health issue不能替代 Reader安全边界。
+
 ### Scanner rules
 
 递归扫描 `starter/` / `solution/`，返回：
@@ -437,7 +463,7 @@ File implementation与 FileContentReader使用同一 courses root convention。
 遇到 symlink/socket/device/其他非 regular file：
 
 - 不 follow。
-- 作为 source inspection error/health error。
+- 按上述 contract throw source inspection error，由 Studio 转为 blocking health error。
 - 与 FileContentReader 使用同一 no-symlink / regular-file / containment规则；Inspector 不是 Reader 安全性的替代品。
 
 不得暴露绝对 OS path 到 Studio domain。
@@ -547,6 +573,9 @@ schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 - final-file symlink -> hard error。
 - intermediate-directory symlink -> hard error。
 - symlink 指向 starter root 外 -> hard error。
+- course/module/lesson/exercise 任一后代祖先 directory symlink -> hard error。
+- direct `get*BySlug` lookup不能通过祖先 symlink读取 canonical `coursesRoot` 外内容。
+- ExerciseSourceInspector 对 starter/solution root、祖先或内部 symlink fail closed，且 Studio收到 blocking health issue而不是部分扫描结果。
 - non-regular entry 不被当作 starter file。
 - Task 02 compatibility bridge 对当前 3 个 CSS Exercise 正常。
 - compatibility bridge 遇到第二个 editable CSS / editable HTML / 非预期 topology 明确失败，而不是静默取第一个文件。
@@ -602,10 +631,13 @@ git diff --exit-code -- src/features/learning/generated/lesson-content-registry.
 - [ ] compatibility bridge 对超出当前 CSS topology 的输入 fail closed，并有后续 Task 删除路径。
 - [ ] Reader metadata-driven hydrate declared starter files。
 - [ ] declared starter missing 明确为 hard load error。
-- [ ] declared starter 的 final/intermediate symlink、non-regular file、root escape 明确为 hard load error。
+- [ ] canonical coursesRoot trust anchor已建立；从该根到 Exercise/starter 的所有后代祖先 segment 与 declared starter final file 都执行 no-symlink/containment/regular-file校验。
+- [ ] list flow 与 direct `get*BySlug` lookup使用同一安全路径规则，祖先 symlink不能绕过 Reader边界。
+- [ ] declared starter 的 final/intermediate/ancestor symlink、non-regular file、root escape 明确为 hard load error。
 - [ ] Reader filesystem containment 不依赖 Studio 先运行。
 - [ ] ExerciseSourceInspector server-only。
 - [ ] Inspector 只返回 normalized logical paths。
+- [ ] Inspector扫描失败不返回部分结果；Studio把 narrow source inspection error转成 blocking health issue。
 - [ ] solution 不进入 Exercise。
 - [ ] zero editable 按状态 audit。
 - [ ] JS/TS Browser capability 报 error。

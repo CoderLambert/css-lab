@@ -194,6 +194,7 @@ base.css locked
 - 第二个 HTML / JS / TS topology fail closed。
 - learner DOM clobbering不能覆盖 runtime-owned root/CSS slot。
 - script/event/javascript URL blocked。
+- learner HTML remote resource与 CSS `url()` / `@import` 的 HTTP(S) network egress被 CSP阻断，并由 request-level test证明。
 - CSS slots/protocol/checker工作。
 - target-not-found presentation 在 editable HTML 与 locked HTML 两种 Workspace metadata 下语义正确；checker-error 始终是 runtime/checker fault。
 
@@ -250,6 +251,8 @@ key     = [exerciseId, revision]
 - v1 started迁移。
 - v1 completed迁移。
 - supplied versionchange transaction完成转换，不创建第二个 upgrade transaction。
+- non-cooperative legacy v1 connection导致 v2 open blocked时，session hydration有界 fallback，Editor/Preview/Checker/Reset继续，且不删除 DB。
+- blocked fallback后的迟到 open/data被 attempt identity丢弃，不覆盖 local draft、不污染当前 DB cache。
 - malformed v1 record不阻断其他合法 record。
 - completedAt保留。
 - unknown saved path ignored。
@@ -284,14 +287,16 @@ key     = [exerciseId, revision]
 - current Browser JS/TS rule。
 - multiple HTML rule。
 - undeclared starter rule。
-- FileContentReader declared starter no-symlink / regular-file / root-containment hard validation。
+- FileContentReader 以 canonical coursesRoot为 trust anchor，对 Course/Module/Lesson/Exercise/starter 全部后代祖先 segment及 declared final file执行 no-symlink / regular-file / root-containment hard validation。
 
 必须有 server-side/temp-directory 自动化证明：
 
 - final-file symlink拒绝。
 - intermediate-directory symlink拒绝。
+- course/module/lesson/exercise ancestor directory symlink拒绝，包含 direct `get*BySlug` lookup。
 - symlink root escape拒绝。
 - regular declared starter正常读取。
+- ExerciseSourceInspector扫描异常不返回部分 path set；Studio把 narrow source inspection error转成 blocking health issue。
 
 不能只在 Studio inspector里发现 symlink；learner Reader本身必须 fail closed。
 
@@ -322,6 +327,7 @@ learner HTML不是 raw concat。
 - 每次 HTML rebuild刷新。
 - script-src无 unsafe-inline/wildcard。
 - object/frame/base/form/connect受限。
+- learner HTML/CSS不能通过 remote resource、`url()` 或 `@import` 发起 HTTP(S) network request；isolated E2E使用 request interception验证。
 
 ### DOM policy
 
@@ -658,8 +664,11 @@ BrowserRuntime reading ProgressStore
 - [ ] stale generation ready/result、ready-vs-load race、wrong-generation message、immediate-edit→check、DOM clobbering均有自动化覆盖。
 - [ ] v1 IndexedDB migration测试通过。
 - [ ] migration 使用 supplied versionchange transaction，fresh v2 / malformed legacy / already-v2 cases均覆盖。
+- [ ] blocked v2 open对 non-cooperative legacy connection有有界 in-memory fallback测试，且迟到 open/data不会覆盖 session draft。
 - [ ] solution boundary结构性成立。
-- [ ] declared starter symlink/non-regular/root-escape 在 FileContentReader 层 fail closed并有测试。
+- [ ] canonical coursesRoot到 Exercise/starter的祖先 symlink、declared starter symlink/non-regular/root-escape 均在 FileContentReader 层 fail closed并有 list/direct lookup测试。
+- [ ] ExerciseSourceInspector error contract确定：失败不返回部分结果，Studio生成 blocking health issue。
+- [ ] learner HTML/CSS HTTP(S) network egress被 CSP阻断并有 request-level测试。
 - [ ] Studio当前 0 error / 0 warning。
 - [ ] AGENTS与 Front-end Lab方向一致。
 - [ ] README/current docs同步，包含 Browser entry = HTML fragment authoring contract。

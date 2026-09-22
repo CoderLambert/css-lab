@@ -193,6 +193,22 @@ upgrade(db, oldVersion, _newVersion, transaction) {
 
 由于 v1 stored record 与 v2 `DBSchema` value 类型不同，允许**仅在 migration implementation 内**使用窄的 Legacy store type / `unknown` boundary，然后先经 `LegacyExerciseProgressV1Schema.safeParse` 再转换。不要为了 TypeScript 方便把 v1 字段重新加入 v2 product schema。
 
+### Blocked open / legacy connection
+
+`openDB(name, 2)` 可能因为旧 tab、旧 build、DevTools或其他不响应 `versionchange` 的 connection进入 `blocked`。这是一个 event，不是 Promise rejection；底层 open Promise 可以无限 pending。
+
+因此必须实现显式、可结束的 blocked policy：
+
+- 注册 `blocked(currentVersion, blockedVersion)` callback。
+- 一旦当前 open attempt收到 `blocked`，ProgressStore 对该 attempt进入 session-local unavailable状态，使正在等待的 get operation有界结束为“无可用 progress”，不能继续无限 await底层 open Promise。
+- learner使用 starter/reconciled in-memory Draft继续；Editor、Preview、Checker、Reset不能因 blocked而禁用。
+- 后续 save/complete在本 session可 reject/no-op并走既有 progressive-enhancement warning，但不能排队无限等待。
+- 不自动 `deleteDatabase`，不强制 reload，不尝试把 DB降回 version 1。
+- 底层 blocked open request可能在旧连接稍后关闭后迟到成功。实现必须使用 attempt/session identity处理：如果当前 session已经 fallback，迟到 connection要立即 close/discard，不得写入共享 `database` cache，也不得把迟到读取结果恢复进当前 Draft。
+- 可以在下一次显式 reload/new session重新尝试正常 DB open；M6A不要求当前 session自动热恢复 persistence。
+
+当前 v1代码已有 `blocking()` 主动 close是有利条件，但新代码不能假设所有历史 connection都来自当前 v1 build。
+
 ### Record conversion
 
 v1：
@@ -382,6 +398,7 @@ exerciseId + revision
 - Editor/Preview/Checker/Reset 继续。
 - checker 已通过时，即使 markCompleted fail，checker UI仍成功。
 - aggregate progress可能暂时不持久化，但不阻塞 exercise。
+- open upgrade进入 `blocked` 也属于该 progressive-enhancement边界；它必须触发有界 fallback，不能因为 Promise保持 pending而让 `isHydrated` 永远为 false。
 
 日志文案建议改为 neutral：
 
@@ -428,6 +445,19 @@ IndexedDB seed需要稳定 same-origin document。
 - malformed v1 record 不阻断其他合法 record迁移。
 - migration 完成后没有长期 v1/v2 双写。
 - 打开已经是 version 2 的 DB 不重复执行 v1 migration。
+
+### Blocked upgrade coverage
+
+新增独立 browser context scenario：
+
+1. 在同一个 Playwright browser context建立两个 page。
+2. blocker page先访问 same-origin `/studio`，创建/打开 version 1 DB，并保持一个故意不在 `versionchange` 时 close 的 raw legacy connection；测试完成前不要导航或关闭该 page。
+3. learner page导航 learner route，让应用尝试打开 version 2。
+4. 验证 blocked fallback在有界时间内完成 hydration：starter draft可编辑、Reset与Check可用，页面不永久等待。
+5. 验证没有调用 `deleteDatabase`。
+6. 在 fallback后产生 local edit，再关闭 legacy blocker；若底层 open迟到成功，确认它不会覆盖 local draft、不会把迟到 connection注册为当前 session database。
+
+这个测试故意模拟 non-cooperative legacy client；不能只依赖当前 v1 `blocking()` 会主动 close的 happy path。
 
 ### 必须覆盖两种 record
 
@@ -484,6 +514,8 @@ git status --short
 - [ ] Legacy v1 schema 明确且仅 migration 使用。
 - [ ] upgrade 只使用 supplied versionchange transaction，不在其中开启第二个 db.transaction。
 - [ ] migration 不依赖 upgrade callback Promise 生命周期或外部异步工作。
+- [ ] `blocked` open有显式 session-local fallback；等待中的 read有界结束，save/complete不无限排队。
+- [ ] fallback后的迟到 open/data通过 attempt identity丢弃，不能覆盖 local mutation或重新注册 DB cache。
 - [ ] Legacy/v2 typing boundary 只存在于 migration implementation。
 - [ ] started v1 自动迁移。
 - [ ] completed v1 自动迁移。
@@ -495,5 +527,6 @@ git status --short
 - [ ] hydration不覆盖 local mutation。
 - [ ] malformed record不导致 app永久不可用。
 - [ ] storage failure不破坏 learner runtime。
+- [ ] non-cooperative v1 connection blocked scenario有自动化覆盖，Editor/Preview/Checker/Reset继续工作且不删除 DB。
 - [ ] 已升级到 DB v2 后的 rollback/hotfix 仍保持 v2 compatibility，不以 DATABASE_VERSION=1 或 deleteDatabase 回退。
 - [ ] migration + reconciliation 自动化覆盖通过。
