@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
@@ -7,8 +6,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 
 interface WorkspaceFooterProps {
   isChecking: boolean;
@@ -34,13 +33,14 @@ export function WorkspaceFooter({
   onRevealHint,
 }: WorkspaceFooterProps) {
   const previousButton = previousHref ? (
-    <Link
+    <ButtonLink
       href={previousHref}
-      className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+      variant="ghost"
+      size="sm"
     >
       <ArrowLeft />
       上一题
-    </Link>
+    </ButtonLink>
   ) : (
     <Button variant="ghost" size="sm" disabled>
       <ArrowLeft />
@@ -48,13 +48,14 @@ export function WorkspaceFooter({
     </Button>
   );
   const nextButton = nextHref ? (
-    <Link
+    <ButtonLink
       href={nextHref}
-      className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+      variant="ghost"
+      size="sm"
     >
       下一题
       <ArrowRight />
-    </Link>
+    </ButtonLink>
   ) : (
     <Button variant="ghost" size="sm" disabled>
       下一题
