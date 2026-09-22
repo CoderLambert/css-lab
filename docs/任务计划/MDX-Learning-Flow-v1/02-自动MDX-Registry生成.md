@@ -117,16 +117,11 @@ content/courses/*
     /lessons/*
 ```
 
-一个目录只有存在：
-
-```text
-lesson.json
-```
-
-才被视为 Lesson source directory。
+`lessons/*` 下的每一个直接子目录都被视为 Lesson source directory，不通过某个文件是否存在来决定是否扫描。
 
 对每个 Lesson：
 
+- `lesson.json` 必须存在，否则 generator 直接失败。
 - `lesson.mdx` 必须存在，否则 generator 直接失败。
 - key 必须唯一。
 - manifest 最终按 `key.localeCompare()` 的确定顺序排序。
@@ -334,6 +329,8 @@ git status --short
 
 - [ ] manifest scanner 使用 Node 标准库。
 - [ ] Lesson key 使用 course/module/lesson slug path。
+- [ ] 所有 `lessons/*` direct directories 都被扫描。
+- [ ] missing lesson.json 使 generator 明确失败。
 - [ ] missing lesson.mdx 使 generator 明确失败。
 - [ ] manifest 排序 deterministic。
 - [ ] generated registry 有 DO NOT EDIT header。

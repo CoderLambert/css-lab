@@ -33,18 +33,20 @@ pnpm dev
 
 - `/`：产品入口
 - `/learn`：自动进入第一个 published exercise
-- `/studio`：内容创作区占位入口
+- `/studio`：只读内容健康与目录检查
 
 ## Verification
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-CI 会执行 frozen install、lint、build 和 Chromium E2E。
+CI 会执行 frozen install、content check、content contract tests、lint、build 和 Chromium E2E。
 
 ## Architecture
 
@@ -79,7 +81,9 @@ LearningWorkspace
 content/courses/<course>/modules/<module>/lessons/<lesson>/
 ```
 
-每个 lesson 使用 `lesson.json + lesson.mdx` 保存元数据与教学正文。`lesson.json` 由 `FileContentReader` 提供 runtime metadata，`lesson.mdx` 由生成的 registry 提供教学内容。修改或新增 lesson 后运行 `pnpm content:generate`，提交生成文件；提交前运行 `pnpm content:check`。
+每个 `lessons/*` 直接子目录都是 Lesson source directory，必须同时包含 `lesson.json + lesson.mdx`。`lesson.json` 由 `FileContentReader` 提供 runtime metadata，`lesson.mdx` 由生成的 registry 提供教学内容。修改或新增 lesson 后运行 `pnpm content:generate`，提交生成文件；提交前运行 `pnpm content:check`。
+
+`exercise.order` 是 learner navigation 的唯一 canonical sequence。effective learner-visible Lesson 的 MDX Exercise references 必须将所有 published Exercise 各引用一次，且顺序完全一致；draft/hidden Lesson 可以暂时引用 draft Exercise。
 
 每道 exercise：
 

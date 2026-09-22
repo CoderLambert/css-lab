@@ -265,8 +265,20 @@ missing-lesson-mdx
 severity：
 
 ```text
-完整 published chain + lesson published → error
-其他 → warning
+always → error
+```
+
+缺失 `lesson.mdx` 是 Lesson source structure broken，与 publication status 无关。只有文件存在但内容为空时，才根据 effective learner visibility 区分 error/warning：
+
+```text
+course.status === published
+&& module.status === published
+&& lesson.status === published
+&& lesson.mdx empty
+→ error
+
+otherwise + lesson.mdx empty
+→ warning
 ```
 
 message 必须明确：
@@ -283,7 +295,12 @@ Lesson “...” 缺少 lesson.mdx。
 empty-lesson-body
 ```
 
-severity 同上。
+severity：
+
+```text
+effective learner-visible Lesson → error
+otherwise → warning
+```
 
 message 改为准确的：
 
@@ -397,8 +414,9 @@ Studio 应保持：
 - [ ] FileLessonContentInspector 为 server-only。
 - [ ] Inspector 不返回 MDX source body。
 - [ ] missing 与 empty MDX 有独立 health 语义。
-- [ ] published missing/empty 为 error。
-- [ ] draft/hidden missing/empty 为 warning。
+- [ ] missing lesson.mdx 永远为 error。
+- [ ] published chain 下 empty lesson.mdx 为 error。
+- [ ] draft/hidden Lesson 的 empty lesson.mdx 为 warning。
 - [ ] Studio 通过注入 Inspector 获取 source facts。
 - [ ] Learner route 无 bodyMdxSource workaround。
 - [ ] LessonPanel / LearningWorkspace 直接使用 Lesson。

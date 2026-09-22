@@ -191,10 +191,12 @@ Exercises additionally have a positive integer `revision`.
 Lesson content rules:
 
 - `lesson.json` is lesson runtime metadata; `lesson.mdx` is teaching content.
+- Every direct child directory under `content/courses/<course>/modules/<module>/lessons/` is a Lesson source directory and must contain both `lesson.json` and `lesson.mdx`; missing either file is a structural error.
 - `Lesson` runtime objects must not carry MDX source, compiled content, or source paths.
 - Lesson MDX is compiled through the generated registry and may use only `Concept`, `Predict`, `Compare`, and `Exercise`.
 - Lesson MDX must not contain imports/exports, arbitrary JavaScript expressions, raw HTML/custom JSX, or level-one headings.
 - `Exercise` activities use a lesson-local `slug`, plus `label` and `goal`; do not hard-code learner absolute routes in MDX.
+- `exercise.order` is the canonical learner navigation sequence. Effective learner-visible Lessons must reference every published Exercise exactly once and in that order; they must not reference draft Exercises. Hidden/draft Lessons may reference draft Exercises while still requiring existing, slug-matching, non-duplicate references.
 - The generated registry is not edited by hand. Run `pnpm content:generate` after adding or moving lesson content, then run `pnpm content:check` before completing content changes.
 
 # Exercise Assets
@@ -321,9 +323,13 @@ Before changing an unfamiliar framework or shadcn API, inspect the installed cod
 Before completing a code task, run:
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 ```
+
+Content/MDX changes must also keep the generated registry idempotent and pass `pnpm test:e2e` before merge review.
 
 Fix issues introduced by the task before reporting completion.
 

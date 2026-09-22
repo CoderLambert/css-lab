@@ -112,6 +112,7 @@ Playwright 至少继续覆盖：
 - `/learn` 进入第一个 published exercise。
 - previous/next 顺序不变。
 - 当前 3 个 exercise URL 不变。
+- 教学流中的 MDX Exercise reference 顺序必须等于 learner navigation 的 `exercise.order` 顺序。
 
 ### MDX
 
@@ -221,6 +222,7 @@ No issue
 必须全部执行：
 
 ```bash
+pnpm content:generate
 pnpm content:check
 pnpm test:content
 pnpm lint
@@ -228,6 +230,12 @@ pnpm build
 pnpm test:e2e
 git diff --check
 git status --short
+```
+
+并再次执行 `pnpm content:generate`，确认 generated registry 幂等且：
+
+```bash
+git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
 ```
 
 预期：

@@ -180,6 +180,23 @@ progress
 
 MDX 不重复承担 Lesson identity。
 
+### Lesson source structural invariant
+
+Lesson source directory 的定义是固定目录层级下的每一个直接子目录：
+
+```text
+content/courses/<course>/modules/<module>/lessons/<lesson>/
+```
+
+每个 Lesson source directory 必须同时包含：
+
+```text
+lesson.json
+lesson.mdx
+```
+
+缺少任一文件都是 repository structural error，与 publication status 无关。`lesson.mdx` 存在但内容为空时，effective learner-visible Lesson 报 error，其他 draft/hidden Lesson 报 warning。
+
 ---
 
 ## 4.2 lesson.mdx
@@ -219,6 +236,8 @@ solution
 ```
 
 MDX 中的 `<Exercise />` 只是对同 Lesson Exercise 的教学引用，不复制其 machine contract。
+
+v1 中 `exercise.order` 是 learner navigation 的唯一 canonical sequence source。MDX 的 Exercise references 只是该 canonical sequence 在教学叙事中的呈现：对 effective learner-visible Lesson，所有 published Exercise 必须各被引用一次，且引用顺序必须与 `exercise.order` 排序完全一致。MDX 不得引用 draft Exercise；hidden/draft Lesson 可以暂时引用 draft Exercise。
 
 ---
 
@@ -803,6 +822,8 @@ preview / e2e
 ↓
 commit
 ```
+
+v1 使用 generated static registry 作为可审查、可确定生成的实现取舍。若未来 curriculum 规模导致可测量的 build/dev 性能问题，可以迁移到 lazy/static-chunk loading strategy，但不得改变 `lesson.json`、`lesson.mdx` 与 Activity authoring contract。
 
 ## 16.1 MDX 是受控 DSL
 

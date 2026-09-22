@@ -70,7 +70,13 @@ export async function readLessonManifest({
         const lessonContents = await readDirectoryEntries(lessonRoot);
 
         if (!hasRegularFile(lessonContents, "lesson.json")) {
-          continue;
+          throw new Error(
+            `Missing lesson.json for lesson ${[
+              courseEntry.name,
+              moduleEntry.name,
+              lessonEntry.name,
+            ].join("/")}: ${join(lessonRoot, "lesson.json")}`,
+          );
         }
 
         const key = [courseEntry.name, moduleEntry.name, lessonEntry.name].join(

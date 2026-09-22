@@ -508,6 +508,7 @@ test: finalize MDX learning flow v1
 - [ ] 新 Lesson 不需要修改 application source。
 - [ ] generated registry deterministic。
 - [ ] stale generated registry 能被 `content:check` 阻止。
+- [ ] 所有 `lessons/*` direct directories 都要求同时存在 `lesson.json` 与 `lesson.mdx`。
 - [ ] MDX import/export 被拒绝。
 - [ ] arbitrary flow/text expression 被拒绝。
 - [ ] custom JSX component 有白名单。
@@ -515,6 +516,7 @@ test: finalize MDX learning flow v1
 - [ ] Lesson MDX H1 被拒绝。
 - [ ] `Exercise` 不再写完整 learner href。
 - [ ] 无效 Exercise slug reference 被 `content:check` 捕获。
+- [ ] effective learner-visible Lesson 的 MDX Exercise sequence 与 `exercise.order` 完全一致。
 - [ ] 旧 LessonMarkdown 删除。
 - [ ] `react-markdown` 删除。
 - [ ] Concept / Predict / Compare / Exercise 保持可用。

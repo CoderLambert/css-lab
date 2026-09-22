@@ -204,10 +204,10 @@ contract validation
 每个 reference 验证：
 
 ```text
-content/.../<lesson>/exercises/<slug>/exercise.json
+target directory / exercise.json 存在。
+exercise.json.slug === directory slug === MDX reference slug
+同一 lesson.mdx 内 slug 唯一
 ```
-
-存在。
 
 错误示例：
 
@@ -222,22 +222,28 @@ expected: .../exercises/centor-box/exercise.json
 
 不允许 cross-lesson path。
 
-### 4.5 orphan exercise
-
-v1 不要求所有 exercises 必须在 MDX 中被引用。
-
-原因：
-
-- learner sequence 当前仍按 published exercise tree。
-- 某 Exercise 可以暂时不在教学正文中出现。
-
-因此本轮只做：
+对 effective learner-visible Lesson：
 
 ```text
-MDX reference → target 必须存在
+course.status === published
+&& module.status === published
+&& lesson.status === published
 ```
 
-不做反向强制。
+必须同时满足：
+
+- MDX 不得引用 draft Exercise。
+- 所有 published Exercise 必须被引用。
+- 每个 published Exercise 恰好引用一次。
+- MDX reference 顺序必须等于 `exercise.order` 升序序列。
+
+`exercise.order` 是 learner navigation 的唯一 canonical sequence source；MDX references 只是该序列在教学叙事中的呈现。如果出现遗漏、重复、draft target 或顺序不一致，`content:check` 必须失败并给出具体 slug/expected/actual 信息。
+
+hidden/draft Lesson 仍必须满足 target existence、slug match 和 no duplicate，但允许引用 draft Exercise，也不要求所有 Exercise 都已被 MDX 引用。
+
+### 4.5 orphan exercise
+
+对 hidden/draft Lesson，v1 允许暂时存在未被 MDX 引用的 Exercise；对 effective learner-visible Lesson，published orphan 不再被允许，因为完整 reference sequence 是 repository hard gate。
 
 ---
 
@@ -295,6 +301,8 @@ Task 01 已完成 missing/empty source inspection。
 
 本任务确认：
 
+- missing `lesson.mdx` 始终是 error；它代表 source structure broken，与 publication status 无关。
+- empty `lesson.mdx` 才根据 effective published chain 区分 error/warning。
 - 当前 Studio 仍 0 blocking issues。
 - 当前 Studio 仍 0 warnings。
 - learner links 数量不变。
@@ -486,6 +494,9 @@ git status --short
 - [ ] contract checker 只维护一套。
 - [ ] Exercise reference 使用 AST 收集，不用正则。
 - [ ] invalid Exercise slug reference 会失败。
+- [ ] missing lesson.json / lesson.mdx 会 hard fail。
+- [ ] visible Lesson 的 published Exercise completeness/order 会 hard fail。
+- [ ] visible Lesson 的 draft Exercise reference 会 hard fail。
 - [ ] Node contract tests 覆盖 valid/invalid cases。
 - [ ] Studio 当前 0/0。
 - [ ] LessonMarkdown 删除。
