@@ -181,7 +181,7 @@ MDX v1 已让 Studio 依赖 `LessonContentInspector`。Task 02 新增 Exercise a
 ```ts
 readStudioContentHealth(contentReader, {
   lessonContentInspector,
-  exerciseAssetInspector,
+  exerciseSourceInspector,
 });
 ```
 
@@ -192,7 +192,7 @@ readStudioContentHealth(contentReader, {
 - learner route/client graph 不 import source inspector。
 - 不设计 generic `ContentInspectorRegistry`。
 
-## 7A. Hard loading errors 与 Content Health 分工
+## 8. Hard loading errors 与 Content Health 分工
 
 ### Hard loading/schema error
 
@@ -221,14 +221,14 @@ Reader 成功 hydrate 后才做：
 
 这样 schema/read error 与 authoring quality 不冲突。
 
-## 8. Server-only ContentSourceInspector
+## 9. Server-only ExerciseSourceInspector
 
 Solution 不进入 Exercise，因此 Studio 使用窄 source inspection。
 
 推荐：
 
 ```text
-src/lib/content/file/file-content-source-inspector.ts
+src/lib/content/file/file-exercise-source-inspector.ts
 ```
 
 必须 `import "server-only"`。
@@ -248,7 +248,7 @@ interface ExerciseAssetInspection {
   solutionPaths: readonly WorkspacePath[];
 }
 
-interface ContentSourceInspector {
+interface ExerciseSourceInspector {
   inspectExercise(
     source: ExerciseSourceRef,
   ): Promise<ExerciseAssetInspection>;
@@ -273,7 +273,9 @@ File implementation与 FileContentReader使用同一 courses root convention。
 
 不得暴露绝对 OS path 到 Studio domain。
 
-## 9. Studio Workspace Health
+不要把 ExerciseRecordV2 的完整 Zod schema 复制到 `scripts/content`。现有 content tooling 继续只负责 repository/authoring integrity；完整 runtime/schema validation 仍由正式 content schema + FileContentReader/build 承担。
+
+## 10. Studio Workspace Health
 
 保留现有：
 
@@ -318,11 +320,11 @@ actual starter paths - declared workspace paths
 
 声明但缺 starter 已属于 Reader hard error，不重复诊断。
 
-## 10. Solution completeness
+## 11. Solution completeness
 
 ```text
 editablePaths = declared files where editable=true
-solutionPaths = ContentSourceInspector.solutionPaths
+solutionPaths = ExerciseSourceInspector.solutionPaths
 
 set(solutionPaths) === set(editablePaths)
 ```
@@ -336,7 +338,7 @@ set(solutionPaths) === set(editablePaths)
 
 当前 CSS Exercise 只能有 `solution/style.css`，不要复制 locked `index.html/base.css`。
 
-## 11. Solution boundary
+## 12. Solution boundary
 
 禁止：
 
@@ -355,19 +357,19 @@ interface Exercise {
 FileContentReader
   -> learner-safe hydrated Exercise
 
-FileContentSourceInspector
+FileExerciseSourceInspector
   -> server-only authoring source facts
 ```
 
 Studio可依赖两者；learner只能依赖前者。
 
-## 12. JS/TS interim rule
+## 13. JS/TS interim rule
 
 Task 02-04 期间不得向 content 添加 JS/TS workspace file。
 
 schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
-## 13. E2E
+## 14. E2E
 
 更新 `e2e/studio-content-health.spec.ts`：
 
@@ -381,7 +383,7 @@ schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
 不要依赖样式 class。
 
-## 14. 验证
+## 15. 验证
 
  ```bash
 pnpm content:check
@@ -402,7 +404,7 @@ git diff --exit-code -- src/features/learning/generated/lesson-content-registry.
 
 人工确认旧 root assets不与新结构双存。注意 `starter/base.css` 是合法新路径。
 
-## 15. Acceptance Criteria
+## 16. Acceptance Criteria
 
 - [ ] 当前 3 个 exercise 已迁移 starter/solution。
 - [ ] Exercise production schema/type 原子切 v2。
@@ -410,7 +412,7 @@ git diff --exit-code -- src/features/learning/generated/lesson-content-registry.
 - [ ] fixtureHtml/baseCss/starterCss 从 runtime Exercise 删除。
 - [ ] Reader metadata-driven hydrate declared starter files。
 - [ ] declared starter missing 明确为 hard load error。
-- [ ] ContentSourceInspector server-only。
+- [ ] ExerciseSourceInspector server-only。
 - [ ] Inspector 只返回 normalized logical paths。
 - [ ] solution 不进入 Exercise。
 - [ ] zero editable 按状态 audit。
