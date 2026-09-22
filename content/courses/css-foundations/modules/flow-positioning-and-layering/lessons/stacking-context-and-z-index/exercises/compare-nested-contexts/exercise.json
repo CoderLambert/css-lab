@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.stacking-context-and-z-index.compare-nested-contexts.001",
+  "revision": 1,
+  "slug": "compare-nested-contexts",
+  "title": "比较 nested contexts",
+  "prompt": "让 .low-group 使用 z-index: 1、.high-group 使用 z-index: 2，并让 .low-tooltip 使用 z-index: 999；在 Preview 中观察 999 仍不能逃出 low group。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "先读父级 groups 的 context 顺序；子级数字要放回父 context 才有意义。",
+    "low group 应为 1，high group 应为 2。",
+    "low-tooltip 可以是 999，但它仍然属于 low group。"
+  ],
+  "checks": [
+    {
+      "id": "low-group-layer",
+      "type": "style",
+      "selector": ".low-group",
+      "property": "z-index",
+      "equals": "1",
+      "message": "让 low group 使用父级局部 z-index: 1"
+    },
+    {
+      "id": "high-group-layer",
+      "type": "style",
+      "selector": ".high-group",
+      "property": "z-index",
+      "equals": "2",
+      "message": "让 high group 使用更高的局部 z-index: 2"
+    },
+    {
+      "id": "nested-tooltip-layer",
+      "type": "style",
+      "selector": ".low-tooltip",
+      "property": "z-index",
+      "equals": "999",
+      "message": "保留 low-tooltip 的局部 z-index: 999，并观察它不能逃出父 context"
+    }
+  ]
+}

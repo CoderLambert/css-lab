@@ -14,22 +14,28 @@
   ],
   "checks": [
     {
+      "id": "badge-position",
       "type": "style",
       "selector": ".badge",
       "property": "position",
-      "equals": "relative"
+      "equals": "relative",
+      "message": "让 badge 使用 position: relative"
     },
     {
+      "id": "badge-top",
       "type": "style",
       "selector": ".badge",
       "property": "top",
-      "equals": "8px"
+      "equals": "8px",
+      "message": "让 badge 使用 top: 8px"
     },
     {
+      "id": "badge-left",
       "type": "style",
       "selector": ".badge",
       "property": "left",
-      "equals": "12px"
+      "equals": "12px",
+      "message": "让 badge 使用 left: 12px"
     }
   ]
 }

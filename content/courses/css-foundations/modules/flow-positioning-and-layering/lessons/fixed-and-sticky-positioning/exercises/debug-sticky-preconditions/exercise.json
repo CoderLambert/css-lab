@@ -14,22 +14,28 @@
   ],
   "checks": [
     {
+      "id": "rail-overflow",
       "type": "style",
       "selector": ".rail",
       "property": "overflow-y",
-      "equals": "auto"
+      "equals": "auto",
+      "message": "让 rail 使用 overflow-y: auto 建立可滚动上下文"
     },
     {
+      "id": "sticky-card-position",
       "type": "style",
       "selector": ".sticky-card",
       "property": "position",
-      "equals": "sticky"
+      "equals": "sticky",
+      "message": "让 sticky-card 使用 position: sticky"
     },
     {
+      "id": "sticky-card-top",
       "type": "style",
       "selector": ".sticky-card",
       "property": "top",
-      "equals": "8px"
+      "equals": "8px",
+      "message": "为 sticky-card 设置 top: 8px threshold"
     }
   ]
 }

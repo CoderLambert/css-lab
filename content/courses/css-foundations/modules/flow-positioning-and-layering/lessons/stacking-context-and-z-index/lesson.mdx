@@ -1,0 +1,56 @@
+## z-index 先问 context，再问数字
+
+当多个 positioned box 重叠时，`z-index` 并不是一张全页面共享的整数排行榜。浏览器先把元素组织进 stacking context hierarchy，再在每个 context 的局部 painting order 中处理它们；一个子 context 会作为一个整体参与父 context 的排序。
+
+<Concept title="stacking context 是局部、原子化的绘制上下文">
+同一 stacking context 内，相关项目可以按 `z-index` 和 painting order 比较。常见的 positioned element 搭配非 `auto` 的 `z-index` 可以建立 context，某些 opacity、transform 等视觉效果也可能建立 context；这里学习诊断思路，不背一张穷尽所有 trigger 的清单。
+
+嵌套 context 的关键后果是：子 context 内部的 `z-index: 999999` 只在自己的父 context 内有意义。它不能穿透父 context 的位置，去压过另一个已经位于更高父 context 的 sibling。要修复 overlay，先定位 context hierarchy 和局部 painting order，不要盲目把数字加大。
+</Concept>
+
+<Predict
+  question="`.low-group` 的 context 位于 `z-index: 1`，`.high-group` 的 context 位于 `z-index: 2`；low group 里的 tooltip 是 `z-index: 999`。只提高 tooltip 的数字，能否让它稳定绘制在 high group 之上？"
+  options={["能，999 是全页面最高排名", "不能，子 context 不能逃出父 context 的排序", "不能，因为 z-index 只对 static 元素生效"]}
+  answer="不能，子 context 不能逃出父 context 的排序"
+  explanation="999 只参与 low group 这个局部 context 的排序；父 context 先决定 low group 与 high group 的相对位置。"
+/>
+
+<Compare
+  leftTitle="同一 context"
+  leftCode=".dialog { z-index: 2 }"
+  leftMeaning="可以和同一 context 中的 sibling 比较局部 painting order。"
+  rightTitle="nested context"
+  rightCode=".tooltip { z-index: 999 }"
+  rightMeaning="只改变自身 context 内的顺序，不能越过父 context 的整体位置。"
+/>
+
+<Compare
+  leftTitle="z-index 数值"
+  leftCode="z-index: 999999"
+  leftMeaning="不是全局排名；数值要放回所属 context 才有意义。"
+  rightTitle="paint order"
+  rightCode="stacking context hierarchy"
+  rightMeaning="决定 context 作为原子单元如何参与父级绘制；静态声明检查无法完整推导遮挡结果。"
+/>
+
+## 用局部声明诊断 layering
+
+<Exercise
+  slug="order-in-one-context"
+  label="在同一 context 内排序"
+  goal="在一个 stacking context 中给 backdrop 与 dialog 设定局部 z-index 顺序，并在 Preview 中观察绘制结果。"
+/>
+
+<Exercise
+  slug="compare-nested-contexts"
+  label="比较 nested contexts"
+  goal="为两个 overlay group 建立局部 context，预测高数值子级为何仍不能逃出父 context。"
+/>
+
+<Exercise
+  slug="debug-overlay-stacking"
+  label="诊断 overlay stacking"
+  goal="定位被遮挡的 tooltip 所属 context，补齐合理的父级 layering 声明，而不是只把 z-index 改成更大的数字。"
+/>
+
+当前 checker 可以检查 `position`、`z-index` 等声明，但不能可靠证明最终 paint order、occlusion 或 stacking-context escape behavior。三题的 checks 只验证明确的 declaration subset；Preview 观察和本课 mental model 才负责解释实际遮挡结果，因此本课保持 `NEEDS_CHECKER_CAPABILITY` draft。

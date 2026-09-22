@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.stacking-context-and-z-index",
+  "slug": "stacking-context-and-z-index",
+  "title": "stacking context 与 z-index",
+  "description": "理解 stacking context hierarchy 与局部 z-index 顺序，诊断为什么高数值不能逃出父 context。",
+  "estimatedMinutes": 22,
+  "order": 3,
+  "status": "draft"
+}

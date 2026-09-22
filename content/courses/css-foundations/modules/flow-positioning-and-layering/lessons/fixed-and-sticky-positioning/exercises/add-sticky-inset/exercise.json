@@ -14,16 +14,20 @@
   ],
   "checks": [
     {
+      "id": "toc-position",
       "type": "style",
       "selector": ".toc",
       "property": "position",
-      "equals": "sticky"
+      "equals": "sticky",
+      "message": "让 toc 使用 position: sticky"
     },
     {
+      "id": "toc-top",
       "type": "style",
       "selector": ".toc",
       "property": "top",
-      "equals": "12px"
+      "equals": "12px",
+      "message": "为 toc 设置 top: 12px threshold"
     }
   ]
 }

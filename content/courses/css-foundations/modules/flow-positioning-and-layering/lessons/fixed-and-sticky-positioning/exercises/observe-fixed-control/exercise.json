@@ -14,22 +14,28 @@
   ],
   "checks": [
     {
+      "id": "help-position",
       "type": "style",
       "selector": ".help",
       "property": "position",
-      "equals": "fixed"
+      "equals": "fixed",
+      "message": "让 help 使用 position: fixed"
     },
     {
+      "id": "help-bottom",
       "type": "style",
       "selector": ".help",
       "property": "bottom",
-      "equals": "16px"
+      "equals": "16px",
+      "message": "让 help 使用 bottom: 16px"
     },
     {
+      "id": "help-right",
       "type": "style",
       "selector": ".help",
       "property": "right",
-      "equals": "16px"
+      "equals": "16px",
+      "message": "让 help 使用 right: 16px"
     }
   ]
 }

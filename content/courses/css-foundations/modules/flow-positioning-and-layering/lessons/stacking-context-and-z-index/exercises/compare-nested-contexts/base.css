@@ -1,0 +1,54 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.scene {
+  position: relative;
+  width: 340px;
+  height: 190px;
+  border: 1px solid;
+}
+
+.low-group,
+.high-group {
+  position: absolute;
+  width: 220px;
+  height: 120px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.low-group {
+  top: 24px;
+  left: 24px;
+}
+
+.high-group {
+  top: 52px;
+  left: 92px;
+}
+
+.low-tooltip,
+.high-panel {
+  position: absolute;
+  padding: 8px;
+  border: 1px solid;
+}
+
+.low-tooltip {
+  top: 24px;
+  left: 24px;
+}
+
+.high-panel {
+  top: 44px;
+  left: 44px;
+}

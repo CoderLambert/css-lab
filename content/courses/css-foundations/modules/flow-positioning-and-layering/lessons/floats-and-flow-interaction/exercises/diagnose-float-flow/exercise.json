@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.floats-and-flow-interaction.diagnose-float-flow.001",
+  "revision": 1,
+  "slug": "diagnose-float-flow",
+  "title": "诊断 float flow",
+  "prompt": "修复 .illustration 的 float 方向，让它在段落 inline content 的左侧形成环绕；用 Preview 观察结果，不把 float 当作 absolute。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先看目标视觉关系：illustration 应在段落左侧，文字从右侧绕行。",
+    "只需要修复 float 的一项声明，不要引入 position 或 Flexbox。",
+    "把 .illustration 的 float 改成 left，然后观察文字 line boxes。"
+  ],
+  "checks": [
+    {
+      "id": "illustration-float-direction",
+      "type": "style",
+      "selector": ".illustration",
+      "property": "float",
+      "equals": "left",
+      "message": "让 illustration 浮动到左侧"
+    }
+  ]
+}

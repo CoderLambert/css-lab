@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.stacking-context-and-z-index.order-in-one-context.001",
+  "revision": 1,
+  "slug": "order-in-one-context",
+  "title": "在同一 context 内排序",
+  "prompt": "让 .dialog 使用 z-index: 2、.backdrop 使用 z-index: 1，在同一 stacking context 内形成明确的局部绘制顺序。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先确认两个 box 是同一 scene 中的 positioned siblings。",
+    "同一 context 内可以直接比较 z-index；不要把它理解成全页面排名。",
+    "让 backdrop 为 1、dialog 为 2，再在 Preview 中观察遮挡。"
+  ],
+  "checks": [
+    {
+      "id": "backdrop-local-layer",
+      "type": "style",
+      "selector": ".backdrop",
+      "property": "z-index",
+      "equals": "1",
+      "message": "让 backdrop 使用同一 context 中的局部 z-index: 1"
+    },
+    {
+      "id": "dialog-local-layer",
+      "type": "style",
+      "selector": ".dialog",
+      "property": "z-index",
+      "equals": "2",
+      "message": "让 dialog 使用局部 z-index: 2"
+    }
+  ]
+}

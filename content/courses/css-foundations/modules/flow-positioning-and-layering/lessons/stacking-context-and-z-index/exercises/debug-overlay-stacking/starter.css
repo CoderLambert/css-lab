@@ -1,0 +1,11 @@
+.content {
+  z-index: 2;
+}
+
+.overlay-shell {
+  z-index: 0;
+}
+
+.tooltip {
+  z-index: 999;
+}

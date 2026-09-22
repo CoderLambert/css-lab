@@ -14,28 +14,36 @@
   ],
   "checks": [
     {
+      "id": "panel-positioned-ancestor",
       "type": "style",
       "selector": ".panel",
       "property": "position",
-      "equals": "relative"
+      "equals": "relative",
+      "message": "让 panel 成为 tooltip 的 positioned ancestor"
     },
     {
+      "id": "tooltip-absolute",
       "type": "style",
       "selector": ".tooltip",
       "property": "position",
-      "equals": "absolute"
+      "equals": "absolute",
+      "message": "让 tooltip 使用 position: absolute"
     },
     {
+      "id": "tooltip-top",
       "type": "style",
       "selector": ".tooltip",
       "property": "top",
-      "equals": "8px"
+      "equals": "8px",
+      "message": "保留 tooltip 的 top: 8px offset"
     },
     {
+      "id": "tooltip-right",
       "type": "style",
       "selector": ".tooltip",
       "property": "right",
-      "equals": "8px"
+      "equals": "8px",
+      "message": "保留 tooltip 的 right: 8px offset"
     }
   ]
 }
