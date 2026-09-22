@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.visual-styling-and-typography.color-backgrounds-and-borders.border-joins-box-model.001",
+  "revision": 1,
+  "slug": "border-joins-box-model",
+  "title": "让边框参与 box model",
+  "prompt": "为 .card 添加 2px solid 边框；保留 padding，并把它作为 box model 的新边缘来推理。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "边框是 box model 的一层，不是只改变颜色的 shadow。",
+    "题目需要线型和厚度；不要删除既有 padding 来躲开尺寸变化。",
+    "对 .card 设置 border: 2px solid。"
+  ],
+  "checks": [
+    {
+      "id": "border-style",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-top-style",
+      "equals": "solid",
+      "message": "让 .card 使用 solid 边框"
+    },
+    {
+      "id": "border-width",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-top-width",
+      "equals": "2px",
+      "message": "让 .card 的边框厚度为 2px"
+    }
+  ]
+}

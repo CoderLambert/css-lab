@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.visual-styling-and-typography.typography-and-text-flow.set-readable-line-height.001",
+  "revision": 1,
+  "slug": "set-readable-line-height",
+  "title": "给行高留下呼吸空间",
+  "prompt": "为 .copy 设置 26px line-height；不要把 line-height 机械地设成与 font-size 相同。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "先看清题目区分的是 glyph size 和 line box height。",
+    "line-height 可以大于 font-size，为多行文本保留垂直空间。",
+    "对 .copy 设置 line-height: 26px。"
+  ],
+  "checks": [
+    {
+      "id": "readable-line-height",
+      "type": "style",
+      "selector": ".copy",
+      "property": "line-height",
+      "equals": "26px",
+      "message": "为 .copy 设置 26px line-height"
+    }
+  ]
+}

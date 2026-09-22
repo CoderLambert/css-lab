@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.visual-styling-and-typography.color-backgrounds-and-borders",
+  "slug": "color-backgrounds-and-borders",
+  "title": "颜色、背景与边框是不同的绘制层",
+  "description": "理解 foreground、background 与 border 的绘制职责，并把 border 对 box model 的影响连接到前一 Module。",
+  "estimatedMinutes": 18,
+  "order": 1,
+  "status": "draft"
+}

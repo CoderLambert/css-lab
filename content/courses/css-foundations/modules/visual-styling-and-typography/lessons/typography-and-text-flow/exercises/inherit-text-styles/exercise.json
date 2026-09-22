@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.visual-styling-and-typography.typography-and-text-flow.inherit-text-styles.001",
+  "revision": 1,
+  "slug": "inherit-text-styles",
+  "title": "让文字继承父级类型",
+  "prompt": "在 .profile 上设置 18px 字号与 600 字重，并观察其中的文字如何继承这些非布局属性。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "把共同的类型设置放在父级，先让后代有可继承的基线。",
+    "font-size 和 font-weight 都是 typography properties，不需要逐个给 p 和 em 重复声明。",
+    "对 .profile 设置 font-size: 18px 和 font-weight: 600。"
+  ],
+  "checks": [
+    {
+      "id": "profile-font-size",
+      "type": "style",
+      "selector": ".profile",
+      "property": "font-size",
+      "equals": "18px",
+      "message": "为 .profile 设置 18px 字号"
+    },
+    {
+      "id": "profile-font-weight",
+      "type": "style",
+      "selector": ".profile",
+      "property": "font-weight",
+      "equals": "600",
+      "message": "为 .profile 设置 600 字重"
+    }
+  ]
+}
