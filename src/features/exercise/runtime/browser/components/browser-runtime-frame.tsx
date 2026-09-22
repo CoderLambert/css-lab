@@ -6,6 +6,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useSyncExternalStore,
   type CSSProperties,
 } from "react";
 
@@ -76,6 +77,18 @@ function parseIdentity(identityKey: string): BrowserDocumentIdentity {
   return JSON.parse(identityKey) as BrowserDocumentIdentity;
 }
 
+function subscribeToClientRuntime(): () => void {
+  return () => {};
+}
+
+function getClientRuntimeSnapshot(): boolean {
+  return true;
+}
+
+function getServerRuntimeSnapshot(): boolean {
+  return false;
+}
+
 function descriptorIdentity(
   runtime: BrowserRuntimeDefinition,
   descriptor: BrowserDocumentDescriptor,
@@ -122,9 +135,17 @@ export function BrowserRuntimeFrame({
         : null,
     [modelState.identityKey],
   );
+  const isClientRuntime = useSyncExternalStore(
+    subscribeToClientRuntime,
+    getClientRuntimeSnapshot,
+    getServerRuntimeSnapshot,
+  );
   const descriptor = useMemo(
-    () => (identity ? createBrowserDocumentFromIdentity(identity) : null),
-    [identity],
+    () =>
+      isClientRuntime && identity
+        ? createBrowserDocumentFromIdentity(identity)
+        : null,
+    [identity, isClientRuntime],
   );
 
   useLayoutEffect(() => {
@@ -343,6 +364,16 @@ export function BrowserRuntimeFrame({
 
     sendPendingCheck(iframeWindow, currentDescriptor);
   }, [checkRequest, sendPendingCheck]);
+
+  if (!isClientRuntime) {
+    return (
+      <div
+        aria-hidden="true"
+        className="h-full min-h-[180px] bg-preview"
+        style={{ width, height }}
+      />
+    );
+  }
 
   if (!descriptor || modelState.error) {
     return (

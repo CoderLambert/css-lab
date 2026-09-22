@@ -131,7 +131,7 @@ test("editing updates preview, checking persists completion, and reload restores
 
   await expect
     .poll(async () => (await readRuntimeReadyGenerations(page)).length)
-    .toBeGreaterThan(0);
+    .toBe(1);
   const baselineReadyGenerations = await readRuntimeReadyGenerations(page);
 
   const preview = page.frameLocator('iframe[title="Browser exercise preview"]');

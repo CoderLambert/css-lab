@@ -125,6 +125,36 @@ function createRuntimeBridge(
   const normalizeScheme = (value) =>
     value.replace(/[\\u0000-\\u0020\\u007f]+/g, "").toLowerCase();
 
+  const isNetworkUrl = (value) => {
+    const normalized = normalizeScheme(value);
+    return (
+      normalized.startsWith("http:") ||
+      normalized.startsWith("https:") ||
+      normalized.startsWith("//")
+    );
+  };
+
+  const sanitizeCss = (value) =>
+    value
+      .replace(
+        /@import\\s+(?:url\\(\\s*)?(?:["']\\s*)?(?:https?:|\\/\\/)[^;)]*(?:\\)\\s*)?;?/gi,
+        "",
+      )
+      .replace(
+        /url\\(\\s*(?:["']\\s*)?(?:https?:|\\/\\/)[^)]*\\)/gi,
+        'url("data:,")',
+      );
+
+  const networkUrlAttributes = new Set([
+    "href",
+    "src",
+    "xlink:href",
+    "formaction",
+    "action",
+    "poster",
+    "background",
+  ]);
+
   const template = document.createElement("template");
   template.innerHTML = learnerHtml;
 
@@ -149,17 +179,40 @@ function createRuntimeBridge(
         element.removeAttribute(attribute.name);
         continue;
       }
-      if (
-        name === "href" ||
-        name === "src" ||
-        name === "xlink:href" ||
-        name === "formaction"
-      ) {
-        if (normalizeScheme(attribute.value).startsWith("javascript:")) {
+      if (name === "ping") {
+        element.removeAttribute(attribute.name);
+        continue;
+      }
+
+      if (name === "style") {
+        element.setAttribute(attribute.name, sanitizeCss(attribute.value));
+        continue;
+      }
+
+      if (name === "srcset") {
+        const candidates = attribute.value
+          .split(",")
+          .map((candidate) => candidate.trim().split(/\\s+/, 1)[0] ?? "");
+        if (candidates.some(isNetworkUrl)) {
+          element.removeAttribute(attribute.name);
+        }
+        continue;
+      }
+
+      if (networkUrlAttributes.has(name)) {
+        const normalized = normalizeScheme(attribute.value);
+        if (
+          normalized.startsWith("javascript:") ||
+          isNetworkUrl(attribute.value)
+        ) {
           element.removeAttribute(attribute.name);
         }
       }
     }
+  }
+
+  for (const style of template.content.querySelectorAll("style")) {
+    style.textContent = sanitizeCss(style.textContent || "");
   }
 
   learnerRoot.replaceChildren(template.content);
@@ -347,7 +400,7 @@ function createRuntimeBridge(
     ) {
       const slot = cssSlots.get(message.path);
       if (slot) {
-        slot.textContent = message.content;
+        slot.textContent = sanitizeCss(message.content);
       }
       return;
     }

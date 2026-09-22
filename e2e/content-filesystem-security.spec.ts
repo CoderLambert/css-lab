@@ -8,7 +8,8 @@ import {
   symlink,
   writeFile,
 } from "node:fs/promises";
-import { createServer } from "node:net";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -291,15 +292,10 @@ test("source inspector rejects unsafe undeclared starter entry", async () => {
 });
 
 
-async function createUnixSocket(path: string) {
-  const server = createServer();
+const execFileAsync = promisify(execFile);
 
-  await new Promise<void>((resolve, reject) => {
-    server.once("error", reject);
-    server.listen(path, resolve);
-  });
-
-  return server;
+async function createNamedPipe(path: string): Promise<void> {
+  await execFileAsync("mkfifo", [path]);
 }
 
 test("configured coursesRoot symlink is allowed but descendant symlinks are not", async () => {
@@ -473,11 +469,10 @@ test("source inspector rejects non-regular source-only starter and solution entr
 
   for (const directory of ["starter", "solution"] as const) {
     const f = await fixture();
-    let server: ReturnType<typeof createServer> | null = null;
 
     try {
-      server = await createUnixSocket(
-        join(f.exercise, directory, "rogue.sock"),
+      await createNamedPipe(
+        join(f.exercise, directory, "rogue.pipe"),
       );
 
       await expect(
@@ -489,11 +484,6 @@ test("source inspector rejects non-regular source-only starter and solution entr
         }),
       ).rejects.toThrow(/Failed to inspect exercise source/);
     } finally {
-      if (server) {
-        await new Promise<void>((resolve) => {
-          server!.close(() => resolve());
-        });
-      }
       await rm(f.root, { recursive: true, force: true });
     }
   }
