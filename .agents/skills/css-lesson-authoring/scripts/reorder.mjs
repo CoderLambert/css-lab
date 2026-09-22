@@ -17,11 +17,13 @@ import {
 } from "./lib.mjs";
 
 function parseOrderMapping(value) {
-  let parsed;
-  try {
-    parsed = JSON.parse(value);
-  } catch (error) {
-    throw new Error(`--orders must be a JSON object: ${error.message}`);
+  let parsed = value;
+  if (typeof value === "string") {
+    try {
+      parsed = JSON.parse(value);
+    } catch (error) {
+      throw new Error(`--orders must be a JSON object: ${error.message}`);
+    }
   }
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error("--orders must be a JSON object mapping slug to positive integer order.");
@@ -136,7 +138,7 @@ export async function reorderSiblings({
   dryRun = false,
 }) {
   assertSlug(courseSlug, "course slug");
-  const mapping = orders instanceof Map ? orders : parseOrderMapping(String(orders));
+  const mapping = orders instanceof Map ? orders : parseOrderMapping(orders);
   const paths = contentPaths(repoRoot, courseSlug, moduleSlug || "placeholder");
   await readAndValidateRecord(join(paths.courseRoot, "course.json"), courseSlug, "Course");
 
