@@ -1,4 +1,5 @@
 import type { Check } from "@/lib/content/schemas/exercise";
+import { isWorkspacePath, workspacePathLanguage } from "@/lib/workspace/path";
 import type { WorkspacePath } from "@/lib/workspace/types";
 
 export const LAB_MESSAGE_SOURCE = {
@@ -80,8 +81,12 @@ function hasOnlyKeys(
   return Object.keys(value).every((key) => allowed.has(key));
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 function isGenerationId(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0;
+  return isNonEmptyString(value);
 }
 
 function isScalarOrNull(
@@ -101,9 +106,9 @@ function isCheck(value: unknown): value is Check {
   }
 
   if (
-    typeof value.id !== "string" ||
-    typeof value.message !== "string" ||
-    typeof value.selector !== "string"
+    !isNonEmptyString(value.id) ||
+    !isNonEmptyString(value.message) ||
+    !isNonEmptyString(value.selector)
   ) {
     return false;
   }
@@ -132,11 +137,11 @@ function isCheck(value: unknown): value is Check {
         "equals",
         "alsoAccepts",
       ]) &&
-      typeof value.property === "string" &&
-      typeof value.equals === "string" &&
+      isNonEmptyString(value.property) &&
+      isNonEmptyString(value.equals) &&
       (value.alsoAccepts === undefined ||
         (Array.isArray(value.alsoAccepts) &&
-          value.alsoAccepts.every((item) => typeof item === "string")))
+          value.alsoAccepts.every(isNonEmptyString)))
     );
   }
 
@@ -242,7 +247,7 @@ export function isCheckResultMessage(
     value.source === LAB_MESSAGE_SOURCE.runtime &&
     value.type === LAB_MESSAGE_TYPE.checkResult &&
     isGenerationId(value.generationId) &&
-    typeof value.requestId === "string" &&
+    isNonEmptyString(value.requestId) &&
     typeof value.passed === "boolean" &&
     Array.isArray(value.results) &&
     value.results.every(isBrowserCheckResult)
@@ -265,6 +270,8 @@ export function isCssUpdateMessage(
     value.type === LAB_MESSAGE_TYPE.cssUpdate &&
     isGenerationId(value.generationId) &&
     typeof value.path === "string" &&
+    isWorkspacePath(value.path) &&
+    workspacePathLanguage(value.path) === "css" &&
     typeof value.content === "string"
   );
 }
@@ -284,7 +291,7 @@ export function isCheckRunMessage(
     value.source === LAB_MESSAGE_SOURCE.host &&
     value.type === LAB_MESSAGE_TYPE.checkRun &&
     isGenerationId(value.generationId) &&
-    typeof value.requestId === "string" &&
+    isNonEmptyString(value.requestId) &&
     Array.isArray(value.checks) &&
     value.checks.every(isCheck)
   );

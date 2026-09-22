@@ -75,12 +75,15 @@ function createRuntimeBridge(
     return Object.keys(value).every((key) => allowed.has(key));
   };
 
+  const isNonEmptyString = (value) =>
+    typeof value === "string" && value.trim().length > 0;
+
   const isCheck = (value) => {
     if (
       !isRecord(value) ||
-      typeof value.id !== "string" ||
-      typeof value.message !== "string" ||
-      typeof value.selector !== "string"
+      !isNonEmptyString(value.id) ||
+      !isNonEmptyString(value.message) ||
+      !isNonEmptyString(value.selector)
     ) {
       return false;
     }
@@ -108,11 +111,11 @@ function createRuntimeBridge(
           "equals",
           "alsoAccepts",
         ]) &&
-        typeof value.property === "string" &&
-        typeof value.equals === "string" &&
+        isNonEmptyString(value.property) &&
+        isNonEmptyString(value.equals) &&
         (value.alsoAccepts === undefined ||
           (Array.isArray(value.alsoAccepts) &&
-            value.alsoAccepts.every((item) => typeof item === "string")))
+            value.alsoAccepts.every(isNonEmptyString)))
       );
     }
 
@@ -161,17 +164,19 @@ function createRuntimeBridge(
 
   learnerRoot.replaceChildren(template.content);
 
-  learnerRoot.addEventListener(
-    "click",
-    (event) => {
-      const target = event.target;
-      if (target instanceof Element && target.closest("a")) {
-        event.preventDefault();
-      }
-    },
-    true,
-  );
+  const preventLinkNavigation = (event) => {
+    const target = event.target;
 
+    if (
+      target instanceof Element &&
+      target.closest("a[href],area[href]")
+    ) {
+      event.preventDefault();
+    }
+  };
+
+  learnerRoot.addEventListener("click", preventLinkNavigation, true);
+  learnerRoot.addEventListener("auxclick", preventLinkNavigation, true);
   learnerRoot.addEventListener(
     "submit",
     (event) => event.preventDefault(),
@@ -334,7 +339,7 @@ function createRuntimeBridge(
         "requestId",
         "checks",
       ]) ||
-      typeof message.requestId !== "string" ||
+      !isNonEmptyString(message.requestId) ||
       !Array.isArray(message.checks) ||
       !message.checks.every(isCheck)
     ) {

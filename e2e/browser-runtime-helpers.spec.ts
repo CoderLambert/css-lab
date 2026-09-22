@@ -13,6 +13,7 @@ import {
   createCssUpdateMessage,
   isCheckResultMessage,
   isCheckRunMessage,
+  isCssUpdateMessage,
   isRuntimeReadyMessage,
 } from "../src/features/exercise/runtime/browser/lib/browser-messages";
 import {
@@ -122,6 +123,34 @@ test("typed protocol requires source, type and generation id", () => {
           unexpected: true,
         },
       ],
+    }),
+  ).toBe(false);
+
+  expect(
+    isCheckRunMessage({
+      source: "lab-host",
+      type: "check:run",
+      generationId: "generation-a",
+      requestId: "",
+      checks: [],
+    }),
+  ).toBe(false);
+  expect(
+    isCssUpdateMessage({
+      source: "lab-host",
+      type: "css:update",
+      generationId: "generation-a",
+      path: "../style.css",
+      content: "body{}",
+    }),
+  ).toBe(false);
+  expect(
+    isCssUpdateMessage({
+      source: "lab-host",
+      type: "css:update",
+      generationId: "generation-a",
+      path: "index.html",
+      content: "<main></main>",
     }),
   ).toBe(false);
 
@@ -798,4 +827,116 @@ test("runtime shell selectors never count as learner matches", async ({ page }) 
       reason: "target-not-found",
     });
   }
+});
+
+
+test("link, area and form guards prevent learner navigation", async ({
+  page,
+}) => {
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: snapshot(
+      [
+        '<a class="nav-link" href="https://m6a-egress.invalid/link">link</a>',
+        '<map name="nav-map"><area class="nav-area" href="https://m6a-egress.invalid/area"></map>',
+        '<form class="nav-form" action="https://m6a-egress.invalid/form"><button>submit</button></form>',
+      ].join(""),
+    ),
+    generationId: "generation-navigation",
+    nonce: "70112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  await page.evaluate((srcDoc) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    if (!iframe) throw new Error("missing iframe");
+    iframe.srcdoc = srcDoc;
+  }, descriptor.srcDoc);
+
+  const frame = page.frames().find((candidate) => candidate !== page.mainFrame());
+  expect(frame).toBeTruthy();
+
+  const beforeUrl = frame!.url();
+  await frame!.locator(".nav-link").click();
+  expect(frame!.url()).toBe(beforeUrl);
+
+  const prevented = await frame!.evaluate(() => {
+    const area = document.querySelector(".nav-area");
+    const form = document.querySelector(".nav-form");
+    if (!(area instanceof Element) || !(form instanceof HTMLFormElement)) {
+      throw new Error("missing navigation fixtures");
+    }
+
+    const auxClick = new MouseEvent("auxclick", {
+      bubbles: true,
+      cancelable: true,
+      button: 1,
+    });
+    const submit = new Event("submit", {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    return {
+      area: !area.dispatchEvent(auxClick),
+      form: !form.dispatchEvent(submit),
+    };
+  });
+
+  expect(prevented).toEqual({ area: true, form: true });
+});
+
+test("runtime ignores forged source and malformed host messages", async ({
+  page,
+}) => {
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: snapshot(),
+    generationId: "generation-forged",
+    nonce: "80112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  await page.evaluate((srcDoc) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    if (!iframe) throw new Error("missing iframe");
+    iframe.srcdoc = srcDoc;
+  }, descriptor.srcDoc);
+
+  const frame = page.frames().find((candidate) => candidate !== page.mainFrame());
+  expect(frame).toBeTruthy();
+
+  await page.evaluate((generationId) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    iframe?.contentWindow?.postMessage(
+      {
+        source: "forged-host",
+        type: "css:update",
+        generationId,
+        path: "style.css",
+        content: ".target { color: rgb(11, 12, 13) }",
+      },
+      "*",
+    );
+    iframe?.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "css:update",
+        generationId,
+        path: "style.css",
+        content: ".target { color: rgb(21, 22, 23) }",
+        unexpected: true,
+      },
+      "*",
+    );
+  }, descriptor.generationId);
+
+  await expect(frame!.locator(".target")).not.toHaveCSS(
+    "color",
+    "rgb(11, 12, 13)",
+  );
+  await expect(frame!.locator(".target")).not.toHaveCSS(
+    "color",
+    "rgb(21, 22, 23)",
+  );
 });
