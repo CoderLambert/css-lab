@@ -28,7 +28,7 @@ import { WorkspaceHeader } from "./workspace-header";
 interface LearningWorkspaceProps {
   course: Course;
   module: Module;
-  lesson: Omit<Lesson, "bodyMdxSource">;
+  lesson: Lesson;
   lessonContent: ReactNode;
   exercise: Exercise;
   navigation: LearnerNavigation;

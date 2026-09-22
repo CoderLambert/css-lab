@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { ContentReader } from "@/lib/content/reader";
+import type { LessonContentInspector } from "@/lib/content/lesson-content-source";
 import type {
   Course,
   EntityStatus,
@@ -197,6 +198,7 @@ function auditExerciseChecks(
 
 export async function readStudioContentHealth(
   contentReader: ContentReader,
+  lessonContentInspector: LessonContentInspector,
 ): Promise<StudioContentHealth> {
   const issues: ContentHealthIssue[] = [];
   const stableIds = new Map<string, RegisteredEntity>();
@@ -256,7 +258,23 @@ export async function readStudioContentHealth(
           lessonLocation,
         );
 
-        if (lesson.bodyMdxSource.trim().length === 0) {
+        const lessonContent = await lessonContentInspector.inspectLessonContent({
+          courseSlug: course.slug,
+          moduleSlug: courseModule.slug,
+          lessonSlug: lesson.slug,
+        });
+
+        if (!lessonContent.exists) {
+          addIssue(
+            issues,
+            modulePublished && lesson.status === "published"
+              ? "error"
+              : "warning",
+            "missing-lesson-mdx",
+            `Lesson “${lesson.title}” 缺少 lesson.mdx。`,
+            lessonLocation,
+          );
+        } else if (lessonContent.isEmpty) {
           addIssue(
             issues,
             modulePublished && lesson.status === "published"

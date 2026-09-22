@@ -8,20 +8,15 @@ import {
 import { PredictActivity } from "@/features/learning/components/mdx/predict-activity";
 
 const components = {
-  h1: ({ children }) => (
-    <h2 className="font-heading text-xl font-semibold tracking-[-0.02em] text-panel-foreground">
+  h2: ({ children }) => (
+    <h2 className="pt-2 font-heading text-lg font-semibold tracking-[-0.01em] text-panel-foreground">
       {children}
     </h2>
   ),
-  h2: ({ children }) => (
-    <h3 className="pt-2 font-heading text-lg font-semibold tracking-[-0.01em] text-panel-foreground">
+  h3: ({ children }) => (
+    <h3 className="pt-1 font-heading text-base font-semibold text-panel-foreground">
       {children}
     </h3>
-  ),
-  h3: ({ children }) => (
-    <h4 className="pt-1 font-heading text-base font-semibold text-panel-foreground">
-      {children}
-    </h4>
   ),
   p: ({ children }) => <p className="text-sm leading-7">{children}</p>,
   ul: ({ children }) => (

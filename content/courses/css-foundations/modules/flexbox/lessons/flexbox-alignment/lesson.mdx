@@ -1,4 +1,4 @@
-# 先判断轴，再选择属性
+## 先判断轴，再选择属性
 
 Flexbox 对齐最容易出错的地方，不是属性名记不住，而是把 `justify-content` 固定理解成“水平”、把 `align-items` 固定理解成“垂直”。
 
@@ -34,10 +34,10 @@ Flexbox 对齐最容易出错的地方，不是属性名记不住，而是把 `j
 
 <Compare
   leftTitle="justify-content"
-  leftCode={"justify-content: center;"}
+  leftCode="justify-content: center;"
   leftMeaning="沿主轴分布 flex items。主轴由 flex-direction 决定。"
   rightTitle="align-items"
-  rightCode={"align-items: center;"}
+  rightCode="align-items: center;"
   rightMeaning="沿交叉轴对齐 flex items。交叉轴始终与主轴垂直。"
 />
 
@@ -50,21 +50,21 @@ Flexbox 对齐最容易出错的地方，不是属性名记不住，而是把 `j
 ## 3. 用三个练习建立稳定模型
 
 <Exercise
-  href="/learn/css-foundations/flexbox/flexbox-alignment/center-box"
-  title="水平与垂直居中"
+  slug="center-box"
+  label="水平与垂直居中"
   goal="先建立 flex formatting context，再分别处理主轴与交叉轴。"
 />
 
 <Exercise
-  href="/learn/css-foundations/flexbox/flexbox-alignment/space-between-items"
-  title="在主轴上拉开间距"
+  slug="space-between-items"
+  label="在主轴上拉开间距"
   goal="观察 space-between 如何分配主轴上的剩余空间。"
 />
 
 <Exercise
-  href="/learn/css-foundations/flexbox/flexbox-alignment/align-items-end"
-  title="沿交叉轴末端对齐"
+  slug="align-items-end"
+  label="沿交叉轴末端对齐"
   goal="用不同高度的项目验证 align-items 对交叉轴的控制。"
 />
 
-> MDX 这里只负责“教学顺序和交互叙事”。练习的 starter、fixture、checks、solution 仍然由各自的 exercise 目录负责。
+> MDX 负责教学叙事与 Activity 编排；Exercise 的 starter、fixture、checks、solution 由 Exercise source 负责。

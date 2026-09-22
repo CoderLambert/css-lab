@@ -188,6 +188,15 @@ Rules:
 
 Exercises additionally have a positive integer `revision`.
 
+Lesson content rules:
+
+- `lesson.json` is lesson runtime metadata; `lesson.mdx` is teaching content.
+- `Lesson` runtime objects must not carry MDX source, compiled content, or source paths.
+- Lesson MDX is compiled through the generated registry and may use only `Concept`, `Predict`, `Compare`, and `Exercise`.
+- Lesson MDX must not contain imports/exports, arbitrary JavaScript expressions, raw HTML/custom JSX, or level-one headings.
+- `Exercise` activities use a lesson-local `slug`, plus `label` and `goal`; do not hard-code learner absolute routes in MDX.
+- The generated registry is not edited by hand. Run `pnpm content:generate` after adding or moving lesson content, then run `pnpm content:check` before completing content changes.
+
 # Exercise Assets
 
 The intended exercise directory is:

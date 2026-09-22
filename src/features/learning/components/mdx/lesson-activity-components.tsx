@@ -79,24 +79,24 @@ export function PropertyCompareActivity({
 }
 
 interface ExerciseActivityProps {
-  href: string;
-  title: string;
+  slug: string;
+  label: string;
   goal: string;
 }
 
 export function ExerciseActivity({
-  href,
-  title,
+  slug,
+  label,
   goal,
 }: ExerciseActivityProps) {
   return (
     <Link
-      href={href}
+      href={`./${slug}`}
       className="group flex items-start justify-between gap-4 border-t border-border py-4 last:border-b"
     >
       <div className="min-w-0">
         <p className="font-heading text-sm font-semibold text-panel-foreground transition-colors group-hover:text-foreground">
-          {title}
+          {label}
         </p>
         <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
           {goal}

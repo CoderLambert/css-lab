@@ -4,7 +4,7 @@ import type { Exercise, Lesson } from "@/lib/content/types";
 
 interface LessonPanelProps {
   moduleTitle: string;
-  lesson: Omit<Lesson, "bodyMdxSource">;
+  lesson: Lesson;
   lessonContent: ReactNode;
   exercise: Exercise;
 }

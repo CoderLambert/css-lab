@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check content
+        run: pnpm content:check
+
+      - name: Test content contract
+        run: pnpm test:content
+
       - name: Lint
         run: pnpm lint
 
