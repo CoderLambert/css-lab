@@ -59,7 +59,7 @@ function createRuntimeBridge(
 
   for (const path of cssPaths) {
     const slot = document.querySelector(
-      'style[data-runtime-workspace-path="' + CSS.escape(path) + '"]',
+      'style[data-workspace-path="' + CSS.escape(path) + '"]',
     );
     if (!(slot instanceof HTMLStyleElement)) {
       return;
@@ -369,7 +369,7 @@ export function createBrowserDocumentFromIdentity(
   const cssSlots = identity.cssTopology
     .map(
       (path) =>
-        `<style data-runtime-workspace-path="${escapeHtmlAttribute(path)}"></style>`,
+        `<style data-workspace-path="${escapeHtmlAttribute(path)}"></style>`,
     )
     .join("\n    ");
   const csp = [

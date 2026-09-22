@@ -15,7 +15,11 @@ import {
   isCheckRunMessage,
   isRuntimeReadyMessage,
 } from "../src/features/exercise/runtime/browser/lib/browser-messages";
-import { deriveBrowserSnapshotModel } from "../src/features/exercise/runtime/browser/lib/browser-security";
+import {
+  createRandomNonce,
+  deriveBrowserSnapshotModel,
+  serializeLearnerHtml,
+} from "../src/features/exercise/runtime/browser/lib/browser-security";
 import type { BrowserRuntimeDefinition } from "../src/lib/content/schemas/exercise";
 import type { ExecutionSnapshot } from "../src/lib/workspace/types";
 
@@ -78,7 +82,7 @@ test("srcDoc identity excludes CSS content and safely embeds learner HTML", () =
 
   expect(cssOnly.srcDoc).toBe(first.srcDoc);
   expect(first.srcDoc).not.toContain(".target { color: red }");
-  expect(first.srcDoc).toContain("data-runtime-workspace-path=\"base.css\"");
+  expect(first.srcDoc).toContain("data-workspace-path=\"base.css\"");
   expect(first.srcDoc).toContain("connect-src 'none'");
   expect(first.srcDoc).not.toContain("<div>one</div>");
 });
@@ -141,7 +145,7 @@ test("isolated runtime strips executable HTML, scopes checker, and ignores wrong
     snapshot: snapshot(
       [
         '<div id="learner-root"></div>',
-        '<style data-runtime-workspace-path="style.css"></style>',
+        '<style data-workspace-path="style.css"></style>',
         '<script>window.__learnerScript = true</script>',
         '<button class="target" onclick="window.__clicked = true">Target</button>',
       ].join(""),
@@ -439,7 +443,7 @@ test("DOM policy neutralizes executable markup, navigation surfaces, and clobber
     snapshot: snapshot(
       [
         '<div id="learner-root"></div>',
-        '<style data-runtime-workspace-path="style.css"></style>',
+        '<style data-workspace-path="style.css"></style>',
         '<script>window.__scriptRan = true</script>',
         '<iframe srcdoc="<script>parent.__frameRan=true<\\/script>"></iframe>',
         '<object data="https://m6a-egress.invalid/object"></object>',
@@ -504,7 +508,7 @@ test("DOM policy neutralizes executable markup, navigation surfaces, and clobber
 
   await expect(frame!.locator(".target")).toHaveCSS("color", "rgb(7, 8, 9)");
   await expect(
-    frame!.locator('style[data-runtime-workspace-path="style.css"]'),
+    frame!.locator('style[data-workspace-path="style.css"]'),
   ).toHaveCount(2);
 });
 
@@ -541,7 +545,25 @@ test("unknown CSS path is ignored and cannot create a runtime slot", async ({ pa
   }, descriptor.generationId);
 
   await expect(
-    frame!.locator('style[data-runtime-workspace-path="unknown.css"]'),
+    frame!.locator('style[data-workspace-path="unknown.css"]'),
   ).toHaveCount(0);
   await expect(frame!.locator(".target")).not.toHaveCSS("color", "rgb(9, 9, 9)");
+});
+
+
+test("production nonce uses at least 128 bits and learner HTML serialization cannot close the bridge script", () => {
+  const first = createRandomNonce();
+  const second = createRandomNonce();
+
+  expect(first).toMatch(/^[a-f0-9]{32}$/);
+  expect(second).toMatch(/^[a-f0-9]{32}$/);
+  expect(second).not.toBe(first);
+
+  const serialized = serializeLearnerHtml(
+    '</script><script>window.__escaped = true</script>\u2028\u2029',
+  );
+  expect(serialized).not.toContain("</script>");
+  expect(serialized).toContain("\\u003c/script>");
+  expect(serialized).toContain("\\u2028");
+  expect(serialized).toContain("\\u2029");
 });
