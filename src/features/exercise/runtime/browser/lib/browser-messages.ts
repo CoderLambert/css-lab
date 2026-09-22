@@ -95,6 +95,54 @@ function isScalarOrNull(
   );
 }
 
+function isCheck(value: unknown): value is Check {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  if (
+    typeof value.id !== "string" ||
+    typeof value.message !== "string" ||
+    typeof value.selector !== "string"
+  ) {
+    return false;
+  }
+
+  if (value.type === "exists") {
+    return hasOnlyKeys(value, ["id", "message", "type", "selector"]);
+  }
+
+  if (value.type === "count") {
+    return (
+      hasOnlyKeys(value, ["id", "message", "type", "selector", "equals"]) &&
+      Number.isInteger(value.equals) &&
+      typeof value.equals === "number" &&
+      value.equals >= 0
+    );
+  }
+
+  if (value.type === "style") {
+    return (
+      hasOnlyKeys(value, [
+        "id",
+        "message",
+        "type",
+        "selector",
+        "property",
+        "equals",
+        "alsoAccepts",
+      ]) &&
+      typeof value.property === "string" &&
+      typeof value.equals === "string" &&
+      (value.alsoAccepts === undefined ||
+        (Array.isArray(value.alsoAccepts) &&
+          value.alsoAccepts.every((item) => typeof item === "string")))
+    );
+  }
+
+  return false;
+}
+
 function isOutcome(value: unknown): value is BrowserCheckOutcomeReason {
   return (
     value === "matched" ||
@@ -237,6 +285,7 @@ export function isCheckRunMessage(
     value.type === LAB_MESSAGE_TYPE.checkRun &&
     isGenerationId(value.generationId) &&
     typeof value.requestId === "string" &&
-    Array.isArray(value.checks)
+    Array.isArray(value.checks) &&
+    value.checks.every(isCheck)
   );
 }

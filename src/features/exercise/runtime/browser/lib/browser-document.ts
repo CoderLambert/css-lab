@@ -69,6 +69,55 @@ function createRuntimeBridge(
   const isRecord = (value) =>
     typeof value === "object" && value !== null && !Array.isArray(value);
 
+  const hasOnlyKeys = (value, keys) => {
+    const allowed = new Set(keys);
+    return Object.keys(value).every((key) => allowed.has(key));
+  };
+
+  const isCheck = (value) => {
+    if (
+      !isRecord(value) ||
+      typeof value.id !== "string" ||
+      typeof value.message !== "string" ||
+      typeof value.selector !== "string"
+    ) {
+      return false;
+    }
+
+    if (value.type === "exists") {
+      return hasOnlyKeys(value, ["id", "message", "type", "selector"]);
+    }
+
+    if (value.type === "count") {
+      return (
+        hasOnlyKeys(value, ["id", "message", "type", "selector", "equals"]) &&
+        Number.isInteger(value.equals) &&
+        value.equals >= 0
+      );
+    }
+
+    if (value.type === "style") {
+      return (
+        hasOnlyKeys(value, [
+          "id",
+          "message",
+          "type",
+          "selector",
+          "property",
+          "equals",
+          "alsoAccepts",
+        ]) &&
+        typeof value.property === "string" &&
+        typeof value.equals === "string" &&
+        (value.alsoAccepts === undefined ||
+          (Array.isArray(value.alsoAccepts) &&
+            value.alsoAccepts.every((item) => typeof item === "string")))
+      );
+    }
+
+    return false;
+  };
+
   const normalizeScheme = (value) =>
     value.replace(/[\\u0000-\\u0020\\u007f]+/g, "").toLowerCase();
 
@@ -241,6 +290,13 @@ function createRuntimeBridge(
 
     if (
       message.type === "css:update" &&
+      hasOnlyKeys(message, [
+        "source",
+        "type",
+        "generationId",
+        "path",
+        "content",
+      ]) &&
       typeof message.path === "string" &&
       typeof message.content === "string"
     ) {
@@ -253,8 +309,16 @@ function createRuntimeBridge(
 
     if (
       message.type !== "check:run" ||
+      !hasOnlyKeys(message, [
+        "source",
+        "type",
+        "generationId",
+        "requestId",
+        "checks",
+      ]) ||
       typeof message.requestId !== "string" ||
-      !Array.isArray(message.checks)
+      !Array.isArray(message.checks) ||
+      !message.checks.every(isCheck)
     ) {
       return;
     }
