@@ -212,7 +212,55 @@ inspect current Task
 
 ---
 
-## 4. Scheduled mode 下仍不能跳过的开发前检查
+## 4. Open Decision 执行策略
+
+用户已授权本轮直接基于仓库推进，因此 Task 01 不再因为课程层面的 provisional defaults 逐项等待人工确认。
+
+如果最新仓库没有相反证据，直接冻结以下 v1 baseline：
+
+```text
+HTML prerequisite:
+  learner 能阅读基础 HTML / DOM
+
+CSS prerequisite:
+  zero CSS
+
+endpoint:
+  能实现 + 解释 + 系统 debug 常见 CSS
+
+scope:
+  visual styling + layout
+  system/layout mental model 优先
+
+browser policy:
+  面向 modern evergreen CSS semantics
+  当前自动化验证事实仍只宣称 Chromium coverage
+
+Lesson:
+  10–20 min / 一个核心 mental model
+
+Exercise:
+  通常 2–4 / 默认约 3
+
+capstone:
+  fixed HTML + CSS-only
+
+advanced animations / container queries / subgrid deep dive 等:
+  排除在 CSS Foundations v1 core
+```
+
+只有以下情况才停止等待用户：
+
+- 决策会要求新增 Workspace / Checker / Runtime / Activity capability。
+- 会把 CSS Foundations 扩大为 HTML/JS authoring course。
+- 最新 repo 产品 contract 与上述 baseline 明确冲突。
+- 会导致已规划 Module/Lesson 大规模重构而没有足够证据。
+
+课程层面的普通取舍由执行者基于当前规划做 best-effort 决策，并在 Task 13 统一复核。
+
+---
+
+## 5. Scheduled mode 下仍不能跳过的开发前检查
 
 每次运行都必须：
 
@@ -235,7 +283,7 @@ inspect current Task
 
 ---
 
-## 5. 可以延后的耗时工作
+## 6. 可以延后的耗时工作
 
 为了提高开发吞吐，Task 01~12 的 scheduled runs 可以延后：
 
@@ -253,7 +301,7 @@ inspect current Task
 
 ---
 
-## 6. 不能延后的最小事实核查
+## 7. 不能延后的最小事实核查
 
 内容开发不能“无 source grounding”推进。
 
@@ -269,7 +317,7 @@ inspect current Task
 
 ---
 
-## 7. Fast Gate
+## 8. Fast Gate
 
 ### Lane A — Task 02 tooling
 
@@ -323,7 +371,7 @@ git diff --check
 
 ---
 
-## 8. Task 13 统一验证
+## 9. Task 13 统一验证
 
 Task 13 是 scheduled mode 的完整质量恢复点。
 
@@ -363,7 +411,7 @@ Task 13 还必须补回：
 
 ---
 
-## 9. Branch / commit conflict protocol
+## 10. Branch / commit conflict protocol
 
 三个定时任务都在：
 
@@ -389,7 +437,7 @@ feat/css-foundations-v1-curriculum-plan
 
 ---
 
-## 10. Commit convention
+## 11. Commit convention
 
 Lane A：
 
@@ -420,7 +468,7 @@ cssf(c): add Flexbox axes and alignment batch
 
 ---
 
-## 11. 执行顺序与可并行区
+## 12. 执行顺序与可并行区
 
 ```text
 A: Task 01 → 02 → 03 --------------------------→ Task 13
@@ -457,7 +505,7 @@ B04~07 + C08~12 complete
 
 ---
 
-## 12. Source research 并行策略
+## 13. Source research 并行策略
 
 可以在任意 Lane 空闲时做 read-only research，但：
 
@@ -469,7 +517,7 @@ B04~07 + C08~12 complete
 
 ---
 
-## 13. Publication
+## 14. Publication
 
 Task 01~12 新内容默认：
 
@@ -493,7 +541,7 @@ content complete
 
 ---
 
-## 14. Stop conditions
+## 15. Stop conditions
 
 任一 scheduled task 遇到以下情况停止本轮写入：
 
@@ -509,7 +557,7 @@ content complete
 
 ---
 
-## 15. 最终完成条件
+## 16. 最终完成条件
 
 只有 Lane A 完成 Task 13 并通过完整 gate 后，才允许报告：
 
