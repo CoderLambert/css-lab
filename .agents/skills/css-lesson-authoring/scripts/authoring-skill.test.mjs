@@ -7,6 +7,7 @@ import test from "node:test";
 import { inspectContext } from "./inspect-context.mjs";
 import { inspectSourcePack } from "./inspect-source-pack.mjs";
 import { scaffoldExercise, scaffoldLesson, scaffoldModule } from "./scaffold.mjs";
+import { reorderSiblings } from "./reorder.mjs";
 
 async function writeJson(path, value) {
   await mkdir(dirname(path), { recursive: true });
@@ -114,4 +115,101 @@ test("inspectSourcePack rejects path traversal", async (t) => {
   await writeFile(join(parent, "outside.md"), "outside\n", "utf8");
   await writeJson(join(root, "source-pack.json"), { schemaVersion: 1, id: "unsafe-pack", scope: {}, sources: [{ id: "outside", path: "../outside.md", role: "primary" }] });
   await assert.rejects(() => inspectSourcePack({ manifestPath: join(root, "source-pack.json") }), /escapes the source-pack directory/);
+});
+
+
+test("reorderSiblings reorders modules deterministically and preserves identity/status", async (t) => {
+  const repoRoot = await createRepoFixture(t);
+  await scaffoldModule({ repoRoot, courseSlug: "css-foundations", slug: "grid", id: "css.grid", title: "Grid", description: "Grid." });
+
+  const dryRun = await reorderSiblings({
+    repoRoot,
+    kind: "module",
+    courseSlug: "css-foundations",
+    orders: { flexbox: 2, grid: 1 },
+    dryRun: true,
+  });
+  assert.equal(dryRun.changed, 2);
+  const flexboxPath = join(repoRoot, "content", "courses", "css-foundations", "modules", "flexbox", "module.json");
+  assert.equal(JSON.parse(await readFile(flexboxPath, "utf8")).order, 1);
+
+  const result = await reorderSiblings({
+    repoRoot,
+    kind: "module",
+    courseSlug: "css-foundations",
+    orders: { flexbox: 2, grid: 1 },
+  });
+  assert.equal(result.changed, 2);
+
+  const flexbox = JSON.parse(await readFile(flexboxPath, "utf8"));
+  const grid = JSON.parse(await readFile(join(repoRoot, "content", "courses", "css-foundations", "modules", "grid", "module.json"), "utf8"));
+  assert.deepEqual({ id: flexbox.id, slug: flexbox.slug, status: flexbox.status, order: flexbox.order }, { id: "css.flexbox", slug: "flexbox", status: "published", order: 2 });
+  assert.deepEqual({ id: grid.id, slug: grid.slug, status: grid.status, order: grid.order }, { id: "css.grid", slug: "grid", status: "draft", order: 1 });
+
+  const repeat = await reorderSiblings({
+    repoRoot,
+    kind: "module",
+    courseSlug: "css-foundations",
+    orders: { flexbox: 2, grid: 1 },
+  });
+  assert.equal(repeat.changed, 0);
+});
+
+test("reorderSiblings reorders lessons deterministically", async (t) => {
+  const repoRoot = await createRepoFixture(t);
+  await scaffoldLesson({
+    repoRoot,
+    courseSlug: "css-foundations",
+    moduleSlug: "flexbox",
+    slug: "flex-sizing",
+    id: "css.flexbox.flex-sizing",
+    title: "Flex sizing",
+    description: "Understand flex sizing.",
+    estimatedMinutes: 20,
+  });
+
+  const result = await reorderSiblings({
+    repoRoot,
+    kind: "lesson",
+    courseSlug: "css-foundations",
+    moduleSlug: "flexbox",
+    orders: { alignment: 2, "flex-sizing": 1 },
+  });
+  assert.equal(result.changed, 2);
+  const alignment = JSON.parse(await readFile(join(repoRoot, "content", "courses", "css-foundations", "modules", "flexbox", "lessons", "alignment", "lesson.json"), "utf8"));
+  assert.equal(alignment.order, 2);
+  assert.equal(alignment.id, "css.flexbox.alignment");
+  assert.equal(alignment.status, "published");
+});
+
+test("reorderSiblings rejects unknown entities and collisions without partial writes", async (t) => {
+  const repoRoot = await createRepoFixture(t);
+  await scaffoldModule({ repoRoot, courseSlug: "css-foundations", slug: "grid", id: "css.grid", title: "Grid", description: "Grid." });
+
+  const flexboxPath = join(repoRoot, "content", "courses", "css-foundations", "modules", "flexbox", "module.json");
+  const gridPath = join(repoRoot, "content", "courses", "css-foundations", "modules", "grid", "module.json");
+  const beforeFlexbox = await readFile(flexboxPath, "utf8");
+  const beforeGrid = await readFile(gridPath, "utf8");
+
+  await assert.rejects(
+    () => reorderSiblings({
+      repoRoot,
+      kind: "module",
+      courseSlug: "css-foundations",
+      orders: { missing: 3 },
+    }),
+    /Unknown module slug/,
+  );
+  await assert.rejects(
+    () => reorderSiblings({
+      repoRoot,
+      kind: "module",
+      courseSlug: "css-foundations",
+      orders: { flexbox: 2 },
+    }),
+    /target order 2 would collide/,
+  );
+
+  assert.equal(await readFile(flexboxPath, "utf8"), beforeFlexbox);
+  assert.equal(await readFile(gridPath, "utf8"), beforeGrid);
 });

@@ -137,6 +137,26 @@ export async function readAndValidateRecord(path, expectedSlug, kind) {
   return record;
 }
 
+export async function listModuleRecords(repoRoot, courseSlug) {
+  const { courseRoot } = contentPaths(repoRoot, courseSlug, "placeholder");
+  const modulesRoot = join(courseRoot, "modules");
+  if (!(await pathExists(modulesRoot))) return [];
+  const directories = await sortedDirectories(modulesRoot);
+  const modules = [];
+  for (const directory of directories) {
+    assertSlug(directory.name, "module directory");
+    const record = await readAndValidateRecord(
+      join(modulesRoot, directory.name, "module.json"),
+      directory.name,
+      "Module",
+    );
+    modules.push({ ...record, directory: directory.name });
+  }
+  return modules.sort(
+    (left, right) => left.order - right.order || left.slug.localeCompare(right.slug),
+  );
+}
+
 export async function listLessonRecords(repoRoot, courseSlug, moduleSlug) {
   const { lessonsRoot } = contentPaths(repoRoot, courseSlug, moduleSlug);
   if (!(await pathExists(lessonsRoot))) return [];

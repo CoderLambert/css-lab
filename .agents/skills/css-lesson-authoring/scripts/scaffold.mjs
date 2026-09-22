@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 import {
@@ -13,6 +13,7 @@ import {
   isDirectExecution,
   listExerciseRecords,
   listLessonRecords,
+  listModuleRecords,
   nextOrder,
   parseArgs,
   pathExists,
@@ -51,27 +52,6 @@ function optionalPositiveOrder(value, records, kind) {
   const order = positiveInteger(value, `${kind} order`);
   assertOrderAvailable(records, order, kind);
   return order;
-}
-
-async function listModuleRecords(repoRoot, courseSlug) {
-  const { courseRoot } = contentPaths(repoRoot, courseSlug, "placeholder");
-  const modulesRoot = join(courseRoot, "modules");
-  if (!(await pathExists(modulesRoot))) return [];
-
-  const entries = await readdir(modulesRoot, { withFileTypes: true });
-  const modules = [];
-  for (const entry of entries.filter((candidate) => candidate.isDirectory())) {
-    assertSlug(entry.name, "module directory");
-    const record = await readAndValidateRecord(
-      join(modulesRoot, entry.name, "module.json"),
-      entry.name,
-      "Module",
-    );
-    modules.push({ ...record, directory: entry.name });
-  }
-  return modules.sort(
-    (left, right) => left.order - right.order || left.slug.localeCompare(right.slug),
-  );
 }
 
 export async function scaffoldModule({
