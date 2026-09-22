@@ -247,6 +247,8 @@ test("checker scope excludes runtime shell and reports invalid/missing selectors
         checks: [
           { id: "slot", type: "exists", selector: "style", message: "slot" },
           { id: "wrapper", type: "exists", selector: "#learner-root", message: "wrapper" },
+          { id: "scope", type: "exists", selector: ":scope", message: "scope" },
+          { id: "scope-count", type: "count", selector: ":scope", equals: 0, message: "scope count" },
           { id: "count", type: "count", selector: "div", equals: 1, message: "count" },
           { id: "invalid", type: "exists", selector: "[", message: "invalid" },
         ],
@@ -266,6 +268,13 @@ test("checker scope excludes runtime shell and reports invalid/missing selectors
   expect(result.results.find((item) => item.id === "wrapper")?.reason).toBe(
     "target-not-found",
   );
+  expect(result.results.find((item) => item.id === "scope")?.reason).toBe(
+    "target-not-found",
+  );
+  expect(result.results.find((item) => item.id === "scope-count")).toMatchObject({
+    passed: true,
+    actual: 0,
+  });
   expect(result.results.find((item) => item.id === "count")).toMatchObject({
     passed: true,
     actual: 1,

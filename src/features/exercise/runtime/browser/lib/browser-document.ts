@@ -193,10 +193,27 @@ function createRuntimeBridge(
 
   const queryOne = (selector) => {
     try {
-      return { element: learnerRoot.querySelector(selector), error: null };
+      const element = learnerRoot.querySelector(selector);
+      return {
+        element: element === learnerRoot ? null : element,
+        error: null,
+      };
     } catch {
       return { element: null, error: "checker-error" };
     }
+  };
+
+  const countMatches = (selector) => {
+    const matches = learnerRoot.querySelectorAll(selector);
+    let count = 0;
+
+    for (const element of matches) {
+      if (element !== learnerRoot) {
+        count += 1;
+      }
+    }
+
+    return count;
   };
 
   const runCheck = (check) => {
@@ -214,7 +231,7 @@ function createRuntimeBridge(
 
     if (check.type === "count" && typeof check.selector === "string" && Number.isInteger(check.equals)) {
       try {
-        const actual = learnerRoot.querySelectorAll(check.selector).length;
+        const actual = countMatches(check.selector);
         return result(check, actual === check.equals, actual === check.equals ? "matched" : "mismatch", check.equals, actual);
       } catch {
         return result(check, false, "checker-error", check.equals, null);
