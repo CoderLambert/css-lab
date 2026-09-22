@@ -34,7 +34,6 @@ export interface Lesson {
   status: EntityStatus;
   courseId: string;
   moduleId: string;
-  bodyMarkdown: string;
 }
 
 export interface Exercise {

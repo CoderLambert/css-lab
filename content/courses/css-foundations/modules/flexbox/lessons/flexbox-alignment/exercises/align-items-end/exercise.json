@@ -8,8 +8,9 @@
   "order": 3,
   "status": "published",
   "hints": [
-    "这道题仍然需要 flex 布局上下文。",
-    "交叉轴上的整体对齐由 align-items 控制。"
+    "先确认 .container 已经是 flex container；这道题不需要改变三个项目自身的高度。",
+    "默认 row 方向下，交叉轴是垂直方向，因此“交叉轴末端”就是容器的底部。",
+    "用 align-items 控制整组项目的交叉轴对齐。经典 Flexbox 写法是 flex-end；现代 Box Alignment 的 end 在本题中也视为正确。"
   ],
   "checks": [
     {
@@ -26,6 +27,9 @@
       "selector": ".container",
       "property": "align-items",
       "equals": "flex-end",
+      "alsoAccepts": [
+        "end"
+      ],
       "message": "让项目沿交叉轴末端对齐"
     }
   ]

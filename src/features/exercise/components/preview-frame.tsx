@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type CSSProperties,
+} from "react";
 
 import {
   createCheckRunMessage,
@@ -18,6 +24,8 @@ export interface PreviewFrameProps {
   css: string;
   checkRequest: CheckRequest | null;
   onCheckResult: (result: CheckResultMessage) => void;
+  width?: CSSProperties["width"];
+  height?: CSSProperties["height"];
 }
 
 function postCssUpdate(iframeWindow: Window, css: string): void {
@@ -30,6 +38,8 @@ export function PreviewFrame({
   css,
   checkRequest,
   onCheckResult,
+  width = "100%",
+  height = 300,
 }: PreviewFrameProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const cssRef = useRef(css);
@@ -136,7 +146,6 @@ export function PreviewFrame({
     if (iframeWindow) {
       isReadyRef.current = true;
       postCssUpdate(iframeWindow, cssRef.current);
-
       sendPendingCheck(iframeWindow);
     }
   };
@@ -148,7 +157,8 @@ export function PreviewFrame({
       sandbox="allow-scripts"
       srcDoc={srcDoc}
       onLoad={handleIframeLoad}
-      className="block h-[300px] w-full border-0 bg-preview"
+      className="block shrink-0 border-0 bg-preview"
+      style={{ width, height }}
     />
   );
 }

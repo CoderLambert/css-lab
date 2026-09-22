@@ -17,6 +17,7 @@ export const StyleCheckSchema = CheckBaseSchema.extend({
   selector: NonEmptyStringSchema,
   property: NonEmptyStringSchema,
   equals: NonEmptyStringSchema,
+  alsoAccepts: z.array(NonEmptyStringSchema).optional(),
 }).strict();
 
 export const ExistsCheckSchema = CheckBaseSchema.extend({

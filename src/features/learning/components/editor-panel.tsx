@@ -50,7 +50,7 @@ export function EditorPanel({ value, onChange }: EditorPanelProps) {
       className="flex h-full min-w-0 flex-col bg-editor text-editor-foreground"
       aria-labelledby="editor-title"
     >
-      <div className="flex items-center justify-between gap-3 border-b border-editor-line-active px-5 py-5 sm:px-6">
+      <div className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-editor-line-active px-4 sm:px-5">
         <div className="min-w-0">
           <p
             id="editor-title"
@@ -58,7 +58,7 @@ export function EditorPanel({ value, onChange }: EditorPanelProps) {
           >
             style.css
           </p>
-          <p className="mt-1 text-xs text-editor-muted">实时编辑</p>
+          <p className="mt-0.5 text-[11px] text-editor-muted">CSS · 实时预览</p>
         </div>
 
         <Button
@@ -89,10 +89,10 @@ export function EditorPanel({ value, onChange }: EditorPanelProps) {
       </div>
 
       <div
-        className="flex items-center gap-3 border-t border-editor-line-active px-5 py-3 text-[11px] text-editor-muted sm:px-6"
+        className="flex h-9 shrink-0 items-center gap-3 border-t border-editor-line-active px-4 text-[11px] text-editor-muted sm:px-5"
         aria-live="polite"
       >
-        <span>CSS · 2 spaces · UTF-8</span>
+        <span>2 spaces · UTF-8</span>
         <span
           className={
             formatError
@@ -100,7 +100,7 @@ export function EditorPanel({ value, onChange }: EditorPanelProps) {
               : "ml-auto hidden text-right sm:inline"
           }
         >
-          {formatError ?? "Shift + Alt + F · Esc → Tab 退出编辑器"}
+          {formatError ?? "Shift + Alt + F"}
         </span>
       </div>
     </section>

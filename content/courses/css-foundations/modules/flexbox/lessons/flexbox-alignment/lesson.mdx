@@ -1,0 +1,70 @@
+## 先判断轴，再选择属性
+
+Flexbox 对齐最容易出错的地方，不是属性名记不住，而是把 `justify-content` 固定理解成“水平”、把 `align-items` 固定理解成“垂直”。
+
+真正稳定的判断方式只有一个：**先确定主轴和交叉轴，再选择控制那条轴的属性。**
+
+<Concept title="Flexbox 的对齐模型">
+`flex-direction` 决定主轴方向；`justify-content` 沿主轴分布项目；`align-items` 沿交叉轴对齐项目。
+
+所以当 `flex-direction` 从 `row` 改成 `column` 时，两个属性控制的视觉方向也会跟着交换。
+</Concept>
+
+## 1. 先预测，再验证
+
+先不要运行代码。假设容器使用：
+
+```css
+.container {
+  display: flex;
+  flex-direction: column;
+}
+```
+
+现在要让项目在**水平方向居中**，应该修改哪个属性？
+
+<Predict
+  question="flex-direction: column 时，哪个属性负责让项目水平居中？"
+  options={["justify-content", "align-items"]}
+  answer="align-items"
+  explanation="column 会让主轴变成纵向，因此水平方向变成交叉轴；align-items 控制的正是交叉轴。"
+/>
+
+## 2. 对照两个属性的职责
+
+<Compare
+  leftTitle="justify-content"
+  leftCode="justify-content: center;"
+  leftMeaning="沿主轴分布 flex items。主轴由 flex-direction 决定。"
+  rightTitle="align-items"
+  rightCode="align-items: center;"
+  rightMeaning="沿交叉轴对齐 flex items。交叉轴始终与主轴垂直。"
+/>
+
+不要记“水平属性”和“垂直属性”。记住的是：
+
+1. `flex-direction` 先确定主轴。
+2. `justify-content` 管主轴。
+3. `align-items` 管交叉轴。
+
+## 3. 用三个练习建立稳定模型
+
+<Exercise
+  slug="center-box"
+  label="水平与垂直居中"
+  goal="先建立 flex formatting context，再分别处理主轴与交叉轴。"
+/>
+
+<Exercise
+  slug="space-between-items"
+  label="在主轴上拉开间距"
+  goal="观察 space-between 如何分配主轴上的剩余空间。"
+/>
+
+<Exercise
+  slug="align-items-end"
+  label="沿交叉轴末端对齐"
+  goal="用不同高度的项目验证 align-items 对交叉轴的控制。"
+/>
+
+> MDX 负责教学叙事与 Activity 编排；Exercise 的 starter、fixture、checks、solution 由 Exercise source 负责。

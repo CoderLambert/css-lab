@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { ContentReader } from "@/lib/content/reader";
+import type { LessonContentInspector } from "@/lib/content/lesson-content-source";
 import type {
   Course,
   EntityStatus,
@@ -197,6 +198,7 @@ function auditExerciseChecks(
 
 export async function readStudioContentHealth(
   contentReader: ContentReader,
+  lessonContentInspector: LessonContentInspector,
 ): Promise<StudioContentHealth> {
   const issues: ContentHealthIssue[] = [];
   const stableIds = new Map<string, RegisteredEntity>();
@@ -222,7 +224,13 @@ export async function readStudioContentHealth(
 
     for (const courseModule of modules) {
       const moduleLocation = `${courseLocation}/module:${courseModule.slug}`;
-      registerStableId(issues, stableIds, "Module", courseModule, moduleLocation);
+      registerStableId(
+        issues,
+        stableIds,
+        "Module",
+        courseModule,
+        moduleLocation,
+      );
 
       const coursePublished = course.status === "published";
       hiddenPublishedChild(
@@ -234,7 +242,10 @@ export async function readStudioContentHealth(
         moduleLocation,
       );
 
-      const lessons = await contentReader.listLessons(course.slug, courseModule.slug);
+      const lessons = await contentReader.listLessons(
+        course.slug,
+        courseModule.slug,
+      );
       lessonCount += lessons.length;
       auditSiblingOrders(issues, "Lesson", lessons, moduleLocation);
 
@@ -256,14 +267,30 @@ export async function readStudioContentHealth(
           lessonLocation,
         );
 
-        if (lesson.bodyMarkdown.trim().length === 0) {
+        const lessonContent = await lessonContentInspector.inspectLessonContent(
+          {
+            courseSlug: course.slug,
+            moduleSlug: courseModule.slug,
+            lessonSlug: lesson.slug,
+          },
+        );
+
+        if (!lessonContent.exists) {
+          addIssue(
+            issues,
+            "error",
+            "missing-lesson-mdx",
+            `Lesson “${lesson.title}” 缺少 lesson.mdx。`,
+            lessonLocation,
+          );
+        } else if (lessonContent.isEmpty) {
           addIssue(
             issues,
             modulePublished && lesson.status === "published"
               ? "error"
               : "warning",
             "empty-lesson-body",
-            `Lesson “${lesson.title}” 的 lesson.md 为空。`,
+            `Lesson “${lesson.title}” 的 lesson.mdx 为空。`,
             lessonLocation,
           );
         }
@@ -280,8 +307,7 @@ export async function readStudioContentHealth(
         let lessonPublishedExercises = 0;
 
         for (const exercise of exercises) {
-          const exerciseLocation =
-            `${lessonLocation}/exercise:${exercise.slug}`;
+          const exerciseLocation = `${lessonLocation}/exercise:${exercise.slug}`;
           registerStableId(
             issues,
             stableIds,

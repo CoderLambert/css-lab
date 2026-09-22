@@ -17,7 +17,7 @@ CSS Lab 是一个专注于 CSS 实践的交互式学习项目。核心学习闭�
 - Tailwind CSS v4 + shadcn/Base UI
 - CodeMirror 6
 - Zod
-- `react-markdown` for trusted lesson Markdown rendering
+- MDX lesson content with a generated, validated teaching registry
 - IndexedDB via `idb`
 - Playwright
 - pnpm
@@ -33,18 +33,20 @@ pnpm dev
 
 - `/`：产品入口
 - `/learn`：自动进入第一个 published exercise
-- `/studio`：内容创作区占位入口
+- `/studio`：只读内容健康与目录检查
 
 ## Verification
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-CI 会执行 frozen install、lint、build 和 Chromium E2E。
+CI 会执行 frozen install、content check、content contract tests、lint、build 和 Chromium E2E。
 
 ## Architecture
 
@@ -52,7 +54,8 @@ CI 会执行 frozen install、lint、build 和 Chromium E2E。
 content/
   ↓ FileContentReader + Zod
 Server learner routes
-  ├─ lesson.md → react-markdown → Server Component slot
+  ├─ lesson.json → Lesson metadata
+  ├─ lesson.mdx → generated MDX registry → Server Component slot
   ↓
 LearningWorkspace
   ├─ CodeMirror editor
@@ -78,7 +81,9 @@ LearningWorkspace
 content/courses/<course>/modules/<module>/lessons/<lesson>/
 ```
 
-每个 lesson 使用 `lesson.json + lesson.md` 保存元数据与教学正文。Markdown 在服务端渲染，原始正文和 parser 不进入 learner client bundle。
+每个 `lessons/*` 直接子目录都是 Lesson source directory，必须同时包含 `lesson.json + lesson.mdx`。`lesson.json` 由 `FileContentReader` 提供 runtime metadata，`lesson.mdx` 由生成的 registry 提供教学内容。修改或新增 lesson 后运行 `pnpm content:generate`，提交生成文件；提交前运行 `pnpm content:check`。
+
+`exercise.order` 是 learner navigation 的唯一 canonical sequence。effective learner-visible Lesson 的 MDX Exercise references 必须将所有 published Exercise 各引用一次，且顺序完全一致；draft/hidden Lesson 可以暂时引用 draft Exercise。
 
 每道 exercise：
 

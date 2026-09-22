@@ -32,13 +32,20 @@ function createPreviewBridgeScript(): string {
   const isRecord = (value) =>
     Boolean(value) && typeof value === "object";
 
+  const isStringArray = (value) =>
+    Array.isArray(value) && value.every((item) => typeof item === "string");
+
   const isCheck = (value) => {
     if (!isRecord(value) || typeof value.id !== "string" || typeof value.message !== "string" || typeof value.selector !== "string") {
       return false;
     }
 
     if (value.type === "style") {
-      return typeof value.property === "string" && typeof value.equals === "string";
+      return (
+        typeof value.property === "string" &&
+        typeof value.equals === "string" &&
+        (value.alsoAccepts === undefined || isStringArray(value.alsoAccepts))
+      );
     }
 
     if (value.type === "exists") {
@@ -49,29 +56,61 @@ function createPreviewBridgeScript(): string {
   };
 
   const expectedFor = (check) => {
-    if (check.type === "style") {
+    if (check.type === "style" && typeof check.equals === "string") {
+      const accepted = [
+        check.equals,
+        ...(Array.isArray(check.alsoAccepts) ? check.alsoAccepts : []),
+      ];
+
+      return accepted.join(" / ");
+    }
+
+    if (check.type === "count" && Number.isInteger(check.equals)) {
       return check.equals;
     }
 
-    if (check.type === "count") {
-      return check.equals;
+    if (check.type === "exists") {
+      return true;
     }
 
-    return true;
+    return false;
   };
 
-  const failedResult = (check, actual = null) => ({
+  const selectorFor = (check) =>
+    typeof check.selector === "string" ? check.selector : null;
+
+  const propertyFor = (check) =>
+    check.type === "style" && typeof check.property === "string"
+      ? check.property
+      : null;
+
+  const failedResult = (check, reason, actual = null) => ({
     id: typeof check.id === "string" ? check.id : "unknown-check",
     type: check.type === "exists" || check.type === "count" ? check.type : "style",
     message: typeof check.message === "string" ? check.message : "无法执行此检查",
     passed: false,
     expected: expectedFor(check),
     actual,
+    selector: selectorFor(check),
+    property: propertyFor(check),
+    reason,
+  });
+
+  const completedResult = (check, passed, expected, actual) => ({
+    id: check.id,
+    type: check.type,
+    message: check.message,
+    passed,
+    expected,
+    actual,
+    selector: check.selector,
+    property: propertyFor(check),
+    reason: passed ? "matched" : "mismatch",
   });
 
   const runCheck = (check) => {
     if (!isCheck(check)) {
-      return failedResult(check || {});
+      return failedResult(check || {}, "checker-error");
     }
 
     try {
@@ -79,48 +118,47 @@ function createPreviewBridgeScript(): string {
         const element = document.querySelector(check.selector);
 
         if (!element) {
-          return failedResult(check);
+          return failedResult(check, "selector-not-found");
         }
 
         const actual = getComputedStyle(element)
           .getPropertyValue(check.property)
           .trim();
+        const accepted = [
+          check.equals,
+          ...(Array.isArray(check.alsoAccepts) ? check.alsoAccepts : []),
+        ];
+        const passed = accepted.includes(actual);
 
-        return {
-          id: check.id,
-          type: check.type,
-          message: check.message,
-          passed: actual === check.equals,
-          expected: check.equals,
+        return completedResult(
+          check,
+          passed,
+          accepted.join(" / "),
           actual,
-        };
+        );
       }
 
       if (check.type === "exists") {
         const actual = document.querySelector(check.selector) !== null;
 
-        return {
-          id: check.id,
-          type: check.type,
-          message: check.message,
-          passed: actual === true,
-          expected: true,
+        return completedResult(
+          check,
+          actual === true,
+          true,
           actual,
-        };
+        );
       }
 
       const actual = document.querySelectorAll(check.selector).length;
 
-      return {
-        id: check.id,
-        type: check.type,
-        message: check.message,
-        passed: actual === check.equals,
-        expected: check.equals,
+      return completedResult(
+        check,
+        actual === check.equals,
+        check.equals,
         actual,
-      };
+      );
     } catch {
-      return failedResult(check);
+      return failedResult(check, "checker-error");
     }
   };
 
