@@ -576,3 +576,226 @@ test("production nonce uses at least 128 bits and learner HTML serialization can
   expect(serialized).toContain("\\u2028");
   expect(serialized).toContain("\\u2029");
 });
+
+
+test("CSS slots preserve declaration order and style checker accepts semantic alternatives", async ({
+  page,
+}) => {
+  const orderedSnapshot: ExecutionSnapshot = {
+    files: [
+      {
+        path: "index.html",
+        language: "html",
+        content: '<div class="target">Target</div>',
+      },
+      {
+        path: "first.css",
+        language: "css",
+        content: "",
+      },
+      {
+        path: "second.css",
+        language: "css",
+        content: "",
+      },
+    ],
+  };
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: orderedSnapshot,
+    generationId: "generation-order",
+    nonce: "50112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  const result = await page.evaluate(async ({ srcDoc, generationId }) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    if (!iframe) throw new Error("missing iframe");
+
+    const ready = new Promise<void>((resolve) => {
+      const onMessage = (event: MessageEvent) => {
+        if (
+          event.source === iframe.contentWindow &&
+          event.data?.source === "lab-runtime" &&
+          event.data?.type === "runtime:ready" &&
+          event.data?.generationId === generationId
+        ) {
+          window.removeEventListener("message", onMessage);
+          resolve();
+        }
+      };
+      window.addEventListener("message", onMessage);
+    });
+
+    iframe.srcdoc = srcDoc;
+    await ready;
+
+    iframe.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "css:update",
+        generationId,
+        path: "first.css",
+        content: ".target { display: flex; color: rgb(1, 2, 3); }",
+      },
+      "*",
+    );
+    iframe.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "css:update",
+        generationId,
+        path: "second.css",
+        content: ".target { color: rgb(4, 5, 6); align-items: end; }",
+      },
+      "*",
+    );
+
+    const resultPromise = new Promise<unknown>((resolve) => {
+      const onMessage = (event: MessageEvent) => {
+        if (
+          event.source === iframe.contentWindow &&
+          event.data?.source === "lab-runtime" &&
+          event.data?.type === "check:result" &&
+          event.data?.generationId === generationId &&
+          event.data?.requestId === "order-check"
+        ) {
+          window.removeEventListener("message", onMessage);
+          resolve(event.data);
+        }
+      };
+      window.addEventListener("message", onMessage);
+    });
+
+    iframe.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "check:run",
+        generationId,
+        requestId: "order-check",
+        checks: [
+          {
+            id: "cascade-order",
+            type: "style",
+            selector: ".target",
+            property: "color",
+            equals: "rgb(4, 5, 6)",
+            message: "later CSS slot wins",
+          },
+          {
+            id: "semantic-alternative",
+            type: "style",
+            selector: ".target",
+            property: "align-items",
+            equals: "flex-end",
+            alsoAccepts: ["end"],
+            message: "semantic alternative remains accepted",
+          },
+        ],
+      },
+      "*",
+    );
+
+    return resultPromise;
+  }, { srcDoc: descriptor.srcDoc, generationId: descriptor.generationId });
+
+  expect(isCheckResultMessage(result)).toBe(true);
+  if (!isCheckResultMessage(result)) return;
+
+  expect(result.passed).toBe(true);
+  expect(result.results).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        id: "cascade-order",
+        passed: true,
+        actual: "rgb(4, 5, 6)",
+      }),
+      expect.objectContaining({
+        id: "semantic-alternative",
+        passed: true,
+      }),
+    ]),
+  );
+});
+
+test("runtime shell selectors never count as learner matches", async ({ page }) => {
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: snapshot('<section class="target"></section>'),
+    generationId: "generation-shell",
+    nonce: "60112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  const result = await page.evaluate(async ({ srcDoc, generationId }) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    if (!iframe) throw new Error("missing iframe");
+
+    const ready = new Promise<void>((resolve) => {
+      const onMessage = (event: MessageEvent) => {
+        if (
+          event.source === iframe.contentWindow &&
+          event.data?.source === "lab-runtime" &&
+          event.data?.type === "runtime:ready" &&
+          event.data?.generationId === generationId
+        ) {
+          window.removeEventListener("message", onMessage);
+          resolve();
+        }
+      };
+      window.addEventListener("message", onMessage);
+    });
+
+    iframe.srcdoc = srcDoc;
+    await ready;
+
+    const resultPromise = new Promise<unknown>((resolve) => {
+      const onMessage = (event: MessageEvent) => {
+        if (
+          event.source === iframe.contentWindow &&
+          event.data?.source === "lab-runtime" &&
+          event.data?.type === "check:result" &&
+          event.data?.generationId === generationId &&
+          event.data?.requestId === "shell-check"
+        ) {
+          window.removeEventListener("message", onMessage);
+          resolve(event.data);
+        }
+      };
+      window.addEventListener("message", onMessage);
+    });
+
+    iframe.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "check:run",
+        generationId,
+        requestId: "shell-check",
+        checks: [
+          { id: "html", type: "exists", selector: "html", message: "html" },
+          { id: "head", type: "exists", selector: "head", message: "head" },
+          { id: "body", type: "exists", selector: "body", message: "body" },
+          {
+            id: "runtime-slot",
+            type: "exists",
+            selector: "[data-workspace-path]",
+            message: "runtime slot",
+          },
+        ],
+      },
+      "*",
+    );
+
+    return resultPromise;
+  }, { srcDoc: descriptor.srcDoc, generationId: descriptor.generationId });
+
+  expect(isCheckResultMessage(result)).toBe(true);
+  if (!isCheckResultMessage(result)) return;
+
+  for (const item of result.results) {
+    expect(item).toMatchObject({
+      passed: false,
+      reason: "target-not-found",
+    });
+  }
+});
