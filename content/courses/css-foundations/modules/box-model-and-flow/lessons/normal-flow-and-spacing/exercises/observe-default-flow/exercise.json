@@ -16,10 +16,18 @@
     {
       "id": "block-participation",
       "type": "style",
-      "selector": ".card",
+      "selector": ".card:first-child",
       "property": "display",
       "equals": "block",
-      "message": "让 .card 作为 block-level box 参与 normal flow"
+      "message": "让第一个 .card 作为 block-level box 参与 normal flow"
+    },
+    {
+      "id": "block-participation-last",
+      "type": "style",
+      "selector": ".card:last-child",
+      "property": "display",
+      "equals": "block",
+      "message": "让第二个 .card 也作为 block-level box 参与 normal flow"
     }
   ]
 }

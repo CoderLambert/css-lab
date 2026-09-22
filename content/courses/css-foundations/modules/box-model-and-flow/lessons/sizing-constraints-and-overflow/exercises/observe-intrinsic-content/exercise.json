@@ -12,14 +12,5 @@
     "这次要让 box 的 inline size 贴近不换行内容，而不是给它一个任意固定宽度。",
     "对 .label 设置 width: max-content；Preview 中再把 containing context 改窄观察结果。"
   ],
-  "checks": [
-    {
-      "id": "intrinsic-width-keyword",
-      "type": "style",
-      "selector": ".label",
-      "property": "width",
-      "equals": "max-content",
-      "message": "让 .label 使用 max-content inline sizing"
-    }
-  ]
+  "checks": []
 }

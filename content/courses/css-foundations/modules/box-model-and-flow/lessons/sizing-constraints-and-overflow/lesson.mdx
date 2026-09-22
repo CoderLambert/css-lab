@@ -61,4 +61,4 @@
   goal="修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。"
 />
 
-这些 Exercise 的 checker 只验证明确写出的 CSS 声明。当前 DSL 不能可靠证明 intrinsic sizing、最终几何尺寸、滚动条是否出现或 overflow 是否真的发生；预览中的观察仍是学习的一部分，不应把声明检查误读成完整行为验证。
+这些 Exercise 的 checker 只验证明确写出的 CSS 声明。当前 DSL 不能可靠证明 intrinsic sizing、最终几何尺寸、滚动条是否出现或 overflow 是否真的发生；尤其是 `.label` 的 `width: max-content` 可能在 `getComputedStyle()` 中解析成 used pixel width，因此 intrinsic exercise 保留空 checks 并保持 draft。预览中的观察仍是学习的一部分，不应把声明检查误读成完整行为验证。

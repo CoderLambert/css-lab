@@ -16,18 +16,34 @@
     {
       "id": "external-spacing-top",
       "type": "style",
-      "selector": ".section",
+      "selector": ".section:first-of-type",
       "property": "margin-top",
       "equals": "20px",
-      "message": "用 20px 的外部 margin 表达 section 间距"
+      "message": "用 20px 的外部 margin 表达第一个 section 的 block-start 间距"
     },
     {
       "id": "external-spacing-bottom",
       "type": "style",
-      "selector": ".section",
+      "selector": ".section:first-of-type",
       "property": "margin-bottom",
       "equals": "20px",
-      "message": "保留 section 的 block-end 外部间距"
+      "message": "保留第一个 section 的 block-end 外部间距"
+    },
+    {
+      "id": "external-spacing-last-top",
+      "type": "style",
+      "selector": ".section:last-of-type",
+      "property": "margin-top",
+      "equals": "20px",
+      "message": "用 20px 的外部 margin 表达第二个 section 的 block-start 间距"
+    },
+    {
+      "id": "external-spacing-last-bottom",
+      "type": "style",
+      "selector": ".section:last-of-type",
+      "property": "margin-bottom",
+      "equals": "20px",
+      "message": "保留第二个 section 的 block-end 外部间距"
     }
   ]
 }
