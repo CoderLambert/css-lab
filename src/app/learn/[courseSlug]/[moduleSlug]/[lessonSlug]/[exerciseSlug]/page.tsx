@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { LearningWorkspace } from "@/features/learning/components/learning-workspace";
 import { readPublishedExerciseSequence } from "@/features/learning/lib/learner-content";
-import { getLessonContentComponent } from "@/features/learning/lib/lesson-content-registry";
+import { renderLessonContent } from "@/features/learning/lib/lesson-content-registry";
 import { createLearnerNavigation } from "@/features/learning/lib/learner-navigation";
 import { FileContentReader } from "@/lib/content/file/file-content-reader";
 import { SlugSchema } from "@/lib/content/schemas/common";
@@ -98,9 +98,9 @@ export default async function LearnExercisePage({
     notFound();
   }
 
-  const LessonContent = getLessonContentComponent(lesson.id);
+  const lessonContent = renderLessonContent(lesson.id);
 
-  if (!LessonContent) {
+  if (!lessonContent) {
     notFound();
   }
 
@@ -113,7 +113,7 @@ export default async function LearnExercisePage({
       course={course}
       module={courseModule}
       lesson={lessonMetadata}
-      lessonContent={<LessonContent />}
+      lessonContent={lessonContent}
       exercise={exercise}
       navigation={navigation}
     />
