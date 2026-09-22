@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.positioned-layout-and-containing-blocks",
+  "slug": "positioned-layout-and-containing-blocks",
+  "title": "定位布局与 containing block",
+  "description": "理解 relative、absolute、inset 与 containing block 如何改变定位参考和 flow participation。",
+  "estimatedMinutes": 22,
+  "order": 1,
+  "status": "draft"
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.fixed-and-sticky-positioning.observe-fixed-control.001",
+  "revision": 1,
+  "slug": "observe-fixed-control",
+  "title": "观察 fixed control",
+  "prompt": "让 .help 使用 position: fixed、bottom: 16px 和 right: 16px；在 Preview 中观察它与滚动内容的关系。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "fixed 通常脱离 normal flow；先把 .help 的 position 改成 fixed。",
+    "使用 bottom 与 right 声明它的参考边缘。",
+    "目标 inset 是 bottom: 16px 与 right: 16px。"
+  ],
+  "checks": [
+    {
+      "type": "style",
+      "selector": ".help",
+      "property": "position",
+      "equals": "fixed"
+    },
+    {
+      "type": "style",
+      "selector": ".help",
+      "property": "bottom",
+      "equals": "16px"
+    },
+    {
+      "type": "style",
+      "selector": ".help",
+      "property": "right",
+      "equals": "16px"
+    }
+  ]
+}

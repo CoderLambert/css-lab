@@ -1,0 +1,58 @@
+## 先区分 flow participation 与 reference context
+
+`position` 不是给元素套上一个“坐标模式”的总开关。它同时回答两个问题：box 是否继续以原来的方式参与 normal flow，以及 offset 应该参照哪个 containing block 计算。
+
+<Concept title="relative 保留位置，absolute 改变参与方式">
+`static` 是普通定位值，元素按当前 formatting context 参与 normal flow。`relative` 先完成 normal-flow 布局，再根据 `top`、`left` 或 `inset` 做视觉偏移；原来的 flow slot 仍然保留，所以后续内容不会把它当成消失了。
+
+`absolute` 则从 normal flow 中移出。它的 offset 通常相对最近的、能建立 containing block 的祖先，而不是永远相对 viewport。让一个祖先使用 `position: relative` 是常见的显式锚点；这不会让祖先自身离开 normal flow。
+
+`top` / `left` 是相对 containing block 的 positioned offset，不等于 `transform: translate(...)`。两者都可能改变屏幕上的位置，但参与布局的时机与影响不同。先找到 flow participation 和 containing block，再读 inset 值，通常比直接猜坐标可靠。
+</Concept>
+
+<Predict
+  question="`.card` 是 `position: relative`，其中 `.badge` 是 `position: absolute; top: 8px; right: 8px`。`.badge` 最直接的 containing block 应该是谁？"
+  options={["最近的 .card padding box", "永远是 viewport", "DOM 中最外层的 body"]}
+  answer="最近的 .card padding box"
+  explanation="absolute box 会寻找最近的、能建立 containing block 的祖先；position: relative 的 .card 提供了这个锚点。"
+/>
+
+<Compare
+  leftTitle="relative"
+  leftCode="position: relative; top: 8px"
+  leftMeaning="先参与 normal flow，再进行视觉偏移；原来的占位保留。"
+  rightTitle="absolute"
+  rightCode="position: absolute; inset: 8px"
+  rightMeaning="脱离 normal flow，offset 参照 containing block；不会自动相对 viewport。"
+/>
+
+<Compare
+  leftTitle="containing block"
+  leftCode=".card { position: relative }"
+  leftMeaning="为后代 positioned box 提供明确的参考上下文。"
+  rightTitle="transform"
+  rightCode="transform: translate(8px, 0)"
+  rightMeaning="是另一种视觉变换机制；不能用来替代理解 flow participation 与 offset reference。"
+/>
+
+## 用声明观察 reference context
+
+<Exercise
+  slug="observe-relative-offset"
+  label="观察 relative offset"
+  goal="让 .badge 使用 relative 与 inset offset；在 Preview 中观察它移动但仍保留原来的 normal-flow 占位。"
+/>
+
+<Exercise
+  slug="anchor-absolute-child"
+  label="锚定 absolute child"
+  goal="让 .card 成为 containing block，使 .badge 的 absolute offset 参照 card 而不是外部环境。"
+/>
+
+<Exercise
+  slug="fix-wrong-containing-block"
+  label="修复错误的 containing block"
+  goal="让 .panel 成为 .tooltip 最近的 positioned ancestor，诊断为什么只改变 top/right 不能修复错误的 reference context。"
+/>
+
+当前 checker 只能诚实检查 `position` 与 inset 等声明，不能用固定像素几何结果证明 flow slot 是否保留、containing block 最终如何影响布局，或 `top` 与 `transform` 的视觉差异；这些关系通过 Concept、Compare 和 Preview 观察建立。

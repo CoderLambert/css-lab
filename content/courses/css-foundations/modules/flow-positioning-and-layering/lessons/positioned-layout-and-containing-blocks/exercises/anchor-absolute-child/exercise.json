@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.positioned-layout-and-containing-blocks.anchor-absolute-child.001",
+  "revision": 1,
+  "slug": "anchor-absolute-child",
+  "title": "锚定 absolute child",
+  "prompt": "让 .card 使用 position: relative 成为 containing block，并让 .badge 使用 absolute 与 top/right offset 相对 card 放置。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "absolute child 会寻找最近的 positioned ancestor。",
+    "先把 .card 设为 position: relative；它仍然保留 normal-flow 布局。",
+    "让 .badge 使用 position: absolute，并保留 top/right 的 8px offset。"
+  ],
+  "checks": [
+    {
+      "type": "style",
+      "selector": ".card",
+      "property": "position",
+      "equals": "relative"
+    },
+    {
+      "type": "style",
+      "selector": ".badge",
+      "property": "position",
+      "equals": "absolute"
+    },
+    {
+      "type": "style",
+      "selector": ".badge",
+      "property": "top",
+      "equals": "8px"
+    },
+    {
+      "type": "style",
+      "selector": ".badge",
+      "property": "right",
+      "equals": "8px"
+    }
+  ]
+}

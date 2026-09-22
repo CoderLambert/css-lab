@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.positioned-layout-and-containing-blocks.fix-wrong-containing-block.001",
+  "revision": 1,
+  "slug": "fix-wrong-containing-block",
+  "title": "修复错误的 containing block",
+  "prompt": "修复定位祖先，让绝对定位的 .tooltip 使用 .panel 作为最近的 containing block，而不是只锚定到外层 .shell。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先找 .tooltip 的最近 positioned ancestor；当前 .shell 抢走了 reference context。",
+    "不要只改 tooltip 的 top/right；让 .panel 建立自己的 containing block。",
+    "把 .panel 设为 position: relative，保持 .tooltip 的 absolute offset。"
+  ],
+  "checks": [
+    {
+      "type": "style",
+      "selector": ".panel",
+      "property": "position",
+      "equals": "relative"
+    },
+    {
+      "type": "style",
+      "selector": ".tooltip",
+      "property": "position",
+      "equals": "absolute"
+    },
+    {
+      "type": "style",
+      "selector": ".tooltip",
+      "property": "top",
+      "equals": "8px"
+    },
+    {
+      "type": "style",
+      "selector": ".tooltip",
+      "property": "right",
+      "equals": "8px"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+.rail {
+  overflow-y: visible;
+}
+
+.sticky-card {
+  position: static;
+}

@@ -1,0 +1,38 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.stage {
+  width: 320px;
+  padding: 16px;
+  border: 1px solid;
+}
+
+.card {
+  width: 280px;
+  min-height: 140px;
+  padding: 16px;
+  border: 2px solid;
+}
+
+.card h2 {
+  margin: 0 0 12px;
+}
+
+.card p {
+  margin: 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 1px solid;
+}
