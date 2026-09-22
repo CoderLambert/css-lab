@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flex-formatting-context-and-axes.transfer-row-to-column.001",
+  "revision": 1,
+  "slug": "transfer-row-to-column",
+  "title": "把主轴转到 column",
+  "prompt": "把 .stack 的 main axis 从默认 row 改为 column，并根据轴模型预测项目排列方向。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "先确认 .stack 已经是 flex container；这题改变的是 axis definition。",
+    "默认 flex-direction 是 row；要让 main axis 沿 block direction，使用 column。",
+    "对 .stack 设置 flex-direction: column。"
+  ],
+  "checks": [
+    {
+      "id": "column-main-axis",
+      "type": "style",
+      "selector": ".stack",
+      "property": "flex-direction",
+      "equals": "column",
+      "message": "让 .stack 的 main axis 变成 column"
+    }
+  ]
+}

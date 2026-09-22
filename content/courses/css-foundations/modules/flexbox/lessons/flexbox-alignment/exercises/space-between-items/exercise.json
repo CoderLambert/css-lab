@@ -8,9 +8,9 @@
   "order": 2,
   "status": "published",
   "hints": [
-    "先确认 .container 已经是 flex container，否则主轴分布属性不会生效。",
-    "默认 row 方向下，主轴是水平方向；题目描述的“起点到终点”是在主轴上分布。",
-    "使用 justify-content 控制主轴剩余空间；目标分布模式是 space-between，同时让交叉轴保持 center。"
+    "先读取题目的轴上下文；本题使用默认 row。",
+    "题目描述的起点与终点属于 main axis，不要把 space-between 当作固定水平方向工具。",
+    "使用 justify-content 控制 main-axis free space；目标分布模式是 space-between，同时让 cross axis 保持 center。"
   ],
   "checks": [
     {

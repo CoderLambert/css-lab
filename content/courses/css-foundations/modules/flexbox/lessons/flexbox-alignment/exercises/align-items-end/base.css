@@ -17,6 +17,7 @@ body {
 }
 
 .container {
+  width: 320px;
   min-height: 220px;
   gap: 18px;
   padding: 24px;

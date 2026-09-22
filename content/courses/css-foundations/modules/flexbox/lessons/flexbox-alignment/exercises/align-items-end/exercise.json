@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "id": "css.flexbox.alignment.align-items-end.001",
-  "revision": 1,
+  "revision": 2,
   "slug": "align-items-end",
-  "title": "沿交叉轴底部对齐",
-  "prompt": "让三个不同高度的项目保持在同一行，并沿容器交叉轴的末端对齐。",
+  "title": "沿交叉轴末端对齐",
+  "prompt": "让三个项目沿 column 的 main axis 依次排列，并沿容器 cross axis 的末端对齐；在默认水平书写模式中，这会表现为水平方向靠右。",
   "order": 3,
   "status": "published",
   "hints": [
-    "先确认 .container 已经是 flex container；这道题不需要改变三个项目自身的高度。",
-    "默认 row 方向下，交叉轴是垂直方向，因此“交叉轴末端”就是容器的底部。",
-    "用 align-items 控制整组项目的交叉轴对齐。经典 Flexbox 写法是 flex-end；现代 Box Alignment 的 end 在本题中也视为正确。"
+    "先确认 .container 使用 column；这道题不要求改变项目自身的尺寸。",
+    "column 的 main axis 是纵向，cross axis 是水平方向，因此 cross-axis end 在常见书写模式中是右侧。",
+    "用 align-items 控制整组项目的 cross axis。经典 Flexbox 写法是 flex-end；现代 Box Alignment 的 end 在本题中也视为正确。"
   ],
   "checks": [
     {
@@ -20,6 +20,14 @@
       "property": "display",
       "equals": "flex",
       "message": "将 .container 设置为 flex 布局"
+    },
+    {
+      "id": "container-flex-direction-column",
+      "type": "style",
+      "selector": ".container",
+      "property": "flex-direction",
+      "equals": "column",
+      "message": "让 .container 使用 column main axis"
     },
     {
       "id": "container-align-flex-end",
