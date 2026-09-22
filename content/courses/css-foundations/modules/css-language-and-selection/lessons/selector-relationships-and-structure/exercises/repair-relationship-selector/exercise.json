@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "css.language-and-selection.selector-relationships-and-structure.repair-relationship-selector.001",
+  "revision": 1,
+  "slug": "repair-relationship-selector",
+  "title": "修复错误的关系假设",
+  "prompt": "starter 假设 .label 是 .card 的直接 child，因此没有命中。根据真实 DOM 修正 selector，只让 card 内的 label 加粗；card 外的 label 保持 normal。",
+  "order": 4,
+  "status": "draft",
+  "hints": [
+    "先看 fixture：.card 和 .label 之间是否只隔一层？",
+    "如果目标只需要有某个 ancestor，而不要求直接 parent，应使用 descendant combinator。",
+    "把 .card > .label 改为 .card .label，并设置 font-weight: 700。"
+  ],
+  "checks": [
+    {"id":"inside-label-bold","type":"style","selector":".inside-label","property":"font-weight","equals":"700","message":"card 内的 label 应加粗"},
+    {"id":"outside-label-normal","type":"style","selector":".outside-label","property":"font-weight","equals":"400","message":"card 外的 label 不应被一起加粗"}
+  ]
+}

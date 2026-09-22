@@ -232,3 +232,77 @@ Fit：TEACHABLE_BUT_CHECKER_LIMITED。
 - [ ] 没有引入 source-aware checker。
 - [ ] 新内容默认 draft。
 - [ ] all content gates pass。
+
+
+---
+
+## 9. Scheduled execution status
+
+Task 04 / M1 is complete under the scheduled execution override.
+
+### Grounding brief
+
+Authoritative grounding used for production:
+
+- Selectors Level 4 / MDN: selectors define element matching conditions.
+- Type / class / ID / selector list: used to establish matched-element-set reasoning.
+- Descendant combinator: the right-hand target may appear at any descendant depth below a matching ancestor.
+- Child combinator: the right-hand target must be a direct child.
+- Attribute selector: can match directly on attribute presence/value; no class or ID is required.
+- Tree-structural pseudo-classes: `:nth-child()` uses sibling-list position and is not “the Nth element of the same tag type”.
+
+The module intentionally does not teach full cascade or specificity resolution.
+
+### Production result
+
+```text
+01 css-rules-and-declarations
+02 selector-matching
+03 selector-relationships-and-structure
+```
+
+All three Lessons and all new Exercises remain `draft`.
+
+### Checker boundary
+
+```text
+machine-checkable:
+  target and explicit non-target resolved style
+
+not machine-proven:
+  exact authored selector source strategy
+```
+
+No source-aware checker, custom JavaScript checker, new Activity, Workspace change, or runtime change was introduced.
+
+### Fast-gate evidence
+
+```text
+lesson orders: 1 / 2 / 3
+Lesson 03 exercise orders: 1 / 2 / 3 / 4
+all new statuses: draft
+MDX Exercise refs match exercise.order
+all Exercise asset files present
+checker types: current style DSL only
+no duplicate touched stable IDs
+no TODO placeholders in Lesson 03
+no H1 in Lesson 03 MDX
+```
+
+### Narrow module review
+
+CSS technical view:
+- descendant vs child semantics are separated correctly.
+- attribute selector is taught as an independent matching condition.
+- the `:nth-child()` fixture includes a different element type before the target so sibling-position counting is observable.
+- resolved-style checks are not presented as proof of selector source.
+
+Curriculum view:
+- progression remains rule → matched set → relationship/structure.
+- misconceptions become progressively more structural rather than repeating selector syntax.
+- debugging appears both as selector typo repair and DOM-relationship repair.
+- M1 does not cross into full specificity/cascade, preserving the M2 boundary.
+
+Full generated-registry, build, lint, E2E, exhaustive source review, and independent module review remain deferred to Task 13 by the scheduled execution contract.
+
+Task 05 / M2 may begin on the next Lane B run.
