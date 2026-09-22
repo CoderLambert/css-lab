@@ -66,6 +66,7 @@ LearningWorkspace
 - `src/features/learning/`：learner workspace、导航与学习体验
 - `src/features/exercise/`：CodeMirror、Preview、Checker runtime
 - `src/features/progress/`：progress domain 与 IndexedDB adapter
+- `src/features/studio/`：只读内容目录与跨文件 Content Health 审计
 - `src/lib/content/`：file-backed content domain 与 reader
 - `src/components/ui/`：共享 UI primitives
 
@@ -92,6 +93,8 @@ solution.css
 Learner runtime 只读取 published chain。稳定 `id` 与可变 `slug` 分离，exercise `revision` 是 progress compatibility boundary。
 
 `solution.css` 仅用于创作/参考，不进入 learner client runtime。
+
+`/studio` 当前提供只读 Content Health：检查 stable ID 重复、同级 order 冲突、published 链遮蔽、空 lesson/fixture、缺失 checks 与重复 check ID。它直接复用 `ContentReader`，不引入 CMS/API/数据库。
 
 ## Current learner coverage
 
