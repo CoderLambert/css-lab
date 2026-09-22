@@ -79,6 +79,15 @@ function LearningWorkspaceSession({
     () => createExecutionSnapshot(exercise.workspace, draft),
     [draft, exercise.workspace],
   );
+  const hasEditableHtml = useMemo(
+    () =>
+      exercise.workspace.definition.files.some(
+        (file) =>
+          file.editable &&
+          file.language === "html",
+      ),
+    [exercise.workspace],
+  );
   const [progressRefreshToken, setProgressRefreshToken] = useState(0);
   const { isHydrated: isProgressHydrated, progress } = useLearningProgress({
     exercises: navigation.progressExercises,
@@ -200,6 +209,7 @@ function LearningWorkspaceSession({
       checkState={checkState}
       hints={exercise.hints}
       revealedHintCount={revealedHintCount}
+      hasEditableHtml={hasEditableHtml}
       onCheckResult={handleCheckResult}
     />
   );

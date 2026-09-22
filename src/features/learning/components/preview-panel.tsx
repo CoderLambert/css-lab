@@ -56,6 +56,7 @@ interface PreviewPanelProps {
   checkState: CheckState;
   hints: string[];
   revealedHintCount: number;
+  hasEditableHtml: boolean;
   onCheckResult: (result: CheckResultMessage) => void;
 }
 
@@ -66,6 +67,7 @@ export function PreviewPanel({
   checkState,
   hints,
   revealedHintCount,
+  hasEditableHtml,
   onCheckResult,
 }: PreviewPanelProps) {
   const [viewportPresetId, setViewportPresetId] =
@@ -230,7 +232,11 @@ export function PreviewPanel({
             修改代码后点击底部“检查答案”。失败时会显示检测器读取到的实际值和期望值。
           </p>
         ) : (
-          <CheckResults state={checkState} compact />
+          <CheckResults
+            state={checkState}
+            compact
+            hasEditableHtml={hasEditableHtml}
+          />
         )}
 
         {revealedHints.length > 0 ? (

@@ -1,3 +1,8 @@
+import type {
+  BrowserCheckDiagnostic,
+  BrowserCheckResult,
+  CheckOutcomeReason,
+} from "@/features/exercise/lib/check-result";
 import type { Check } from "@/lib/content/schemas/exercise";
 import { isWorkspacePath, workspacePathLanguage } from "@/lib/workspace/path";
 import type { WorkspacePath } from "@/lib/workspace/types";
@@ -13,27 +18,6 @@ export const LAB_MESSAGE_TYPE = {
   checkRun: "check:run",
   checkResult: "check:result",
 } as const;
-
-export type BrowserCheckOutcomeReason =
-  | "matched"
-  | "mismatch"
-  | "target-not-found"
-  | "checker-error";
-
-export interface BrowserCheckDiagnostic {
-  selector: string | null;
-  property: string | null;
-}
-
-export interface BrowserCheckResult {
-  id: string;
-  message: string;
-  passed: boolean;
-  reason: BrowserCheckOutcomeReason;
-  expected: string | number | boolean | null;
-  actual: string | number | boolean | null;
-  diagnostic: BrowserCheckDiagnostic | null;
-}
 
 export interface RuntimeReadyMessage {
   source: typeof LAB_MESSAGE_SOURCE.runtime;
@@ -148,7 +132,7 @@ function isCheck(value: unknown): value is Check {
   return false;
 }
 
-function isOutcome(value: unknown): value is BrowserCheckOutcomeReason {
+function isOutcome(value: unknown): value is CheckOutcomeReason {
   return (
     value === "matched" ||
     value === "mismatch" ||

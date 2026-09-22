@@ -1,4 +1,4 @@
-import type { BrowserCheckResult } from "../runtime/browser/lib/browser-messages";
+import type { CheckResult } from "./check-result";
 
 export type CheckState =
   | { status: "idle" }
@@ -10,5 +10,5 @@ export type CheckState =
       status: "complete";
       requestId: string;
       passed: boolean;
-      results: BrowserCheckResult[];
+      results: readonly CheckResult[];
     };
