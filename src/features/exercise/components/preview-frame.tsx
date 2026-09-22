@@ -57,6 +57,7 @@ export function PreviewFrame({
 
   useEffect(() => {
     isReadyRef.current = false;
+    sentCheckRequestIdRef.current = null;
   }, [srcDoc]);
 
   const sendPendingCheck = useCallback((iframeWindow: Window): void => {

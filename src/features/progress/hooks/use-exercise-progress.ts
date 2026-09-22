@@ -16,7 +16,7 @@ interface UseExerciseProgressResult {
   isHydrated: boolean;
   updateCss: (nextCss: string) => void;
   resetCss: () => void;
-  markCompleted: (code: string) => void;
+  markCompleted: (code: string) => Promise<void>;
 }
 
 const progressStore: ProgressStore = new IndexedDbProgressStore();
@@ -94,11 +94,11 @@ export function useExerciseProgress({
     saveCode(starterCss);
   };
 
-  const markCompleted = (code: string) => {
+  const markCompleted = (code: string): Promise<void> => {
     hasLocalMutationRef.current = true;
     const now = Date.now();
 
-    void progressStore
+    return progressStore
       .markCompleted({
         exerciseId,
         revision,
@@ -106,7 +106,10 @@ export function useExerciseProgress({
         updatedAt: now,
         completedAt: now,
       })
-      .catch(reportPersistenceError);
+      .catch((error: unknown) => {
+        reportPersistenceError(error);
+        throw error;
+      });
   };
 
   return {

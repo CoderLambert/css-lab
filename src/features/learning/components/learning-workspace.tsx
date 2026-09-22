@@ -10,16 +10,21 @@ import {
 import type { CheckState } from "@/features/exercise/lib/check-state";
 import type { CheckResultMessage } from "@/features/exercise/lib/preview-messages";
 import { useExerciseProgress } from "@/features/progress/hooks/use-exercise-progress";
-import type { Exercise, Lesson } from "@/lib/content/types";
+import { useLearningProgress } from "@/features/progress/hooks/use-learning-progress";
+import type { Course, Exercise, Lesson, Module } from "@/lib/content/types";
 import { EditorPanel } from "./editor-panel";
+import type { LearnerNavigation } from "../lib/learner-navigation";
 import { LessonPanel } from "./lesson-panel";
 import { PreviewPanel } from "./preview-panel";
 import { WorkspaceFooter } from "./workspace-footer";
 import { WorkspaceHeader } from "./workspace-header";
 
 interface LearningWorkspaceProps {
+  course: Course;
+  module: Module;
   lesson: Lesson;
   exercise: Exercise;
+  navigation: LearnerNavigation;
 }
 
 const DESKTOP_WORKSPACE_QUERY = "(min-width: 1200px)";
@@ -42,8 +47,11 @@ function getDesktopWorkspaceServerSnapshot(): boolean {
 }
 
 function LearningWorkspaceSession({
+  course,
+  module,
   lesson,
   exercise,
+  navigation,
 }: LearningWorkspaceProps) {
   const {
     css,
@@ -55,6 +63,13 @@ function LearningWorkspaceSession({
     exerciseId: exercise.id,
     revision: exercise.revision,
     starterCss: exercise.starterCss,
+  });
+  const [progressRefreshToken, setProgressRefreshToken] = useState(0);
+  const { isHydrated: isProgressHydrated, progress } = useLearningProgress({
+    exercises: navigation.progressExercises,
+    currentModuleId: module.id,
+    currentLessonId: lesson.id,
+    refreshToken: progressRefreshToken,
   });
   const [checkState, setCheckState] = useState<CheckState>({
     status: "idle",
@@ -127,14 +142,27 @@ function LearningWorkspaceSession({
     });
 
     if (result.passed) {
-      markCompleted(activeCheck.code);
+      void markCompleted(activeCheck.code)
+        .then(() => {
+          setProgressRefreshToken((current) => current + 1);
+        })
+        .catch(() => {
+          // The checker result remains successful if persistence is unavailable.
+        });
     }
   };
 
   return (
     <div className="min-h-screen bg-workspace px-3 py-3 text-workspace-foreground sm:px-4 sm:py-4 lg:px-5 lg:py-5">
       <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-[1800px] flex-col overflow-hidden rounded-[1.75rem] border border-border bg-background shadow-[0_12px_36px_-28px_var(--foreground)] sm:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
-        <WorkspaceHeader />
+        <WorkspaceHeader
+          courseTitle={course.title}
+          moduleTitle={module.title}
+          currentExerciseNumber={navigation.currentIndex + 1}
+          totalExercises={navigation.totalExercises}
+          progressPercent={progress.course.percent}
+          isProgressHydrated={isProgressHydrated}
+        />
 
         <main className="min-h-0 flex-1 bg-workspace">
           {isDesktopWorkspace ? (
@@ -191,6 +219,8 @@ function LearningWorkspaceSession({
         <WorkspaceFooter
           isChecking={checkState.status === "checking"}
           isHydrated={isHydrated}
+          previousHref={navigation.previousHref}
+          nextHref={navigation.nextHref}
           onCheck={handleCheck}
           onReset={handleReset}
         />
@@ -200,14 +230,20 @@ function LearningWorkspaceSession({
 }
 
 export function LearningWorkspace({
+  course,
+  module,
   lesson,
   exercise,
+  navigation,
 }: LearningWorkspaceProps) {
   return (
     <LearningWorkspaceSession
       key={`${exercise.id}:${exercise.revision}`}
+      course={course}
+      module={module}
       lesson={lesson}
       exercise={exercise}
+      navigation={navigation}
     />
   );
 }

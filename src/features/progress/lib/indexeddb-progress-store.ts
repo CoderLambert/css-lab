@@ -9,6 +9,7 @@ import {
   type ExerciseProgress,
 } from "./progress-schema";
 import type {
+  ExerciseProgressKey,
   MarkExerciseCompletedInput,
   ProgressStore,
   SaveExerciseCodeInput,
@@ -97,6 +98,28 @@ export class IndexedDbProgressStore implements ProgressStore {
     );
 
     return parseStoredProgress(storedProgress);
+  }
+
+  async getExercises(
+    keys: readonly ExerciseProgressKey[],
+  ): Promise<ExerciseProgress[]> {
+    if (keys.length === 0) {
+      return [];
+    }
+
+    const db = await getDatabase();
+    const transaction = db.transaction(PROGRESS_STORE_NAME, "readonly");
+    const storedProgress = await Promise.all(
+      keys.map((key) => transaction.store.get(createProgressKey(key.exerciseId, key.revision))),
+    );
+
+    await transaction.done;
+
+    return storedProgress.flatMap((value) => {
+      const progress = parseStoredProgress(value);
+
+      return progress ? [progress] : [];
+    });
   }
 
   async saveCode({

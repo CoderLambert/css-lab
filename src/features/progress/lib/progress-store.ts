@@ -20,6 +20,10 @@ export interface ProgressStore {
     revision: number,
   ): Promise<ExerciseProgress | null>;
 
+  getExercises(
+    keys: readonly ExerciseProgressKey[],
+  ): Promise<ExerciseProgress[]>;
+
   saveCode(input: SaveExerciseCodeInput): Promise<void>;
 
   markCompleted(input: MarkExerciseCompletedInput): Promise<void>;

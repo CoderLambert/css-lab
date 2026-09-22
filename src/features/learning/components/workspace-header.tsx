@@ -7,7 +7,27 @@ import {
 } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 
-export function WorkspaceHeader() {
+interface WorkspaceHeaderProps {
+  courseTitle: string;
+  moduleTitle: string;
+  currentExerciseNumber: number;
+  totalExercises: number;
+  progressPercent: number;
+  isProgressHydrated: boolean;
+}
+
+export function WorkspaceHeader({
+  courseTitle,
+  moduleTitle,
+  currentExerciseNumber,
+  totalExercises,
+  progressPercent,
+  isProgressHydrated,
+}: WorkspaceHeaderProps) {
+  const displayedProgress = isProgressHydrated
+    ? Math.round(progressPercent)
+    : 0;
+
   return (
     <header className="flex min-h-[78px] items-center justify-between gap-4 border-b border-border bg-panel px-5 py-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
@@ -19,7 +39,7 @@ export function WorkspaceHeader() {
             CSS Lab
           </p>
           <p className="truncate text-xs text-muted-foreground">
-            Calm practice, clear focus
+            {courseTitle}
           </p>
         </div>
       </div>
@@ -28,16 +48,22 @@ export function WorkspaceHeader() {
         <div className="text-right">
           <p className="text-xs font-medium text-panel-foreground">专注学习中</p>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            Flexbox · 3 / 8
+            {moduleTitle} · {currentExerciseNumber} / {totalExercises}
           </p>
         </div>
-        <Progress value={38} className="w-44 gap-1.5">
+        <Progress
+          value={displayedProgress}
+          aria-label="课程完成进度"
+          className="w-44 gap-1.5"
+        >
           <div className="flex items-center justify-between gap-2">
             <ProgressLabel className="text-[11px] text-muted-foreground">
               Progress
             </ProgressLabel>
             <ProgressValue className="text-[11px] text-panel-foreground">
-              {() => "38%"}
+              {() =>
+                isProgressHydrated ? `${displayedProgress}%` : "加载中"
+              }
             </ProgressValue>
           </div>
         </Progress>
