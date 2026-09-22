@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.normal-flow-and-spacing",
+  "slug": "normal-flow-and-spacing",
+  "title": "没有声明 layout 也有 normal flow",
+  "description": "理解 block/inline normal flow、margin spacing、auto margin 与 vertical margin collapsing 的基本规则。",
+  "estimatedMinutes": 20,
+  "order": 4,
+  "status": "draft"
+}

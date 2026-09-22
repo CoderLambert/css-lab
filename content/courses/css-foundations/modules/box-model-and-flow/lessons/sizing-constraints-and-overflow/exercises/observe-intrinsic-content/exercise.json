@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.sizing-constraints-and-overflow.observe-intrinsic-content.001",
+  "revision": 1,
+  "slug": "observe-intrinsic-content",
+  "title": "让内容参与尺寸决定",
+  "prompt": "让 .label 依据内容形成 intrinsic inline size，并观察长内容与 containing context 的关系。不要把固定像素宽度当成 intrinsic sizing 的替代品。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先区分 preferred size 与 content-derived intrinsic size。",
+    "这次要让 box 的 inline size 贴近不换行内容，而不是给它一个任意固定宽度。",
+    "对 .label 设置 width: max-content；Preview 中再把 containing context 改窄观察结果。"
+  ],
+  "checks": [
+    {
+      "id": "intrinsic-width-keyword",
+      "type": "style",
+      "selector": ".label",
+      "property": "width",
+      "equals": "max-content",
+      "message": "让 .label 使用 max-content inline sizing"
+    }
+  ]
+}

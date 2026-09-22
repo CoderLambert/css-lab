@@ -1,0 +1,64 @@
+## 尺寸约束不只是一条 `width`
+
+浏览器计算 box 尺寸时，不是读取一条 `width` 就结束。先把它当作一个需要多项输入的过程：内容提供 intrinsic size，作者提供 preferred/min/max constraints，containing block 提供可用空间。
+
+<Concept title="从内容、约束与 containing block 一起推理">
+`width` / `height` 更接近 preferred size，而不是“最后一定会画出的尺寸”。内容本身可能需要更宽的空间，也可能在有换行机会时缩小；`width: auto` 也不是没有尺寸，而是把决定过程交给当前 formatting context。
+
+`min-width` / `min-height` 是下限，`max-width` / `max-height` 是上限。它们不是 `width` 的别名：preferred size、最小值和最大值可以同时存在，最终 used size 要在这些约束与可用空间之间求解。最小约束不能被最大约束压穿。
+
+当内容或约束超出 box 能容纳的空间时，问题进入 overflow。`visible` 允许内容绘制到 box 外，`auto` 在需要时提供滚动机制，`hidden` 裁剪并隐藏滚动界面。`hidden` 是一个具体的呈现选择，不是把错误尺寸假设修好的万能开关。
+</Concept>
+
+<Predict
+  question="一个 .panel 在 180px 宽的 containing block 中设置 width: 240px，并包含一段不能换行的长 token。哪种预测最可靠？"
+  options={["内容一定自动缩小到 180px", "box 或内容可能超出可用空间，需要重新看约束或 overflow", "width 会因为 containing block 而自动变成 auto"]}
+  answer="box 或内容可能超出可用空间，需要重新看约束或 overflow"
+  explanation="固定 preferred size 不会凭空消失；最终表现还取决于内容、min/max 约束与 overflow 处理。"
+/>
+
+<Compare
+  leftTitle="preferred size"
+  leftCode="width: 240px"
+  leftMeaning="表达作者偏好的尺寸；不是对所有 containing context 的无条件保证。"
+  rightTitle="size constraint"
+  rightCode="max-width: 100%"
+  rightMeaning="把可用空间纳入上限；它仍不等于验证了所有真实几何结果。"
+/>
+
+<Compare
+  leftTitle="overflow: visible"
+  leftCode="overflow: visible"
+  leftMeaning="内容可以绘制到 box 外；适合你明确接受外溢的场景。"
+  rightTitle="overflow: auto"
+  rightCode="overflow: auto"
+  rightMeaning="空间不足时允许访问被裁出的内容；是否出现滚动条由实际内容与环境决定。"
+/>
+
+## 让约束成为推理的一部分
+
+<Exercise
+  slug="observe-intrinsic-content"
+  label="让内容参与尺寸决定"
+  goal="让 .label 依据内容形成 intrinsic inline size，并观察长内容与 containing context 的关系。"
+/>
+
+<Exercise
+  slug="constrain-with-min-max"
+  label="用 min/max 表达约束"
+  goal="保留卡片的内容驱动行为，同时为 .card 设置合理的最小与最大宽度约束。"
+/>
+
+<Exercise
+  slug="choose-overflow-strategy"
+  label="选择 overflow 策略"
+  goal="对一个可能出现长内容的面板设置 overflow:auto，让内容可以在空间不足时被访问，而不是把 hidden 当成通用修复。"
+/>
+
+<Exercise
+  slug="debug-fixed-width-failure"
+  label="修复固定宽度失败"
+  goal="修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。"
+/>
+
+这些 Exercise 的 checker 只验证明确写出的 CSS 声明。当前 DSL 不能可靠证明 intrinsic sizing、最终几何尺寸、滚动条是否出现或 overflow 是否真的发生；预览中的观察仍是学习的一部分，不应把声明检查误读成完整行为验证。

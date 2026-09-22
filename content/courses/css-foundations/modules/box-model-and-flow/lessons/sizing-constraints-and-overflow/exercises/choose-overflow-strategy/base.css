@@ -1,0 +1,22 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.log {
+  width: 220px;
+  height: 72px;
+  border: 1px solid;
+  padding: 12px;
+}
+
+.log p {
+  margin: 0 0 12px;
+}

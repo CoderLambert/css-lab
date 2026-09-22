@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.sizing-constraints-and-overflow.constrain-with-min-max.001",
+  "revision": 1,
+  "slug": "constrain-with-min-max",
+  "title": "用 min/max 表达约束",
+  "prompt": "保留卡片的内容驱动行为，同时为 .card 设置 160px 的最小宽度与 280px 的最大宽度约束。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "preferred width、min-width 与 max-width 可以同时参与尺寸决定。",
+    "下限和上限分别表达两种不同的约束，不要只改 width。",
+    "对 .card 设置 min-width: 160px 和 max-width: 280px。"
+  ],
+  "checks": [
+    {
+      "id": "minimum-width",
+      "type": "style",
+      "selector": ".card",
+      "property": "min-width",
+      "equals": "160px",
+      "message": "为 .card 设置 160px 的最小宽度"
+    },
+    {
+      "id": "maximum-width",
+      "type": "style",
+      "selector": ".card",
+      "property": "max-width",
+      "equals": "280px",
+      "message": "为 .card 设置 280px 的最大宽度"
+    }
+  ]
+}

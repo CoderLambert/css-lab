@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.sizing-constraints-and-overflow.debug-fixed-width-failure.001",
+  "revision": 1,
+  "slug": "debug-fixed-width-failure",
+  "title": "修复固定宽度失败",
+  "prompt": "修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。",
+  "order": 4,
+  "status": "draft",
+  "hints": [
+    "先定位失败发生在哪个约束：preferred width 是否超过 containing block？",
+    "保留 320px 的宽度意图，再增加一个可用空间上限。",
+    "对 .avatar 设置 max-width: 100%。"
+  ],
+  "checks": [
+    {
+      "id": "preferred-width-kept",
+      "type": "style",
+      "selector": ".avatar",
+      "property": "width",
+      "equals": "320px",
+      "message": "保留 .avatar 的 preferred width"
+    },
+    {
+      "id": "containing-width-cap",
+      "type": "style",
+      "selector": ".avatar",
+      "property": "max-width",
+      "equals": "100%",
+      "message": "让 .avatar 不超过 containing block 的可用宽度"
+    }
+  ]
+}
