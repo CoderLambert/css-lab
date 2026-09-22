@@ -1,14 +1,21 @@
-# Task 06 — Integration、Regression、Security 与 AGENTS 更新
+# Task 06 — Integration、Regression、Security Review 与 AGENTS 更新
 
 ## 目标
 
-完成 M6A 最终集成，消除 CSS-only platform assumptions，补齐回归测试和项目规则。此阶段不再增加新的架构能力。
+完成 M6A 最终收口：
 
-## 开始前读取
+- 清理过渡代码。
+- 验证架构边界。
+- 验证当前 CSS产品行为。
+- 验证 Workspace/Browser security。
+- 更新 AGENTS/README。
+- 不开始 M6B。
 
-必须重新审计最新代码，而不是假设 Task 01-05 都完全按文档实现。
+## 1. 开始前重新审计
 
-至少全局搜索：
+不要假设 Task 01-05 完美执行。
+
+全局搜索至少：
 
 ```text
 fixtureHtml
@@ -17,138 +24,260 @@ baseCss
 starterCss
 starter.css
 solution.css
-code:
+SaveExerciseCodeInput
 saveCode
 updateCss
 resetCss
 css-lab-parent
 css-lab-preview
 CSS exercise preview
+CSS Lab progress persistence failed
+draft.files["style.css"]
 do not support HTML editing
 do not support learner JavaScript
+solutionFiles
+runtime/typescript
+RuntimeRegistry
+LanguageRegistry
+CheckerRegistry
 ```
 
-区分合法历史文档/迁移代码与仍存在的 runtime coupling。
+区分：
 
-## 1. LearningWorkspace final integration
+- 合法历史 docs。
+- Legacy IndexedDB migration。
+- CSS-specific editor代码。
+- 不应继续存在的平台 coupling。
 
-最终 session 应围绕：
+## 2. LearningWorkspace final responsibility
+
+最终：
 
 ```text
 Exercise
-→ hydrated ExerciseDraft
+→ useExerciseProgress(workspace)
+→ ExerciseDraft
 → createExecutionSnapshot()
 → BrowserRuntime
 ```
 
-职责：
+LearningWorkspace负责：
 
-- hydrate draft
-- update/reset draft
-- derive execution snapshot
-- manage check lifecycle
-- invalidate check on any editable file mutation
-- persist captured passing draft
-- refresh aggregate progress
+- hydrate draft。
+- update/reset draft。
+- derive snapshot。
+- file mutation时 invalidate check。
+- check lifecycle。
+- capture checked draft。
+- successful check持久化 captured draft。
+- aggregate progress refresh。
 
-不要让 LearningWorkspace：
+不负责：
 
-- 自己读 IndexedDB
-- 自己拼 browser srcDoc
-- 自己解析 workspace path
-- 自己读取 solution
+- 直接打开 IndexedDB。
+- 拼 srcDoc。
+- runtime message parser。
+- filesystem读取。
+- solution读取。
+- Workspace path validation。
 
-## 2. Current CSS exercise regression
+## 3. Current 3 CSS Exercise regression
 
-现有三个 CSS exercise 必须继续：
+必须验证：
 
-- starter content 正确
-- CSS edit 正确
-- Preview 正确
-- style / exists / count checker 正确
-- completion 正确
-- reload restore 正确
-- previous/next sequence 正确
-- course progress percentage 正确
-- format 正确
-- color swatches 正确
-- format 可一次 undo
+- learner sequence不变。
+- previous/next不变。
+- starter CSS正确。
+- CSS edit正确。
+- preview computed style正确。
+- CSS edit不 reload iframe。
+- style/exists/count能力可执行。
+- completion正确。
+- aggregate progress正确。
+- reload restore正确。
+- reset正确。
+- formatter正确。
+- format一次 undo。
+- color swatch editor-local。
+- Studio learner links不变。
 
-不要因为 Workspace tabs 重构让单 CSS exercise UX 明显退化。
+不要把单 CSS Exercise变成复杂 file explorer。
 
-## 3. HTML editing regression
+## 4. HTML capability verification
 
-至少提供自动化覆盖：
+production content当前可以没有 editable HTML。
+
+### Automated domain
+
+Workspace tests用：
 
 ```text
-HTML editable + CSS editable
+index.html editable
+style.css editable
+base.css locked
 ```
 
-如果不希望修改正式课程，可采用 test-only fixture/content setup，但必须遵循现有项目测试方式，不能加入复杂 mock server。
+确认：
 
-验证：
+- draft只有 editable HTML/CSS。
+- locked不进入 draft。
+- update/reset正确。
+- snapshot含完整 locked+editable。
+- declaration order正确。
 
-- active HTML tab可编辑。
-- HTML变化反映到 Browser Runtime。
-- 切换 CSS 后内容仍在。
-- reload 后两个 editable file 都从 Progress 恢复。
-- reset all 同时恢复两个 starter file。
+### Automated isolated Browser
 
-如果为了测试增加正式 draft exercise，不能让它进入 published learner sequence。
+覆盖：
 
-## 4. Solution leakage regression
+- HTML fragment mount。
+- HTML不同导致 document generation变化。
+- script/event/javascript URL blocked。
+- CSS slots/protocol/checker工作。
 
-增加结构性检查，而不是只靠人工 review。
+### Code-level WorkspaceEditor review
 
-至少确认：
+确认：
 
-- learner route props中的 Exercise type没有 solution。
-- ContentReader返回对象没有 solution字段。
-- client bundle路径不 import server-only source inspector。
-- solution 文件内容不会通过 page HTML/RSC props直接序列化给 learner。
+- HtmlEditor真实接入 WorkspaceEditor switch。
+- `editable: true + language: html` 必然进入 HtmlEditor。
+- multi-file tabs使用 Draft Record，不存在 CSS-only state。
 
-可以通过 server/client boundary + 类型结构保证；如果写 E2E，可以搜索页面响应/DOM，但不要把脆弱字符串扫描当成唯一保证。
+### 不做 fake learner content
 
-## 5. Progress migration regression
+不新增 test-only published exercise。
 
-Task 03 migration test 必须保留并稳定。
+首个真实 HTML-editable Exercise进入课程时，对应 content PR必须补 learner-route E2E：
 
-再确认：
+- HTML tab edit。
+- CSS tab edit。
+- reload恢复两文件。
+- reset all。
+- check。
 
-- DB 名仍为 `css-lab`
-- version = 2
-- old completed record仍计入 aggregate progress
-- revision 不匹配的旧 record不会恢复为当前 draft
+AGENTS应记录这一测试要求。
 
-## 6. Studio final regression
+## 5. Solution leakage review
 
-Studio：
+结构性保证：
 
-- 3 个当前 published exercise。
-- 0 blocking issues。
+- Exercise type无 solution。
+- ContentReader不读取 solution。
+- learner route不 import ContentSourceInspector。
+- client graph不 import server-only inspector。
+- solution只在 Studio/server authoring inspection出现。
+
+不要靠 `delete exercise.solution`。
+
+可额外用 solution-only marker做 E2E字符串回归，但不能作为主要安全边界。
+
+## 6. Progress final regression
+
+确认：
+
+```text
+DB      = css-lab
+version = 2
+store   = exercise-progress
+key     = [exerciseId, revision]
+```
+
+测试：
+
+- v1 started迁移。
+- v1 completed迁移。
+- completedAt保留。
+- unknown saved path ignored。
+- locked saved path ignored。
+- revision mismatch不恢复。
+- completed edit仍 completed。
+
+`"style.css"` hardcode只允许：
+
+- v1 migration。
+- migration test。
+- 当前内容实际 logical path。
+
+不能成为新的 global Workspace default。
+
+## 7. Studio final regression
+
+当前 repository content：
+
+- 3 exercises。
+- 3 published exercises。
+- 0 errors。
 - 0 warnings。
-- learner links 正确。
-- Workspace/solution rules 已实际运行，而不是只定义未调用的 helper。
+- 3 learner links。
 
-## 7. AGENTS.md 更新
+确认新规则实际调用：
 
-把产品定位从：
+- source inspector。
+- solution path equality。
+- zero editable。
+- current Browser JS/TS rule。
+- multiple HTML rule。
+- undeclared starter rule。
+
+不能只定义未调用 helper。
+
+## 8. Browser security review
+
+### sandbox
+
+只保留必要 `allow-scripts`。
+
+没有：
 
 ```text
-CSS Lab only
+allow-same-origin
+allow-forms
+allow-popups
+allow-top-navigation
 ```
 
-调整为：
+### runtime-owned shell
+
+learner HTML不是 raw concat。
+
+### CSP
+
+- nonce随机。
+- 每次 HTML rebuild刷新。
+- script-src无 unsafe-inline/wildcard。
+- object/frame/base/form/connect受限。
+
+### DOM policy
+
+- script removed。
+- event handler attributes removed。
+- javascript URLs neutralized。
+- meta refresh removed。
+- nested executable containers受限。
+- anchor/form navigation prevented。
+
+### readiness
+
+- iframe load != runtime ready。
+- 只有 typed runtime:ready进入 ready。
+
+### messages
+
+- event.source check。
+- source discriminator。
+- shape validators。
+- requestId validation。
+
+## 9. AGENTS.md 更新
+
+产品定位：
 
 ```text
 Front-end Lab Platform
 ```
 
-但明确当前实现范围。
+不要声称已经支持 JS/TS runtime。
 
-### Long-term direction
-
-写清：
+### Long-term tracks
 
 ```text
 CSS Lab
@@ -156,9 +285,9 @@ JavaScript Lab
 TypeScript Lab
 ```
 
-Track 内容互相独立，共享合理基础设施。
+内容独立，基础设施按真实共性共享。
 
-核心架构：
+### Architecture
 
 ```text
 Content
@@ -169,80 +298,76 @@ Content
 → Progress / Learning Shell
 ```
 
-说明：
+术语：
 
 ```text
-CSS / JavaScript / TypeScript = language / curriculum domain
-Browser / Worker             = runtime
-TypeScript compiler          = toolchain
+CSS / JavaScript / TypeScript = curriculum/language domain
+Browser / Worker              = runtime
+TypeScript compiler           = toolchain
 ```
 
-### Current implemented scope
+### Current scope
 
-M6A 后只能声称：
+M6A完成后：
 
-- HTML + CSS Workspace
-- Browser Runtime
-- Browser DOM checks
-- IndexedDB learner draft/progress
+- content-defined HTML/CSS Workspace。
+- Workspace Draft。
+- Browser Runtime。
+- Browser DOM checks。
+- IndexedDB draft/progress。
+- Studio workspace/source health。
 
-不能声称 JS/TS execution 已支持。
+HTML是否 editable由 content metadata决定。
 
 ### Planned, not implemented
 
+- JavaScript Worker Runtime。
+- JavaScript Browser Runtime。
+- TypeScript Toolchain。
+- TS no-runtime/type-check workflow。
+
+### Workspace rules
+
 明确：
 
-- JavaScript Worker Runtime
-- JavaScript Browser Runtime
-- TypeScript Toolchain
-
-### 继续排除
-
-必须保留/明确：
-
-- npm execution
-- WebContainer
-- terminal
-- arbitrary package installation
-- framework runtime
-- cloud IDE
-- generic filesystem
-- authentication
-- cloud sync
-
-### 新增 Workspace rules
-
-AGENTS 应明确：
-
-- Workspace file set 由 content author 定义。
-- learner 当前不能 create/delete/rename。
-- locked file 不是 secret，不能包含答案。
-- solution 永远不能进入 learner runtime domain。
-- ContentReader 负责 read/hydration，不负责 learner visibility policy。
-- Progress 只保存 learner-owned mutable state。
-- Runtime 不依赖 OS filesystem path。
-- Toolchain 与 Runtime 分离。
-- 不为未来能力提前创建 plugin registry。
+- author定义固定 file set。
+- learner不能 create/delete/rename。
+- locked file不是 secret。
+- locked file不能藏 solution。
+- solution永不进入 learner runtime。
+- Progress只保存 learner-owned mutable state。
+- Runtime不依赖 OS filesystem。
+- Toolchain/Runtime分离。
+- schema vocabulary不等于 runtime capability。
 
 ### JavaScript wording
 
-旧的：
+旧：
 
 ```text
 do not support learner JavaScript
 ```
 
-改成语义明确的：
+改成：
 
 ```text
 Do not enable learner JavaScript execution until the dedicated JavaScript runtime milestone.
 ```
 
-避免和长期产品方向冲突。
+### 禁止过度抽象
 
-## 8. README / docs 同步
+继续禁止：
 
-如果 README 仍描述：
+- npm/WebContainer/terminal。
+- arbitrary package runtime。
+- framework lab。
+- generic VFS。
+- cloud IDE/sync/auth。
+- LanguagePlugin/RuntimeRegistry/ToolchainRegistry/CheckerRegistry。
+
+## 10. README / docs current-state sync
+
+如果 README/current architecture仍写旧 asset：
 
 ```text
 fixture.html
@@ -251,106 +376,129 @@ starter.css
 solution.css
 ```
 
-同步为新 asset layout。
+更新到 starter/solution/workspace metadata。
 
-历史变更记录可以保留历史事实，不要为了全局 grep 清零而篡改历史文档。
+历史变更记录保留历史事实，不为 grep清零篡改。
 
-## 9. 删除 dead code
+## 11. Dead code cleanup
 
-在确认所有消费者已迁移后删除：
+删除无消费者的：
 
-- 旧 CSS-only preview helpers
-- 旧 message constants
-- 旧 Progress input types
-- 旧 content asset special-field adapter
+- old preview paths。
+- old CSS-only Preview props。
+- old Progress input。
+- saveCode/updateCss/resetCss。
+- old Exercise asset adapter。
+- Task 04 temporary style.css preview adapter。
+- 无必要 transitional ExerciseV2 aliases。
 
-不要保留双 API “以防以后需要”。
+不要保留双 API。
 
-## 10. 最终禁止出现的抽象
+## 12. 禁止最终出现的过度抽象
 
-最终 review 若看到以下新增，应重新评估并通常删除：
+默认删除：
 
 ```text
 UniversalEditor
-LanguagePlugin/LanguageRegistry
-RuntimeRegistry/RuntimeFactory
+LanguagePlugin
+LanguageRegistry
+RuntimeRegistry
+RuntimeFactory
 ToolchainRegistry
+CompilerRegistry
 CheckerRegistry
 WorkspacePlugin
 VirtualFileSystem
-FileExplorer create/delete/rename
+generic FileExplorer
 global workspace store
 event bus
-generic execution pipeline
+generic execution graph/pipeline engine
+package resolver
+module CDN adapter
 ```
 
-## 11. 最终验证命令
+除非仓库中已存在第二个真实实现需求；M6A没有。
 
-必须全部执行：
+## 13. 最终验证
 
 ```bash
 pnpm lint
 pnpm build
 pnpm test:e2e
-```
-
-若失败：
-
-- 修复本次引入的问题。
-- 不跳过 test。
-- 不删除 test。
-- 不更改 build script 规避问题。
-- 不移除 `--webpack` 作为所谓 cleanup。
-
-## 12. 最终人工审计
-
-执行：
-
-```bash
 git diff --check
 git status --short
 ```
 
-并全局搜索 CSS-only coupling。
+若失败：
 
-允许存在：
+- 修实现。
+- 不 skip/delete test。
+- 不降低安全策略。
+- 不 deleteDatabase。
+- 不改 build script规避。
 
-- v1 migration 中 `style.css` hardcode
-- 历史 docs 中旧结构描述
-- CSS editor自身的 CSS-specific代码
+## 14. 最终搜索允许/禁止
 
-不允许存在：
+### 允许
 
-- runtime Exercise.fixtureHtml/baseCss/starterCss
-- Progress.code/saveCode
-- platform source css-lab-parent/css-lab-preview
-- learner-facing solution字段
+`style.css` 可以存在于：
 
-## 13. 完成报告
+- current content metadata/path。
+- CSS editor UI。
+- v1 migration/test。
 
-Codex 完成本阶段后报告必须包含：
+CSS-specific名称可存在于 CssEditor内部。
 
-1. changed architecture/files
-2. IndexedDB migration结果
-3. current CSS behavior regression结果
-4. HTML editing验证结果
-5. solution boundary说明
-6. `pnpm lint`结果
-7. `pnpm build`结果
-8. `pnpm test:e2e`结果
-9. 任何剩余风险
+历史 docs可出现旧词。
 
-不要自动开始 M6B / JS Runtime / TS Toolchain。
+### 禁止 production coupling
 
-## 14. Acceptance Criteria
+```text
+Exercise.fixtureHtml
+Exercise.baseCss
+Exercise.starterCss
+Progress.code
+saveCode
+updateCss
+resetCss
+css-lab-parent
+css-lab-preview
+learner-facing solution
+BrowserRuntime reading editable
+BrowserRuntime reading ProgressStore
+```
 
-- [ ] Task 01-05 所有 acceptance criteria 满足。
-- [ ] 全部当前 E2E通过。
-- [ ] 新 HTML workspace E2E通过。
-- [ ] v1 progress migration E2E通过。
-- [ ] solution boundary没有回退。
-- [ ] AGENTS与新方向一致。
-- [ ] README当前架构说明已同步。
+## 15. Codex 完成报告
+
+必须报告：
+
+1. Workspace/domain changes
+2. content migration
+3. Progress v1->v2 migration
+4. Browser Runtime boundary
+5. HTML security measures
+6. current CSS regression
+7. Workspace/HTML capability automated checks
+8. solution leakage boundary
+9. Studio health result
+10. `pnpm lint`
+11. `pnpm build`
+12. `pnpm test:e2e`
+13. remaining risks
+
+不要自动开始 M6B / JavaScript Runtime / TypeScript Toolchain。
+
+## 16. Acceptance Criteria
+
+- [ ] Task 01-05 criteria全部满足。
+- [ ] current CSS learner E2E通过。
+- [ ] Workspace multi-file domain测试通过。
+- [ ] Browser isolated HTML/security E2E通过。
+- [ ] v1 IndexedDB migration测试通过。
+- [ ] solution boundary结构性成立。
+- [ ] Studio当前 0 error / 0 warning。
+- [ ] AGENTS与 Front-end Lab方向一致。
+- [ ] README/current docs同步。
 - [ ] 没有 JS/TS runtime提前实现。
-- [ ] 没有 generic IDE/plugin抽象。
-- [ ] lint/build/e2e 全绿。
+- [ ] 没有 generic IDE/plugin abstraction。
+- [ ] lint/build/e2e/diff-check全部通过。
