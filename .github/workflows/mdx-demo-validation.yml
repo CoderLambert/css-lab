@@ -1,0 +1,42 @@
+name: MDX Demo Validation
+
+on:
+  push:
+    branches:
+      - feat/mdx-learning-flow-demo
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          version: 12.5.1
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies and refresh lockfile
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Upload generated lockfile
+        uses: actions/upload-artifact@v5
+        with:
+          name: mdx-demo-lockfile
+          path: pnpm-lock.yaml
+          retention-days: 1
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build

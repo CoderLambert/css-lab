@@ -256,14 +256,14 @@ export async function readStudioContentHealth(
           lessonLocation,
         );
 
-        if (lesson.bodyMarkdown.trim().length === 0) {
+        if (lesson.bodyMdxSource.trim().length === 0) {
           addIssue(
             issues,
             modulePublished && lesson.status === "published"
               ? "error"
               : "warning",
             "empty-lesson-body",
-            `Lesson “${lesson.title}” 的 lesson.md 为空。`,
+            `Lesson “${lesson.title}” 的 lesson.mdx 为空。`,
             lessonLocation,
           );
         }

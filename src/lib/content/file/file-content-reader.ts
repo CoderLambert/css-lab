@@ -308,7 +308,7 @@ export class FileContentReader implements ContentReader {
     const metadataPath = join(directoryPath, "lesson.json");
     const record = await readJsonFile(metadataPath, LessonRecordSchema);
     assertSlugMatchesDirectory(directoryPath, metadataPath, record.slug);
-    const bodyMarkdown = await readTextFile(join(directoryPath, "lesson.md"));
+    const bodyMdxSource = await readTextFile(join(directoryPath, "lesson.mdx"));
 
     return {
       schemaVersion: record.schemaVersion,
@@ -321,7 +321,7 @@ export class FileContentReader implements ContentReader {
       status: record.status,
       courseId: module.courseId,
       moduleId: module.id,
-      bodyMarkdown,
+      bodyMdxSource,
     };
   }
 

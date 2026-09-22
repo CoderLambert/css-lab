@@ -7,7 +7,7 @@ import type { Exercise, Lesson } from "@/lib/content/types";
 
 interface LessonPanelProps {
   moduleTitle: string;
-  lesson: Omit<Lesson, "bodyMarkdown">;
+  lesson: Omit<Lesson, "bodyMdxSource">;
   lessonContent: ReactNode;
   exercise: Exercise;
   checkState?: CheckState;
