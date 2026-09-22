@@ -100,11 +100,14 @@ function LearningWorkspaceSession({
   });
   const [revealedHintCount, setRevealedHintCount] = useState(0);
   const requestCounterRef = useRef(0);
-  const activeCheckRef = useRef<{
+  type ActiveCheck = {
     requestId: string;
     draft: ExerciseDraft;
     request: BrowserCheckRequest;
-  } | null>(null);
+  };
+  const activeCheckRef = useRef<ActiveCheck | null>(null);
+  const [activeCheck, setActiveCheck] =
+    useState<ActiveCheck | null>(null);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
     getDesktopWorkspaceSnapshot,
