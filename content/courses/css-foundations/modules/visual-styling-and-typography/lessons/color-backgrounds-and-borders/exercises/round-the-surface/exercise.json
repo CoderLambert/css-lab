@@ -20,6 +20,30 @@
       "property": "border-top-left-radius",
       "equals": "12px",
       "message": "让 .card 的角落使用 12px 圆角"
+    },
+    {
+      "id": "rounded-top-right",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-top-right-radius",
+      "equals": "12px",
+      "message": "让 .card 的右上角使用 12px 圆角"
+    },
+    {
+      "id": "rounded-bottom-right",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-bottom-right-radius",
+      "equals": "12px",
+      "message": "让 .card 的右下角使用 12px 圆角"
+    },
+    {
+      "id": "rounded-bottom-left",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-bottom-left-radius",
+      "equals": "12px",
+      "message": "让 .card 的左下角使用 12px 圆角"
     }
   ]
 }
