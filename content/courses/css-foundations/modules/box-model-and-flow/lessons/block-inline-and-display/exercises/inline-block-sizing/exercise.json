@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.block-inline-and-display.inline-block-sizing.001",
+  "revision": 1,
+  "slug": "inline-block-sizing",
+  "title": "让行内 badge 可 sizing",
+  "prompt": "让 .badge 仍能跟周围文字处在同一行，同时让 width: 120px 对它产生明确的 box sizing 作用。选择合适的 display value。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "普通 inline box 不是这里想要的 sizing 模型。",
+    "你仍然需要 inline-level outer participation。",
+    "把 display 改成 inline-block，并保留 width: 120px。"
+  ],
+  "checks": [
+    {
+      "id": "inline-block",
+      "type": "style",
+      "selector": ".badge",
+      "property": "display",
+      "equals": "inline-block",
+      "message": "让 .badge 使用 inline-block"
+    },
+    {
+      "id": "width",
+      "type": "style",
+      "selector": ".badge",
+      "property": "width",
+      "equals": "120px",
+      "message": "保留 120px width"
+    }
+  ]
+}
