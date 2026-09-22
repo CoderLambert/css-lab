@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   ResizableHandle,
   ResizablePanel,
@@ -17,10 +19,42 @@ interface LearningWorkspaceProps {
   exercise: Exercise;
 }
 
+interface EditorState {
+  exerciseId: string;
+  starterCss: string;
+  css: string;
+}
+
 export function LearningWorkspace({
   lesson,
   exercise,
 }: LearningWorkspaceProps) {
+  const [editorState, setEditorState] = useState<EditorState>(() => ({
+    exerciseId: exercise.id,
+    starterCss: exercise.starterCss,
+    css: exercise.starterCss,
+  }));
+  const hasCurrentExercise =
+    editorState.exerciseId === exercise.id &&
+    editorState.starterCss === exercise.starterCss;
+  const css = hasCurrentExercise ? editorState.css : exercise.starterCss;
+
+  const handleCssChange = (nextCss: string) => {
+    setEditorState({
+      exerciseId: exercise.id,
+      starterCss: exercise.starterCss,
+      css: nextCss,
+    });
+  };
+
+  const handleReset = () => {
+    setEditorState({
+      exerciseId: exercise.id,
+      starterCss: exercise.starterCss,
+      css: exercise.starterCss,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-workspace px-3 py-3 text-workspace-foreground sm:px-4 sm:py-4 lg:px-5 lg:py-5">
       <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-[1800px] flex-col overflow-hidden rounded-[1.75rem] border border-border bg-background shadow-[0_12px_36px_-28px_var(--foreground)] sm:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
@@ -34,11 +68,15 @@ export function LearningWorkspace({
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel defaultSize="40" minSize="28" className="min-w-0">
-                <EditorPanel starterCss={exercise.starterCss} />
+                <EditorPanel value={css} onChange={handleCssChange} />
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel defaultSize="35" minSize="26" className="min-w-0">
-                <PreviewPanel />
+                <PreviewPanel
+                  html={exercise.fixtureHtml}
+                  baseCss={exercise.baseCss}
+                  css={css}
+                />
               </ResizablePanel>
             </ResizablePanelGroup>
           </div>
@@ -48,15 +86,19 @@ export function LearningWorkspace({
               <LessonPanel lesson={lesson} exercise={exercise} />
             </div>
             <div className="min-h-[520px] min-w-0 border-b border-border">
-              <EditorPanel starterCss={exercise.starterCss} />
+                <EditorPanel value={css} onChange={handleCssChange} />
             </div>
             <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
-              <PreviewPanel />
+              <PreviewPanel
+                html={exercise.fixtureHtml}
+                baseCss={exercise.baseCss}
+                css={css}
+              />
             </div>
           </div>
         </main>
 
-        <WorkspaceFooter />
+        <WorkspaceFooter onReset={handleReset} />
       </div>
     </div>
   );

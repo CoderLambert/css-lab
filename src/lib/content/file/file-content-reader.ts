@@ -345,8 +345,9 @@ export class FileContentReader implements ContentReader {
     const metadataPath = join(directoryPath, "exercise.json");
     const record = await readJsonFile(metadataPath, ExerciseRecordSchema);
     assertSlugMatchesDirectory(directoryPath, metadataPath, record.slug);
-    const [fixtureHtml, starterCss] = await Promise.all([
+    const [fixtureHtml, baseCss, starterCss] = await Promise.all([
       readTextFile(join(directoryPath, "fixture.html")),
+      readTextFile(join(directoryPath, "base.css")),
       readTextFile(join(directoryPath, "starter.css")),
     ]);
 
@@ -365,6 +366,7 @@ export class FileContentReader implements ContentReader {
       moduleId: lesson.moduleId,
       lessonId: lesson.id,
       fixtureHtml,
+      baseCss,
       starterCss,
     };
   }

@@ -1,6 +1,14 @@
 import { CheckCircle2 } from "lucide-react";
 
-export function PreviewPanel() {
+import { PreviewFrame } from "@/features/exercise/components/preview-frame";
+
+interface PreviewPanelProps {
+  html: string;
+  baseCss: string;
+  css: string;
+}
+
+export function PreviewPanel({ html, baseCss, css }: PreviewPanelProps) {
   return (
     <section className="flex h-full min-w-0 flex-col bg-panel" aria-labelledby="preview-title">
       <div className="flex items-center justify-between border-b border-border px-5 py-5 sm:px-6">
@@ -26,13 +34,7 @@ export function PreviewPanel() {
               <span className="size-2 rounded-full bg-muted-foreground/25" />
               <span className="size-2 rounded-full bg-muted-foreground/25" />
             </div>
-            <div className="flex min-h-[255px] items-center justify-center p-6 [background-image:radial-gradient(var(--preview-grid)_0.8px,transparent_0.8px)] [background-size:18px_18px]">
-              <div className="flex h-[190px] w-full max-w-[290px] items-center justify-center rounded-[1.35rem] bg-lesson-highlight shadow-inner">
-                <div className="flex size-16 items-center justify-center rounded-2xl bg-primary font-heading text-2xl font-semibold text-primary-foreground shadow-sm">
-                  A
-                </div>
-              </div>
-            </div>
+            <PreviewFrame html={html} baseCss={baseCss} css={css} />
           </div>
 
           <div className="flex items-start gap-2.5 self-start text-sm">

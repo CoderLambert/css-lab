@@ -52,5 +52,6 @@ export interface Exercise {
   moduleId: string;
   lessonId: string;
   fixtureHtml: string;
+  baseCss: string;
   starterCss: string;
 }

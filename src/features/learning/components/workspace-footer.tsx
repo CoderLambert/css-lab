@@ -2,11 +2,15 @@ import { Check, Lightbulb, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export function WorkspaceFooter() {
+interface WorkspaceFooterProps {
+  onReset: () => void;
+}
+
+export function WorkspaceFooter({ onReset }: WorkspaceFooterProps) {
   return (
     <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-panel px-5 py-3 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={onReset}>
           <RotateCcw />
           Reset
         </Button>
@@ -25,7 +29,7 @@ export function WorkspaceFooter() {
           <Lightbulb />
           提示
         </Button>
-        <Button size="sm">
+        <Button size="sm" disabled>
           <Check />
           检查答案
         </Button>
