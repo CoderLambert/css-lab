@@ -9,17 +9,17 @@ import { PredictActivity } from "@/features/learning/components/mdx/predict-acti
 
 const components = {
   h1: ({ children }) => (
-    <h2 className="font-heading text-lg font-semibold tracking-tight text-panel-foreground">
+    <h2 className="font-heading text-xl font-semibold tracking-[-0.02em] text-panel-foreground">
       {children}
     </h2>
   ),
   h2: ({ children }) => (
-    <h3 className="pt-3 font-heading text-base font-semibold text-panel-foreground">
+    <h3 className="pt-2 font-heading text-lg font-semibold tracking-[-0.01em] text-panel-foreground">
       {children}
     </h3>
   ),
   h3: ({ children }) => (
-    <h4 className="pt-2 font-heading text-sm font-semibold text-panel-foreground">
+    <h4 className="pt-1 font-heading text-base font-semibold text-panel-foreground">
       {children}
     </h4>
   ),
@@ -37,7 +37,7 @@ const components = {
     <strong className="font-semibold text-panel-foreground">{children}</strong>
   ),
   code: ({ children }) => (
-    <code className="rounded bg-panel-subtle px-1.5 py-0.5 font-mono text-[0.8rem] text-panel-foreground">
+    <code className="bg-panel-subtle px-1.5 py-0.5 font-mono text-[0.8rem] text-panel-foreground">
       {children}
     </code>
   ),

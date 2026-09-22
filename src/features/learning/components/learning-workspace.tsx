@@ -18,8 +18,8 @@ import type { CheckResultMessage } from "@/features/exercise/lib/preview-message
 import { useExerciseProgress } from "@/features/progress/hooks/use-exercise-progress";
 import { useLearningProgress } from "@/features/progress/hooks/use-learning-progress";
 import type { Course, Exercise, Lesson, Module } from "@/lib/content/types";
-import { EditorPanel } from "./editor-panel";
 import type { LearnerNavigation } from "../lib/learner-navigation";
+import { EditorPanel } from "./editor-panel";
 import { LessonPanel } from "./lesson-panel";
 import { PreviewPanel } from "./preview-panel";
 import { WorkspaceFooter } from "./workspace-footer";
@@ -160,83 +160,98 @@ function LearningWorkspaceSession({
     }
   };
 
-  return (
-    <div className="min-h-screen bg-workspace px-3 py-3 text-workspace-foreground sm:px-4 sm:py-4 lg:px-5 lg:py-5">
-      <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-[1800px] flex-col overflow-hidden rounded-[1.75rem] border border-border bg-background shadow-[0_12px_36px_-28px_var(--foreground)] sm:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
-        <WorkspaceHeader
-          courseTitle={course.title}
-          moduleTitle={module.title}
-          currentExerciseNumber={navigation.currentIndex + 1}
-          totalExercises={navigation.totalExercises}
-          progressPercent={progress.course.percent}
-          isProgressHydrated={isProgressHydrated}
-        />
+  const lessonPanel = (
+    <LessonPanel
+      moduleTitle={module.title}
+      lesson={lesson}
+      lessonContent={lessonContent}
+      exercise={exercise}
+    />
+  );
 
-        <main className="min-h-0 flex-1 bg-workspace">
-          {isDesktopWorkspace ? (
-            <div className="h-full min-h-[620px]">
+  const previewPanel = (
+    <PreviewPanel
+      html={exercise.fixtureHtml}
+      baseCss={exercise.baseCss}
+      css={css}
+      checkRequest={checkRequest}
+      checkState={checkState}
+      onCheckResult={handleCheckResult}
+    />
+  );
+
+  return (
+    <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-background text-workspace-foreground">
+      <WorkspaceHeader
+        courseTitle={course.title}
+        moduleTitle={module.title}
+        currentExerciseNumber={navigation.currentIndex + 1}
+        totalExercises={navigation.totalExercises}
+        progressPercent={progress.course.percent}
+        isProgressHydrated={isProgressHydrated}
+      />
+
+      <main className="min-h-0 flex-1 bg-workspace">
+        {isDesktopWorkspace ? (
+          <ResizablePanelGroup orientation="horizontal" className="h-full">
+            <ResizablePanel
+              defaultSize="34"
+              minSize="28"
+              maxSize="42"
+              className="min-w-0"
+            >
+              {lessonPanel}
+            </ResizablePanel>
+
+            <ResizableHandle />
+
+            <ResizablePanel defaultSize="66" minSize="58" className="min-w-0">
               <ResizablePanelGroup orientation="horizontal" className="h-full">
-                <ResizablePanel defaultSize="25" minSize="19" className="min-w-0">
-                  <LessonPanel
-                    moduleTitle={module.title}
-                    lesson={lesson}
-                    lessonContent={lessonContent}
-                    exercise={exercise}
-                    checkState={checkState}
-                  />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize="40" minSize="28" className="min-w-0">
+                <ResizablePanel
+                  defaultSize="62"
+                  minSize="48"
+                  className="min-w-0"
+                >
                   <EditorPanel value={css} onChange={handleCssChange} />
                 </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize="35" minSize="26" className="min-w-0">
-                  <PreviewPanel
-                    html={exercise.fixtureHtml}
-                    baseCss={exercise.baseCss}
-                    css={css}
-                    checkRequest={checkRequest}
-                    onCheckResult={handleCheckResult}
-                  />
+
+                <ResizableHandle />
+
+                <ResizablePanel
+                  defaultSize="38"
+                  minSize="30"
+                  className="min-w-0"
+                >
+                  {previewPanel}
                 </ResizablePanel>
               </ResizablePanelGroup>
-            </div>
-          ) : (
-            <div className="grid min-h-[760px] grid-cols-1 min-[800px]:grid-cols-2">
-              <div className="min-h-[560px] min-w-0 border-b border-border min-[800px]:border-r">
-                <LessonPanel
-                  moduleTitle={module.title}
-                  lesson={lesson}
-                  lessonContent={lessonContent}
-                  exercise={exercise}
-                  checkState={checkState}
-                />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <div className="h-full overflow-y-auto">
+            <div className="grid min-h-full grid-cols-1 min-[800px]:grid-cols-2">
+              <div className="min-h-[620px] min-w-0 border-b border-border min-[800px]:border-r">
+                {lessonPanel}
               </div>
-              <div className="min-h-[520px] min-w-0 border-b border-border">
+              <div className="min-h-[620px] min-w-0 border-b border-border">
                 <EditorPanel value={css} onChange={handleCssChange} />
               </div>
               <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
-                <PreviewPanel
-                  html={exercise.fixtureHtml}
-                  baseCss={exercise.baseCss}
-                  css={css}
-                  checkRequest={checkRequest}
-                  onCheckResult={handleCheckResult}
-                />
+                {previewPanel}
               </div>
             </div>
-          )}
-        </main>
+          </div>
+        )}
+      </main>
 
-        <WorkspaceFooter
-          isChecking={checkState.status === "checking"}
-          isHydrated={isHydrated}
-          previousHref={navigation.previousHref}
-          nextHref={navigation.nextHref}
-          onCheck={handleCheck}
-          onReset={handleReset}
-        />
-      </div>
+      <WorkspaceFooter
+        isChecking={checkState.status === "checking"}
+        isHydrated={isHydrated}
+        previousHref={navigation.previousHref}
+        nextHref={navigation.nextHref}
+        onCheck={handleCheck}
+        onReset={handleReset}
+      />
     </div>
   );
 }

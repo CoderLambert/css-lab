@@ -4,9 +4,13 @@ import type { CheckState } from "../lib/check-state";
 
 interface CheckResultsProps {
   state: CheckState;
+  compact?: boolean;
 }
 
-export function CheckResults({ state }: CheckResultsProps) {
+export function CheckResults({
+  state,
+  compact = false,
+}: CheckResultsProps) {
   if (state.status === "idle") {
     return null;
   }
@@ -14,12 +18,16 @@ export function CheckResults({ state }: CheckResultsProps) {
   if (state.status === "checking") {
     return (
       <section
-        className="mt-7 border-t border-border pt-5"
+        className={compact ? "mt-4" : "mt-7 border-t border-border pt-5"}
         aria-live="polite"
         aria-label="检查结果"
       >
-        <p className="text-sm font-semibold text-panel-foreground">检查结果</p>
-        <p className="mt-3 text-sm text-muted-foreground">正在检查…</p>
+        {!compact ? (
+          <p className="text-sm font-semibold text-panel-foreground">检查结果</p>
+        ) : null}
+        <p className={compact ? "text-sm text-muted-foreground" : "mt-3 text-sm text-muted-foreground"}>
+          正在检查…
+        </p>
       </section>
     );
   }
@@ -28,7 +36,7 @@ export function CheckResults({ state }: CheckResultsProps) {
 
   return (
     <section
-      className="mt-7 border-t border-border pt-5"
+      className={compact ? "mt-4" : "mt-7 border-t border-border pt-5"}
       aria-live="polite"
       aria-label="检查结果"
     >

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface ConceptActivityProps {
@@ -11,11 +12,11 @@ export function ConceptActivity({
   children,
 }: ConceptActivityProps) {
   return (
-    <aside className="rounded-xl border border-border bg-panel-subtle p-4">
+    <aside className="border-l-2 border-success bg-panel-subtle/60 py-4 pl-4 pr-2">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Mental model
       </p>
-      <p className="mt-2 font-heading text-sm font-semibold text-panel-foreground">
+      <p className="mt-2 font-heading text-base font-semibold text-panel-foreground">
         {title}
       </p>
       <div className="mt-3 space-y-3 text-sm leading-7 text-muted-foreground">
@@ -56,16 +57,16 @@ export function PropertyCompareActivity({
   ];
 
   return (
-    <section className="grid gap-3 sm:grid-cols-2" aria-label="属性对比">
+    <section
+      className="grid overflow-hidden border-y border-border sm:grid-cols-2 sm:divide-x sm:divide-border"
+      aria-label="属性对比"
+    >
       {items.map((item) => (
-        <article
-          key={item.title}
-          className="rounded-xl border border-border bg-panel-subtle p-4"
-        >
+        <article key={item.title} className="py-5 sm:px-5 sm:first:pl-0 sm:last:pr-0">
           <p className="font-heading text-sm font-semibold text-panel-foreground">
             {item.title}
           </p>
-          <pre className="mt-3 overflow-x-auto rounded-lg bg-editor p-3 text-xs leading-6 text-editor-foreground">
+          <pre className="mt-3 overflow-x-auto bg-editor px-3 py-2.5 text-xs leading-6 text-editor-foreground">
             <code>{item.code}</code>
           </pre>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -89,20 +90,22 @@ export function ExerciseActivity({
   goal,
 }: ExerciseActivityProps) {
   return (
-    <article className="rounded-xl border border-border bg-panel-subtle p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        Exercise
-      </p>
-      <p className="mt-2 font-heading text-sm font-semibold text-panel-foreground">
-        {title}
-      </p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{goal}</p>
-      <Link
-        href={href}
-        className="mt-4 inline-flex min-h-9 items-center justify-center rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-      >
-        打开练习
-      </Link>
-    </article>
+    <Link
+      href={href}
+      className="group flex items-start justify-between gap-4 border-t border-border py-4 last:border-b"
+    >
+      <div className="min-w-0">
+        <p className="font-heading text-sm font-semibold text-panel-foreground transition-colors group-hover:text-foreground">
+          {title}
+        </p>
+        <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+          {goal}
+        </p>
+      </div>
+      <ArrowUpRight
+        className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-panel-foreground"
+        aria-hidden="true"
+      />
+    </Link>
   );
 }

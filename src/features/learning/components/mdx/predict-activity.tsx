@@ -20,7 +20,7 @@ export function PredictActivity({
   const isCorrect = selected === answer;
 
   return (
-    <section className="rounded-xl border border-border bg-panel-subtle p-4">
+    <section className="border-y border-border py-5">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Predict before run
       </p>
@@ -28,11 +28,7 @@ export function PredictActivity({
         {question}
       </p>
 
-      <div
-        className="mt-4 grid gap-2"
-        role="group"
-        aria-label="预测选项"
-      >
+      <div className="mt-4 grid gap-2" role="group" aria-label="预测选项">
         {options.map((option) => {
           const isSelected = selected === option;
 
@@ -43,10 +39,10 @@ export function PredictActivity({
               aria-pressed={isSelected}
               onClick={() => setSelected(option)}
               className={[
-                "min-h-10 rounded-lg border px-3 text-left font-mono text-xs transition-colors",
+                "min-h-10 border px-3 text-left font-mono text-xs transition-colors",
                 isSelected
                   ? "border-border bg-accent text-accent-foreground"
-                  : "border-border bg-background text-panel-foreground hover:bg-accent",
+                  : "border-border bg-background text-panel-foreground hover:bg-panel-subtle",
               ].join(" ")}
             >
               {option}
@@ -57,7 +53,7 @@ export function PredictActivity({
 
       {hasAnswered ? (
         <div
-          className="mt-4 border-t border-border pt-4"
+          className="mt-4 border-l-2 border-success pl-4"
           role="status"
           aria-live="polite"
         >
