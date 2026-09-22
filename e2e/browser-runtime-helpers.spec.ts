@@ -940,3 +940,195 @@ test("runtime ignores forged source and malformed host messages", async ({
     "rgb(21, 22, 23)",
   );
 });
+
+
+test("style target-not-found and checker-error preserve browser diagnostics", async ({
+  page,
+}) => {
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: snapshot('<div class="target"></div>'),
+    generationId: "generation-diagnostics",
+    nonce: "90112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  const result = await page.evaluate(async ({ srcDoc, generationId }) => {
+    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+    if (!iframe) throw new Error("missing iframe");
+
+    const ready = new Promise<void>((resolve) => {
+      const onMessage = (event: MessageEvent) => {
+        if (
+          event.source === iframe.contentWindow &&
+          event.data?.source === "lab-runtime" &&
+          event.data?.type === "runtime:ready" &&
+          event.data?.generationId === generationId
+        ) {
+          window.removeEventListener("message", onMessage);
+          resolve();
+        }
+      };
+      window.addEventListener("message", onMessage);
+    });
+
+    iframe.srcdoc = srcDoc;
+    await ready;
+
+    const resultPromise = new Promise<unknown>((resolve) => {
+      const onMessage = (event: MessageEvent) => {
+        if (
+          event.source === iframe.contentWindow &&
+          event.data?.source === "lab-runtime" &&
+          event.data?.type === "check:result" &&
+          event.data?.generationId === generationId &&
+          event.data?.requestId === "diagnostic-check"
+        ) {
+          window.removeEventListener("message", onMessage);
+          resolve(event.data);
+        }
+      };
+      window.addEventListener("message", onMessage);
+    });
+
+    iframe.contentWindow?.postMessage(
+      {
+        source: "lab-host",
+        type: "check:run",
+        generationId,
+        requestId: "diagnostic-check",
+        checks: [
+          {
+            id: "missing",
+            type: "style",
+            selector: ".missing",
+            property: "display",
+            equals: "flex",
+            message: "missing",
+          },
+          {
+            id: "invalid",
+            type: "style",
+            selector: "[",
+            property: "display",
+            equals: "flex",
+            message: "invalid",
+          },
+        ],
+      },
+      "*",
+    );
+
+    return resultPromise;
+  }, { srcDoc: descriptor.srcDoc, generationId: descriptor.generationId });
+
+  expect(isCheckResultMessage(result)).toBe(true);
+  if (!isCheckResultMessage(result)) return;
+
+  expect(result.results.find((item) => item.id === "missing")).toMatchObject({
+    reason: "target-not-found",
+    diagnostic: { selector: ".missing", property: "display" },
+  });
+  expect(result.results.find((item) => item.id === "invalid")).toMatchObject({
+    reason: "checker-error",
+    diagnostic: { selector: "[", property: "display" },
+  });
+});
+
+test("captured CSS dispatch immediately before check is observed by checker", async ({
+  page,
+}) => {
+  const captured = snapshot(
+    '<div class="target">Target</div>',
+    ".target { color: rgb(12, 34, 56); }",
+  );
+  const identity = createBrowserDocumentIdentity(runtime, captured, 1);
+  const messages = planCapturedCheckDispatch(
+    "generation-immediate",
+    runtime,
+    identity,
+    {
+      requestId: "immediate-check",
+      checks: [
+        {
+          id: "latest-color",
+          type: "style",
+          selector: ".target",
+          property: "color",
+          equals: "rgb(12, 34, 56)",
+          message: "latest color",
+        },
+      ],
+      snapshot: captured,
+    },
+  );
+  const descriptor = createBrowserDocument({
+    runtime,
+    snapshot: captured,
+    generationId: "generation-immediate",
+    nonce: "a0112233445566778899aabbccddeeff",
+  });
+
+  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+  const result = await page.evaluate(
+    async ({ srcDoc, generationId, messages }) => {
+      const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+      if (!iframe) throw new Error("missing iframe");
+
+      const ready = new Promise<void>((resolve) => {
+        const onMessage = (event: MessageEvent) => {
+          if (
+            event.source === iframe.contentWindow &&
+            event.data?.source === "lab-runtime" &&
+            event.data?.type === "runtime:ready" &&
+            event.data?.generationId === generationId
+          ) {
+            window.removeEventListener("message", onMessage);
+            resolve();
+          }
+        };
+        window.addEventListener("message", onMessage);
+      });
+
+      iframe.srcdoc = srcDoc;
+      await ready;
+
+      const resultPromise = new Promise<unknown>((resolve) => {
+        const onMessage = (event: MessageEvent) => {
+          if (
+            event.source === iframe.contentWindow &&
+            event.data?.source === "lab-runtime" &&
+            event.data?.type === "check:result" &&
+            event.data?.generationId === generationId &&
+            event.data?.requestId === "immediate-check"
+          ) {
+            window.removeEventListener("message", onMessage);
+            resolve(event.data);
+          }
+        };
+        window.addEventListener("message", onMessage);
+      });
+
+      for (const message of messages) {
+        iframe.contentWindow?.postMessage(message, "*");
+      }
+
+      return resultPromise;
+    },
+    { srcDoc: descriptor.srcDoc, generationId: descriptor.generationId, messages },
+  );
+
+  expect(isCheckResultMessage(result)).toBe(true);
+  if (!isCheckResultMessage(result)) return;
+
+  expect(result).toMatchObject({
+    passed: true,
+    results: [
+      expect.objectContaining({
+        id: "latest-color",
+        passed: true,
+        actual: "rgb(12, 34, 56)",
+      }),
+    ],
+  });
+});

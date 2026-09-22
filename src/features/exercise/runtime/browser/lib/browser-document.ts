@@ -247,12 +247,33 @@ function createRuntimeBridge(
       (check.type === "exists" || check.type === "style") &&
       typeof check.selector === "string"
     ) {
+      const property =
+        check.type === "style" && typeof check.property === "string"
+          ? check.property
+          : null;
+      const expected =
+        check.type === "exists" ? true : check.equals ?? null;
       const queried = queryOne(check.selector);
+
       if (queried.error) {
-        return result(check, false, "checker-error", check.type === "exists" ? true : check.equals ?? null, null);
+        return result(
+          check,
+          false,
+          "checker-error",
+          expected,
+          null,
+          property,
+        );
       }
       if (!queried.element) {
-        return result(check, false, "target-not-found", check.type === "exists" ? true : check.equals ?? null, null);
+        return result(
+          check,
+          false,
+          "target-not-found",
+          expected,
+          null,
+          property,
+        );
       }
 
       if (check.type === "exists") {
