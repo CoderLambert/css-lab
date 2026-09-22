@@ -1,0 +1,62 @@
+## responsive strategy 是一组协作的约束
+
+综合 responsive component 时，不要从“这个设备需要什么 CSS”开始。先检查 available space、intrinsic content 与 min/max constraints；再让 Flexbox/Grid 的自然算法承担能承担的变化；最后只在真实 content/layout break 出现时加入 selective media query。
+
+<Concept title="constraints → flexible layout → selective rule change">
+一个可靠的顺序是：先让 surface 和 typography 在 box model 中成立，再用 `max-width`、`min-width`、Flex wrapping 或 Grid tracks 表达可用空间关系。若同一结构在多个空间下仍然自然适应，就不需要增加 breakpoint。
+
+当 nav、cards 或文本 measure 出现明确的结构性断裂，才用一个能解释其原因的 `@media` 条件改变 layout。Breakpoint 是策略中的一小段条件规则，不是按 390、768、1280 各复制一套页面。
+</Concept>
+
+<Predict
+  question="一个 cards section 在窄空间可以通过 Flex wrap 自然排列，但在更宽空间希望额外显示一个侧栏。最合理的策略是什么？"
+  options={["先保留 wrap 的自然适应，只在侧栏真正需要出现的 layout condition 加一个 selective rule", "为 390、768、1280 各写一份完整 layout", "用固定坐标把侧栏放到 cards 旁边"]}
+  answer="先保留 wrap 的自然适应，只在侧栏真正需要出现的 layout condition 加一个 selective rule"
+  explanation="自然适应和 selective query 可以组合；query 只解决真实的结构变化，不应复制整套页面或退回坐标定位。"
+/>
+
+<Compare
+  leftTitle="自然适应"
+  leftCode="flex-wrap: wrap; max-width: 100%"
+  leftMeaning="让已有 constraints/Flex algorithm 根据 available space 变化。"
+  rightTitle="selective query"
+  rightCode="@media (min-width: 640px)"
+  rightMeaning="只在内容或布局断裂需要时改变一小组规则。"
+/>
+
+<Compare
+  leftTitle="manual viewport branches"
+  leftCode="390 / 768 / 1280 三套 layout"
+  leftMeaning="把 observation presets 误当成 curriculum taxonomy，增加重复与 cascade 分支。"
+  rightTitle="same implementation"
+  rightCode="preview at 390, 768, 1280"
+  rightMeaning="观察同一份 CSS 在不同 available space 下的结果；当前产品不自动验收这些 outcome。"
+/>
+
+## 从局部策略走向综合组件
+
+<Exercise
+  slug="responsive-flex-component"
+  label="responsive Flex component"
+  goal="让 toolbar 使用可换行的 Flex layout 与 max-width constraint，先观察自然适应。"
+/>
+
+<Exercise
+  slug="responsive-grid-section"
+  label="responsive Grid section"
+  goal="建立受可用空间约束的 Grid section，在 Preview 中观察 track/item adaptation；不要用 authored track serialization 冒充结果证明。"
+/>
+
+<Exercise
+  slug="add-selective-breakpoint"
+  label="添加 selective breakpoint"
+  goal="只有当 content/layout 真正断裂时，才为 component 添加一个 selective media query。"
+/>
+
+<Exercise
+  slug="integrate-responsive-component"
+  label="综合 responsive component"
+  goal="综合 surface、typography、constraints、internal layout 与 selective adaptation，最后在多个 viewport 手动检查。"
+/>
+
+当前 checker 可以验证部分 surface、layout 与 constraint declarations，但不能证明多 viewport 的最终 geometry、wrapping、Grid tracks、breakpoint strategy 或多个等价实现之间的优劣。Preview 的 `390 / 768 / 1280` 只用于 observation；本课保持 `NEEDS_CHECKER_CAPABILITY` draft，不宣称完整 automated acceptance。

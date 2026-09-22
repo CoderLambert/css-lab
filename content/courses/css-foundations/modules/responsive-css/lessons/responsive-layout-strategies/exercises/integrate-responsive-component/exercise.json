@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css.responsive-layout-strategies.integrate-responsive-component.001",
+  "revision": 1,
+  "slug": "integrate-responsive-component",
+  "title": "综合 responsive component",
+  "prompt": "综合 surface、typography、constraints、internal layout 与 selective adaptation，最后在多个 viewport 手动检查。",
+  "order": 4,
+  "status": "draft",
+  "hints": [
+    "按 surface/typography → constraints → internal layout → selective adaptation 的顺序工作，不要从截图像素反推。",
+    "先让窄空间 baseline 可用，再让 Flexbox 或 Grid 承担自然变化；只有真实 content/layout break 才加入 query。",
+    "当前 checker 不足以判定多个 viewport 的 geometry、wrapping 或等价实现；完成后使用 Preview 手动比较 390、768、1280。"
+  ],
+  "checks": []
+}

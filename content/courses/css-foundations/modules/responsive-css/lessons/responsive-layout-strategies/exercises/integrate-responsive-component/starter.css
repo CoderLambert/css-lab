@@ -1,0 +1,12 @@
+.profile {
+  max-width: none;
+}
+
+.profile-header,
+.profile-body {
+  display: block;
+}
+
+.profile-actions {
+  margin-top: 16px;
+}

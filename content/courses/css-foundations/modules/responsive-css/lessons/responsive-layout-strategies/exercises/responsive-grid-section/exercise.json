@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css.responsive-layout-strategies.responsive-grid-section.001",
+  "revision": 1,
+  "slug": "responsive-grid-section",
+  "title": "responsive Grid section",
+  "prompt": "建立一个受可用空间约束的 Grid section，并在 Preview 中观察 track/item adaptation。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "先让 gallery 建立 Grid formatting context，再表达 gutter 与可用空间上限。",
+    "可以用 auto-fit/minmax 或其他等价 track 策略；当前 checker 不比较 authored grid-template-columns 的字符串。",
+    "设置 display: grid、gap: 12px 与 max-width: 100%，然后在 Preview 的不同宽度观察 items 如何适应。"
+  ],
+  "checks": [
+    {
+      "id": "gallery-grid-context",
+      "type": "style",
+      "selector": ".gallery",
+      "property": "display",
+      "equals": "grid",
+      "message": "让 gallery 建立 Grid formatting context"
+    },
+    {
+      "id": "gallery-gap",
+      "type": "style",
+      "selector": ".gallery",
+      "property": "gap",
+      "equals": "12px",
+      "message": "为 gallery tracks 设置 12px gutter"
+    },
+    {
+      "id": "gallery-fluid-cap",
+      "type": "style",
+      "selector": ".gallery",
+      "property": "max-width",
+      "equals": "100%",
+      "message": "让 gallery 的 inline size 不超过 containing block"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css.responsive-layout-strategies.add-selective-breakpoint.001",
+  "revision": 1,
+  "slug": "add-selective-breakpoint",
+  "title": "添加 selective breakpoint",
+  "prompt": "只有当 content/layout 真正断裂时，才为 component 添加一个 selective media query。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先让窄空间 baseline 保持可读，再找出 links 何时因内容宽度而需要另一种布局。",
+    "只为真实的 layout break 添加一个 min-width 条件，不要按设备品牌复制多套规则。",
+    "当前 checker 不读取 @media source，也不驱动多个 viewport；完成后在 390、768、1280 presets 中观察同一份 CSS。"
+  ],
+  "checks": []
+}
