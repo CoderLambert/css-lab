@@ -37,11 +37,12 @@ export function useExerciseProgress({
     null,
   );
   const hasLocalMutationRef = useRef(false);
-  const exerciseKey = `${exerciseId}:${revision}`;
+  const currentExerciseKey = `${exerciseId}:${revision}`;
 
   useEffect(() => {
     let cancelled = false;
     hasLocalMutationRef.current = false;
+    const exerciseKey = `${exerciseId}:${revision}`;
 
     void progressStore
       .getExercise(exerciseId, revision)
@@ -68,7 +69,7 @@ export function useExerciseProgress({
     return () => {
       cancelled = true;
     };
-  }, [exerciseId, exerciseKey, revision]);
+  }, [exerciseId, revision]);
 
   const saveCode = (nextCss: string) => {
     void progressStore
@@ -110,7 +111,7 @@ export function useExerciseProgress({
 
   return {
     css,
-    isHydrated: hydratedExerciseKey === exerciseKey,
+    isHydrated: hydratedExerciseKey === currentExerciseKey,
     updateCss,
     resetCss,
     markCompleted,
