@@ -105,9 +105,11 @@ export function BrowserRuntimeFrame({
   const sentCheckRequestIdRef = useRef<string | null>(null);
   const sentCssRef = useRef<Map<string, string>>(new Map());
 
-  snapshotRef.current = snapshot;
-  checkRequestRef.current = checkRequest;
-  onCheckResultRef.current = onCheckResult;
+  useLayoutEffect(() => {
+    snapshotRef.current = snapshot;
+    checkRequestRef.current = checkRequest;
+    onCheckResultRef.current = onCheckResult;
+  }, [checkRequest, onCheckResult, snapshot]);
 
   const modelState = useMemo(
     () => createIdentityState(runtime, snapshot),
@@ -125,7 +127,9 @@ export function BrowserRuntimeFrame({
     [identity],
   );
 
-  descriptorRef.current = descriptor;
+  useLayoutEffect(() => {
+    descriptorRef.current = descriptor;
+  }, [descriptor]);
 
   const postMessages = useCallback(
     (iframeWindow: Window, messages: readonly unknown[]) => {

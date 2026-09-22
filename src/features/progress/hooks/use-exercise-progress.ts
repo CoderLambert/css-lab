@@ -61,8 +61,6 @@ export function useExerciseProgress({
 
     hasLocalMutationRef.current = false;
     draftRef.current = nextInitialDraft;
-    setDraft(nextInitialDraft);
-    setHydratedExerciseKey(null);
 
     void progressStore
       .getExercise(exerciseId, revision)

@@ -63,23 +63,17 @@ export function WorkspaceEditorPanel({
   const [isFormatting, setIsFormatting] = useState(false);
   const [formatError, setFormatError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const nextPath = resolveActiveWorkspacePath(
-      workspace,
-      activePath,
-    );
-
-    if (nextPath !== activePath) {
-      setActivePath(nextPath);
-    }
-  }, [activePath, workspace]);
+  const resolvedActivePath = resolveActiveWorkspacePath(
+    workspace,
+    activePath,
+  );
 
   useEffect(() => {
     editorRef.current?.focus();
-  }, [activePath]);
+  }, [resolvedActivePath]);
 
   const activeFile = editableFiles.find(
-    (file) => file.path === activePath,
+    (file) => file.path === resolvedActivePath,
   );
 
   const activateRelativeTab = (
@@ -108,7 +102,7 @@ export function WorkspaceEditorPanel({
     setActivePath(editableFiles[nextIndex]?.path ?? null);
   };
 
-  if (!activeFile || !activePath) {
+  if (!activeFile || !resolvedActivePath) {
     return (
       <section
         className="flex h-full min-w-0 items-center justify-center bg-editor px-6 text-center text-sm text-editor-muted"
@@ -126,8 +120,8 @@ export function WorkspaceEditorPanel({
     ? supportedLanguageLabel(activeFile.language)
     : activeFile.language.toUpperCase();
   const value =
-    draft.files[activePath] ??
-    workspace.starter.files[activePath] ??
+    draft.files[resolvedActivePath] ??
+    workspace.starter.files[resolvedActivePath] ??
     "";
 
   const handleFormatResult = (result: EditorFormatResult) => {
@@ -164,7 +158,7 @@ export function WorkspaceEditorPanel({
               id="workspace-editor-title"
               className="truncate font-mono text-sm font-medium text-editor-foreground"
             >
-              {activePath}
+              {resolvedActivePath}
             </p>
             <p className="mt-0.5 text-[11px] text-editor-muted">
               {label} · 实时预览
@@ -198,7 +192,7 @@ export function WorkspaceEditorPanel({
             className="flex min-w-0 gap-1 overflow-x-auto border-t border-editor-line-active px-3 py-2"
           >
             {editableFiles.map((file, index) => {
-              const active = file.path === activePath;
+              const active = file.path === resolvedActivePath;
               const dirty = isWorkspaceFileDirty(
                 workspace,
                 draft,
@@ -234,21 +228,21 @@ export function WorkspaceEditorPanel({
       <div className="min-h-0 flex-1">
         {activeFile.language === "css" ? (
           <CssEditor
-            key={activePath}
+            key={resolvedActivePath}
             ref={editorRef}
             value={value}
             onChange={(content) =>
-              onFileChange(activePath, content)
+              onFileChange(resolvedActivePath, content)
             }
             onFormatResult={handleFormatResult}
           />
         ) : activeFile.language === "html" ? (
           <HtmlEditor
-            key={activePath}
+            key={resolvedActivePath}
             ref={editorRef}
             value={value}
             onChange={(content) =>
-              onFileChange(activePath, content)
+              onFileChange(resolvedActivePath, content)
             }
             onFormatResult={handleFormatResult}
           />

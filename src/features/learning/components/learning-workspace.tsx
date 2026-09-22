@@ -113,18 +113,20 @@ function LearningWorkspaceSession({
 
   const checkRequest =
     checkState.status === "checking" &&
-    activeCheckRef.current?.requestId === checkState.requestId
-      ? activeCheckRef.current.request
+    activeCheck?.requestId === checkState.requestId
+      ? activeCheck.request
       : null;
 
   const handleFileChange = (path: string, content: string) => {
     activeCheckRef.current = null;
+    setActiveCheck(null);
     updateFile(path, content);
     setCheckState({ status: "idle" });
   };
 
   const handleReset = () => {
     activeCheckRef.current = null;
+    setActiveCheck(null);
     resetAll();
     setCheckState({ status: "idle" });
   };
@@ -155,11 +157,13 @@ function LearningWorkspaceSession({
       ),
     };
 
-    activeCheckRef.current = {
+    const nextActiveCheck = {
       requestId,
       draft: capturedDraft,
       request,
     };
+    activeCheckRef.current = nextActiveCheck;
+    setActiveCheck(nextActiveCheck);
     setCheckState({
       status: "checking",
       requestId,
@@ -174,6 +178,7 @@ function LearningWorkspaceSession({
     }
 
     activeCheckRef.current = null;
+    setActiveCheck(null);
     setCheckState({
       status: "complete",
       requestId: result.requestId,

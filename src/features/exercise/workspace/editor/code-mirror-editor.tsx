@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   type Ref,
 } from "react";
@@ -77,10 +78,17 @@ export function CodeMirrorEditor({
   const formatterRef = useRef(formatDocument);
   const failureLabelRef = useRef(formatFailureLabel);
 
-  onChangeRef.current = onChange;
-  onFormatResultRef.current = onFormatResult;
-  formatterRef.current = formatDocument;
-  failureLabelRef.current = formatFailureLabel;
+  useLayoutEffect(() => {
+    onChangeRef.current = onChange;
+    onFormatResultRef.current = onFormatResult;
+    formatterRef.current = formatDocument;
+    failureLabelRef.current = formatFailureLabel;
+  }, [
+    formatDocument,
+    formatFailureLabel,
+    onChange,
+    onFormatResult,
+  ]);
 
   const reportFormatResult = useCallback(
     (result: EditorFormatResult): EditorFormatResult => {
