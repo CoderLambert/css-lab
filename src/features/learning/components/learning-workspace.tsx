@@ -196,6 +196,7 @@ function LearningWorkspaceSession({
             <div className="grid min-h-[760px] grid-cols-1 min-[800px]:grid-cols-2">
               <div className="min-h-[560px] min-w-0 border-b border-border min-[800px]:border-r">
                 <LessonPanel
+                  moduleTitle={module.title}
                   lesson={lesson}
                   exercise={exercise}
                   checkState={checkState}

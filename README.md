@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CSS Lab
 
-## Getting Started
+CSS Lab 是一个专注于 CSS 实践的交互式学习项目。核心学习闭环：
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```text
+学习概念
+→ 编辑 CSS
+→ 在隔离 Preview 中即时查看结果
+→ 运行 Checker
+→ 保存进度
+→ 前往下一题
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js 16 / React 19 / TypeScript
+- Tailwind CSS v4 + shadcn/Base UI
+- CodeMirror 6
+- Zod
+- IndexedDB via `idb`
+- Playwright
+- pnpm
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local development
 
-## Learn More
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+入口：
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/`：产品入口
+- `/learn`：自动进入第一个 published exercise
+- `/studio`：内容创作区占位入口
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Verification
 
-## Deploy on Vercel
+```bash
+pnpm lint
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:e2e
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+CI 会执行 frozen install、lint、build 和 Chromium E2E。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture
+
+```text
+content/
+  ↓ FileContentReader + Zod
+Server learner routes
+  ↓
+LearningWorkspace
+  ├─ CodeMirror editor
+  ├─ sandboxed iframe preview/checker
+  ├─ URL-driven Previous/Next navigation
+  └─ ProgressStore → idb → IndexedDB
+```
+
+主要边界：
+
+- `src/features/learning/`：learner workspace、导航与学习体验
+- `src/features/exercise/`：CodeMirror、Preview、Checker runtime
+- `src/features/progress/`：progress domain 与 IndexedDB adapter
+- `src/lib/content/`：file-backed content domain 与 reader
+- `src/components/ui/`：共享 UI primitives
+
+## Content
+
+内容位于：
+
+```text
+content/courses/<course>/modules/<module>/lessons/<lesson>/
+```
+
+每道 exercise：
+
+```text
+exercise.json
+fixture.html
+base.css
+starter.css
+solution.css
+```
+
+Learner runtime 只读取 published chain。稳定 `id` 与可变 `slug` 分离，exercise `revision` 是 progress compatibility boundary。
+
+`solution.css` 仅用于创作/参考，不进入 learner client runtime。
+
+## Current learner coverage
+
+Flexbox Alignment 目前包含三道 published exercise：
+
+- 水平与垂直居中
+- 在主轴上拉开间距
+- 沿交叉轴底部对齐
+
+这组内容用于真实覆盖 URL 导航、Checker、IndexedDB completion 与课程进度聚合。

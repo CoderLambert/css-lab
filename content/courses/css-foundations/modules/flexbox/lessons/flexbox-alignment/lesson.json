@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "id": "css.flexbox.alignment",
   "slug": "flexbox-alignment",
-  "title": "让元素稳定地居中",
-  "description": "通过 Flexbox 的主轴与交叉轴对齐能力，将内容放置在容器中央。",
-  "estimatedMinutes": 8,
+  "title": "让元素稳定地对齐",
+  "description": "通过 Flexbox 的主轴与交叉轴对齐能力，练习居中、间距分布与底部对齐。",
+  "estimatedMinutes": 12,
   "order": 1,
   "status": "published"
 }

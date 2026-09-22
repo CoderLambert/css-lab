@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.alignment.align-items-end.001",
+  "revision": 1,
+  "slug": "align-items-end",
+  "title": "沿交叉轴底部对齐",
+  "prompt": "让三个不同高度的项目保持在同一行，并沿容器交叉轴的末端对齐。",
+  "order": 3,
+  "status": "published",
+  "hints": [
+    "这道题仍然需要 flex 布局上下文。",
+    "交叉轴上的整体对齐由 align-items 控制。"
+  ],
+  "checks": [
+    {
+      "id": "container-display-flex",
+      "type": "style",
+      "selector": ".container",
+      "property": "display",
+      "equals": "flex",
+      "message": "将 .container 设置为 flex 布局"
+    },
+    {
+      "id": "container-align-flex-end",
+      "type": "style",
+      "selector": ".container",
+      "property": "align-items",
+      "equals": "flex-end",
+      "message": "让项目沿交叉轴末端对齐"
+    }
+  ]
+}

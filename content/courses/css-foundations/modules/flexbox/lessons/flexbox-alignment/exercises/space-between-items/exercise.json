@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.alignment.space-between-items.001",
+  "revision": 1,
+  "slug": "space-between-items",
+  "title": "在主轴上拉开间距",
+  "prompt": "让三个项目保持在同一行，并让第一个项目贴近起点、最后一个项目贴近终点，中间项目平均分布。",
+  "order": 2,
+  "status": "published",
+  "hints": [
+    "先让 .container 进入 flex 布局上下文。",
+    "主轴上的分布由 justify-content 控制。"
+  ],
+  "checks": [
+    {
+      "id": "container-display-flex",
+      "type": "style",
+      "selector": ".container",
+      "property": "display",
+      "equals": "flex",
+      "message": "将 .container 设置为 flex 布局"
+    },
+    {
+      "id": "container-justify-space-between",
+      "type": "style",
+      "selector": ".container",
+      "property": "justify-content",
+      "equals": "space-between",
+      "message": "让项目在主轴上使用 space-between 分布"
+    },
+    {
+      "id": "container-align-center",
+      "type": "style",
+      "selector": ".container",
+      "property": "align-items",
+      "equals": "center",
+      "message": "让项目在交叉轴上保持居中"
+    }
+  ]
+}
