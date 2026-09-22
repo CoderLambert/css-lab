@@ -7,7 +7,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface WorkspaceFooterProps {
   isChecking: boolean;
@@ -33,10 +34,13 @@ export function WorkspaceFooter({
   onRevealHint,
 }: WorkspaceFooterProps) {
   const previousButton = previousHref ? (
-    <Button variant="ghost" size="sm" render={<Link href={previousHref} />}>
+    <Link
+      href={previousHref}
+      className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+    >
       <ArrowLeft />
       上一题
-    </Button>
+    </Link>
   ) : (
     <Button variant="ghost" size="sm" disabled>
       <ArrowLeft />
@@ -44,10 +48,13 @@ export function WorkspaceFooter({
     </Button>
   );
   const nextButton = nextHref ? (
-    <Button variant="ghost" size="sm" render={<Link href={nextHref} />}>
+    <Link
+      href={nextHref}
+      className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+    >
       下一题
       <ArrowRight />
-    </Button>
+    </Link>
   ) : (
     <Button variant="ghost" size="sm" disabled>
       下一题
