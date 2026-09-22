@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "css.language-and-selection.selector-matching.combine-targets.001",
+  "revision": 1,
+  "slug": "combine-targets",
+  "title": "组合不同目标集合",
+  "prompt": "使用一个 selector list，让 #spotlight 标题和 .tagged 段落都使用 italic；普通段落必须保持 normal。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "一个目标由 id 标识，另一个目标由 class 标识。",
+    "逗号把多个 selector 组成 selector list，表示匹配其中任意一个即可。",
+    "使用 #spotlight, .tagged，并设置 font-style: italic。"
+  ],
+  "checks": [
+    {"id":"spotlight-italic","type":"style","selector":"#spotlight","property":"font-style","equals":"italic","message":"#spotlight 应使用 italic"},
+    {"id":"tagged-italic","type":"style","selector":".tagged","property":"font-style","equals":"italic","message":".tagged 应使用 italic"},
+    {"id":"ordinary-stays-normal","type":"style","selector":".ordinary","property":"font-style","equals":"normal","message":"普通段落不应被一起设为 italic"}
+  ]
+}

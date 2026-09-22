@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "css.language-and-selection.selector-matching.target-by-type.001",
+  "revision": 1,
+  "slug": "target-by-type",
+  "title": "按元素类型匹配",
+  "prompt": "使用 type selector，让所有 li 的文字显示为 uppercase；下方说明段落必须保持原样。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先看 fixture：三个目标都使用同一种 HTML 元素类型。",
+    "type selector 直接写元素名称，不需要 . 或 # 前缀。",
+    "让 li 使用 text-transform: uppercase；不要影响 .note。"
+  ],
+  "checks": [
+    {"id":"item-a-uppercase","type":"style","selector":".item-a","property":"text-transform","equals":"uppercase","message":"第一个 li 应显示为 uppercase"},
+    {"id":"item-b-uppercase","type":"style","selector":".item-b","property":"text-transform","equals":"uppercase","message":"第二个 li 应显示为 uppercase"},
+    {"id":"item-c-uppercase","type":"style","selector":".item-c","property":"text-transform","equals":"uppercase","message":"第三个 li 应显示为 uppercase"},
+    {"id":"note-stays-none","type":"style","selector":".note","property":"text-transform","equals":"none","message":"说明段落不应被一起转换"}
+  ]
+}
