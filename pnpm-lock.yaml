@@ -187,6 +187,9 @@ importers:
       codemirror:
         specifier: ^6.0.2
         version: 6.0.2
+      idb:
+        specifier: ^8.0.3
+        version: 8.0.3
       lucide-react:
         specifier: ^1.47.0
         version: 1.47.0(react@19.2.8)
@@ -3181,6 +3184,9 @@ packages:
 
   zod@4.6.5:
     resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+
+  idb@8.0.3:
+    resolution: {integrity: sha512-LtwtVyVYO5BqRvcsKuB2iUMnHwPVByPCXFXOpuU96IZPPoPN6xjOGxZQ74pgSVVLQWtUOYgyeL4GE98BY5D3wg==}
 
 snapshots:
 
@@ -6390,3 +6396,5 @@ snapshots:
   zod@3.25.76: {}
 
   zod@4.6.5: {}
+
+  idb@8.0.3: {}

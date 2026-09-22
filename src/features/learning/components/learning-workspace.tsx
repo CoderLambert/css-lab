@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/resizable";
 import type { CheckState } from "@/features/exercise/lib/check-state";
 import type { CheckResultMessage } from "@/features/exercise/lib/preview-messages";
+import { useExerciseProgress } from "@/features/progress/hooks/use-exercise-progress";
 import type { Exercise, Lesson } from "@/lib/content/types";
 import { EditorPanel } from "./editor-panel";
 import { LessonPanel } from "./lesson-panel";
@@ -44,11 +45,21 @@ function LearningWorkspaceSession({
   lesson,
   exercise,
 }: LearningWorkspaceProps) {
-  const [css, setCss] = useState(exercise.starterCss);
+  const {
+    css,
+    updateCss,
+    resetCss,
+    markCompleted,
+  } = useExerciseProgress({
+    exerciseId: exercise.id,
+    revision: exercise.revision,
+    starterCss: exercise.starterCss,
+  });
   const [checkState, setCheckState] = useState<CheckState>({
     status: "idle",
   });
   const requestCounterRef = useRef(0);
+  const activeCheckRequestIdRef = useRef<string | null>(null);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
     getDesktopWorkspaceSnapshot,
@@ -67,40 +78,44 @@ function LearningWorkspaceSession({
   );
 
   const handleCssChange = (nextCss: string) => {
-    setCss(nextCss);
+    activeCheckRequestIdRef.current = null;
+    updateCss(nextCss);
     setCheckState({ status: "idle" });
   };
 
   const handleReset = () => {
-    setCss(exercise.starterCss);
+    activeCheckRequestIdRef.current = null;
+    resetCss();
     setCheckState({ status: "idle" });
   };
 
   const handleCheck = () => {
     requestCounterRef.current += 1;
+    const requestId = `${exercise.id}:${requestCounterRef.current}`;
 
+    activeCheckRequestIdRef.current = requestId;
     setCheckState({
       status: "checking",
-      requestId: `${exercise.id}:${requestCounterRef.current}`,
+      requestId,
     });
   };
 
   const handleCheckResult = (result: CheckResultMessage) => {
-    setCheckState((currentState) => {
-      if (
-        currentState.status !== "checking" ||
-        currentState.requestId !== result.requestId
-      ) {
-        return currentState;
-      }
+    if (activeCheckRequestIdRef.current !== result.requestId) {
+      return;
+    }
 
-      return {
-        status: "complete",
-        requestId: result.requestId,
-        passed: result.passed,
-        results: result.results,
-      };
+    activeCheckRequestIdRef.current = null;
+    setCheckState({
+      status: "complete",
+      requestId: result.requestId,
+      passed: result.passed,
+      results: result.results,
     });
+
+    if (result.passed) {
+      markCompleted();
+    }
   };
 
   return (

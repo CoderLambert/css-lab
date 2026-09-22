@@ -37,7 +37,8 @@ The content system is file-backed by design. A database, authentication system, 
 - TypeScript
 - Tailwind CSS v4
 - shadcn/ui / Base UI primitives
-- Zod for content schema validation
+- Zod for runtime/content validation
+- idb for typed IndexedDB access
 - pnpm
 
 CodeMirror 6 is the intended CSS editor.
@@ -257,7 +258,17 @@ URL state
 
 Do not add a global state library by default.
 
-Learner progress will initially use browser storage behind a storage abstraction when that milestone is implemented. Do not add persistence early.
+Learner progress uses an asynchronous `ProgressStore` abstraction backed by IndexedDB through the `idb` package.
+
+Persistence rules:
+
+- Feature/UI code must not call raw `indexedDB` APIs directly.
+- Keep the storage contract asynchronous so alternative adapters can be introduced without rewriting React consumers.
+- Use `idb`'s typed `DBSchema` support and promise-based API instead of maintaining custom request/transaction wrappers.
+- Keep IndexedDB transactions short. Do not await network requests or unrelated async work inside an active transaction.
+- For read-modify-write operations, use a single `readwrite` transaction and await `tx.done`.
+- Treat persistence as a progressive enhancement: storage failures must not break Editor, Preview, Checker, or Reset behavior.
+- Exercise revision is part of the persistence key/compatibility boundary; progress from a different revision must not be restored as current progress.
 
 # Product Scope
 

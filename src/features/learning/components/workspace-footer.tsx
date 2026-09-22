@@ -21,7 +21,7 @@ export function WorkspaceFooter({
           Reset
         </Button>
         <span className="hidden text-xs text-muted-foreground sm:inline">
-          实时预览 · 舒适专注模式
+          自动保存到本地 · 舒适专注模式
         </span>
       </div>
 
