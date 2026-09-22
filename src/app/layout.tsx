@@ -12,7 +12,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="zh-CN"
       className="h-full antialiased"
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col bg-background text-foreground selection:bg-accent selection:text-accent-foreground">
+        {children}
+      </body>
     </html>
   );
 }

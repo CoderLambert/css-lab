@@ -178,8 +178,4 @@
   html {
     @apply font-sans;
   }
-
-  body {
-    @apply bg-background text-foreground selection:bg-accent selection:text-accent-foreground;
-  }
 }
