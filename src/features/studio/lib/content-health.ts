@@ -220,21 +220,21 @@ export async function readStudioContentHealth(
     const moduleEntries: StudioModuleEntry[] = [];
     let coursePublishedExercises = 0;
 
-    for (const module of modules) {
-      const moduleLocation = `${courseLocation}/module:${module.slug}`;
-      registerStableId(issues, stableIds, "Module", module, moduleLocation);
+    for (const courseModule of modules) {
+      const moduleLocation = `${courseLocation}/module:${courseModule.slug}`;
+      registerStableId(issues, stableIds, "Module", courseModule, moduleLocation);
 
       const coursePublished = course.status === "published";
       hiddenPublishedChild(
         issues,
-        module.status,
+        courseModule.status,
         coursePublished,
         "Module",
-        module.title,
+        courseModule.title,
         moduleLocation,
       );
 
-      const lessons = await contentReader.listLessons(course.slug, module.slug);
+      const lessons = await contentReader.listLessons(course.slug, courseModule.slug);
       lessonCount += lessons.length;
       auditSiblingOrders(issues, "Lesson", lessons, moduleLocation);
 
@@ -246,7 +246,7 @@ export async function readStudioContentHealth(
         registerStableId(issues, stableIds, "Lesson", lesson, lessonLocation);
 
         const modulePublished =
-          coursePublished && module.status === "published";
+          coursePublished && courseModule.status === "published";
         hiddenPublishedChild(
           issues,
           lesson.status,
@@ -270,7 +270,7 @@ export async function readStudioContentHealth(
 
         const exercises = await contentReader.listExercises(
           course.slug,
-          module.slug,
+          courseModule.slug,
           lesson.slug,
         );
         exerciseCount += exercises.length;
@@ -321,7 +321,7 @@ export async function readStudioContentHealth(
           exerciseEntries.push({
             exercise,
             learnerHref: visibleInLearner
-              ? `/learn/${course.slug}/${module.slug}/${lesson.slug}/${exercise.slug}`
+              ? `/learn/${course.slug}/${courseModule.slug}/${lesson.slug}/${exercise.slug}`
               : null,
           });
         }
@@ -348,20 +348,20 @@ export async function readStudioContentHealth(
 
       if (
         coursePublished &&
-        module.status === "published" &&
+        courseModule.status === "published" &&
         modulePublishedExercises === 0
       ) {
         addIssue(
           issues,
           "warning",
           "published-module-empty",
-          `Published module “${module.title}” 没有可见的 published exercises。`,
+          `Published module “${courseModule.title}” 没有可见的 published exercises。`,
           moduleLocation,
         );
       }
 
       moduleEntries.push({
-        module,
+        module: courseModule,
         lessons: lessonEntries,
       });
     }

@@ -13,11 +13,48 @@ function statusClasses(status: "draft" | "published"): string {
     : "border border-border bg-background text-muted-foreground";
 }
 
-export default async function StudioPage() {
+async function loadContentHealth() {
   try {
-    const report = await readStudioContentHealth(contentReader);
+    return {
+      report: await readStudioContentHealth(contentReader),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      report: null,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown content loading error",
+    };
+  }
+}
 
+export default async function StudioPage() {
+  const { report, error } = await loadContentHealth();
+
+  if (!report) {
     return (
+      <main className="flex min-h-screen items-center justify-center bg-workspace px-5 py-10 text-workspace-foreground">
+        <div className="w-full max-w-2xl rounded-[1.75rem] border border-destructive/30 bg-panel px-6 py-8 sm:px-8">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-destructive">
+            Content load failed
+          </p>
+          <h1 className="mt-3 font-heading text-2xl font-semibold text-panel-foreground">
+            CSS Lab Studio
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-muted-foreground">
+            ContentReader 无法完成全库读取。修复文件或 schema 错误后，此页面会恢复为健康报告。
+          </p>
+          <pre className="mt-4 overflow-x-auto rounded-xl bg-panel-subtle p-4 text-xs leading-6 text-destructive">
+            {error}
+          </pre>
+        </div>
+      </main>
+    );
+  }
+
+  return (
       <main className="min-h-screen bg-workspace px-4 py-6 text-workspace-foreground sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-6xl">
           <header className="flex flex-col gap-5 rounded-[1.75rem] border border-border bg-panel px-6 py-7 shadow-[0_12px_36px_-28px_var(--foreground)] sm:flex-row sm:items-end sm:justify-between sm:px-8">
@@ -174,22 +211,22 @@ export default async function StudioPage() {
                 </div>
 
                 <div className="mt-5 space-y-4">
-                  {modules.map(({ module, lessons }) => (
+                  {modules.map(({ module: courseModule, lessons }) => (
                     <div
-                      key={module.id}
+                      key={courseModule.id}
                       className="rounded-xl border border-border bg-panel-subtle px-4 py-4"
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <h4 className="font-medium text-panel-foreground">
-                          {module.title}
+                          {courseModule.title}
                         </h4>
                         <span
                           className={cn(
                             "rounded-full px-2 py-0.5 text-[11px] font-medium",
-                            statusClasses(module.status),
+                            statusClasses(courseModule.status),
                           )}
                         >
-                          {module.status}
+                          {courseModule.status}
                         </span>
                       </div>
 
@@ -270,28 +307,5 @@ export default async function StudioPage() {
           </section>
         </div>
       </main>
-    );
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unknown content loading error";
-
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-workspace px-5 py-10 text-workspace-foreground">
-        <div className="w-full max-w-2xl rounded-[1.75rem] border border-destructive/30 bg-panel px-6 py-8 sm:px-8">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-destructive">
-            Content load failed
-          </p>
-          <h1 className="mt-3 font-heading text-2xl font-semibold text-panel-foreground">
-            CSS Lab Studio
-          </h1>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground">
-            ContentReader 无法完成全库读取。修复文件或 schema 错误后，此页面会恢复为健康报告。
-          </p>
-          <pre className="mt-4 overflow-x-auto rounded-xl bg-panel-subtle p-4 text-xs leading-6 text-destructive">
-            {message}
-          </pre>
-        </div>
-      </main>
-    );
-  }
+  );
 }
