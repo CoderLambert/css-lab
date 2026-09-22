@@ -21,7 +21,7 @@ function acceptCompletionOrIndent(view: EditorView): boolean {
   return indentMore(view);
 }
 
-export function createCssEditorKeymap(
+export function createEditorKeymap(
   runFormat: (view: EditorView) => void,
 ): Extension {
   const formatDocument: Command = (view) => {
@@ -31,18 +31,9 @@ export function createCssEditorKeymap(
 
   return Prec.highest(
     keymap.of([
-      {
-        key: "Tab",
-        run: acceptCompletionOrIndent,
-      },
-      {
-        key: "Shift-Tab",
-        run: indentLess,
-      },
-      {
-        key: "Shift-Alt-f",
-        run: formatDocument,
-      },
+      { key: "Tab", run: acceptCompletionOrIndent },
+      { key: "Shift-Tab", run: indentLess },
+      { key: "Shift-Alt-f", run: formatDocument },
     ]),
   );
 }

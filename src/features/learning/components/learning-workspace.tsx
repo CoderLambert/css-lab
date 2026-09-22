@@ -20,7 +20,7 @@ import { useLearningProgress } from "@/features/progress/hooks/use-learning-prog
 import type { Course, Exercise, Lesson, Module } from "@/lib/content/types";
 import { deriveLegacyCssExerciseInputs } from "../lib/legacy-css-exercise-bridge";
 import type { LearnerNavigation } from "../lib/learner-navigation";
-import { EditorPanel } from "./editor-panel";
+import { WorkspaceEditorPanel } from "@/features/exercise/workspace/components/workspace-editor-panel";
 import { LessonPanel } from "./lesson-panel";
 import { PreviewPanel } from "./preview-panel";
 import { WorkspaceFooter } from "./workspace-footer";
@@ -112,9 +112,9 @@ function LearningWorkspaceSession({
     [checkState, exercise.checks],
   );
 
-  const handleCssChange = (nextCss: string) => {
+  const handleFileChange = (path: string, content: string) => {
     activeCheckRef.current = null;
-    updateFile("style.css", nextCss);
+    updateFile(path, content);
     setCheckState({ status: "idle" });
   };
 
@@ -228,7 +228,11 @@ function LearningWorkspaceSession({
                   minSize="48"
                   className="min-w-0"
                 >
-                  <EditorPanel value={css} onChange={handleCssChange} />
+                  <WorkspaceEditorPanel
+                    workspace={exercise.workspace}
+                    draft={draft}
+                    onFileChange={handleFileChange}
+                  />
                 </ResizablePanel>
 
                 <ResizableHandle />
@@ -250,7 +254,11 @@ function LearningWorkspaceSession({
                 {lessonPanel}
               </div>
               <div className="min-h-[620px] min-w-0 border-b border-border">
-                <EditorPanel value={css} onChange={handleCssChange} />
+                <WorkspaceEditorPanel
+                    workspace={exercise.workspace}
+                    draft={draft}
+                    onFileChange={handleFileChange}
+                  />
               </div>
               <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
                 {previewPanel}

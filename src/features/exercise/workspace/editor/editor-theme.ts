@@ -2,7 +2,7 @@ import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { EditorView } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 
-export const cssLabTheme = EditorView.theme(
+export const labEditorTheme = EditorView.theme(
   {
     "&": {
       height: "100%",
@@ -20,9 +20,7 @@ export const cssLabTheme = EditorView.theme(
       padding: "1.5rem 0",
       caretColor: "var(--editor-foreground)",
     },
-    ".cm-line": {
-      padding: "0 1.5rem",
-    },
+    ".cm-line": { padding: "0 1.5rem" },
     ".cm-gutters": {
       border: "none",
       backgroundColor: "var(--editor-gutter)",
@@ -46,9 +44,7 @@ export const cssLabTheme = EditorView.theme(
       backgroundColor:
         "color-mix(in oklch, var(--editor-property) 24%, transparent)",
     },
-    "&.cm-focused": {
-      outline: "none",
-    },
+    "&.cm-focused": { outline: "none" },
     ".cm-tooltip.cm-tooltip-autocomplete": {
       overflow: "hidden",
       border:
@@ -78,22 +74,11 @@ export const cssLabTheme = EditorView.theme(
       color: "var(--editor-muted)",
       fontStyle: "normal",
     },
-    ".cm-css-color-swatch": {
-      display: "inline-block",
-      width: "0.7rem",
-      height: "0.7rem",
-      marginRight: "0.35rem",
-      border:
-        "1px solid color-mix(in oklch, var(--editor-foreground) 35%, transparent)",
-      borderRadius: "0.2rem",
-      verticalAlign: "-0.05rem",
-      pointerEvents: "none",
-    },
   },
   { dark: true },
 );
 
-const cssLabHighlightStyle = HighlightStyle.define([
+const labHighlightStyle = HighlightStyle.define([
   {
     tag: [
       tags.className,
@@ -129,6 +114,6 @@ const cssLabHighlightStyle = HighlightStyle.define([
   },
 ]);
 
-export const cssLabSyntaxHighlighting = syntaxHighlighting(
-  cssLabHighlightStyle,
+export const labSyntaxHighlighting = syntaxHighlighting(
+  labHighlightStyle,
 );
