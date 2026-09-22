@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox",
+  "slug": "flexbox",
+  "title": "Flexbox",
+  "description": "理解 Flexbox 的主轴、交叉轴与常用对齐方式。",
+  "order": 1,
+  "status": "published"
+}

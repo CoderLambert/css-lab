@@ -1,6 +1,12 @@
 import { Badge } from "@/components/ui/badge";
+import type { Exercise, Lesson } from "@/lib/content/types";
 
-export function LessonPanel() {
+interface LessonPanelProps {
+  lesson: Lesson;
+  exercise: Exercise;
+}
+
+export function LessonPanel({ lesson, exercise }: LessonPanelProps) {
   return (
     <section className="flex h-full min-w-0 flex-col bg-panel" aria-labelledby="lesson-title">
       <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-5 sm:px-6">
@@ -13,11 +19,13 @@ export function LessonPanel() {
               Lesson
             </p>
             <h2 id="lesson-title" className="mt-1 font-heading text-base font-semibold text-panel-foreground">
-              Flexbox 基础
+              {lesson.title}
             </h2>
           </div>
         </div>
-        <span className="shrink-0 pt-1 text-xs text-muted-foreground">8 min</span>
+        <span className="shrink-0 pt-1 text-xs text-muted-foreground">
+          {lesson.estimatedMinutes} min
+        </span>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-6">
@@ -26,10 +34,10 @@ export function LessonPanel() {
         </Badge>
 
         <h1 className="mt-5 max-w-[22rem] font-heading text-[clamp(1.45rem,2.5vw,1.85rem)] font-semibold leading-tight tracking-[-0.035em] text-panel-foreground">
-          让元素稳定地居中
+          {exercise.title}
         </h1>
         <p className="mt-4 max-w-[30rem] text-sm leading-7 text-muted-foreground">
-          通过 Flexbox 的主轴与交叉轴对齐能力，将内容放置在容器中央。这种方式简单、稳定，也很适合构建现代组件布局。
+          {lesson.description}
         </p>
 
         <div className="mt-7 border-l-2 border-lesson-highlight-border bg-lesson-highlight px-4 py-4">
@@ -47,21 +55,19 @@ export function LessonPanel() {
         <div className="mt-7">
           <p className="text-sm font-semibold text-panel-foreground">本题任务</p>
           <p className="mt-2 text-sm leading-7 text-muted-foreground">
-            修改中间的 CSS，让右侧预览中的绿色方块同时在容器的水平与垂直方向都居中。
+            {exercise.prompt}
           </p>
         </div>
 
         <div className="mt-7 border-t border-border pt-5">
           <p className="text-sm font-semibold text-panel-foreground">提示</p>
           <ul className="mt-3 space-y-3 text-sm leading-6 text-muted-foreground">
-            <li className="flex gap-2.5">
-              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
-              <span>先确认容器已经进入 flex 布局上下文。</span>
-            </li>
-            <li className="flex gap-2.5">
-              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
-              <span>再分别处理主轴和交叉轴的对齐。</span>
-            </li>
+            {exercise.hints.map((hint) => (
+              <li key={hint} className="flex gap-2.5">
+                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
+                <span>{hint}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

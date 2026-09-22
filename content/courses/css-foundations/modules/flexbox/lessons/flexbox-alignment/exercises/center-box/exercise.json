@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.alignment.center-box.001",
+  "revision": 1,
+  "slug": "center-box",
+  "title": "水平与垂直居中",
+  "prompt": "修改 CSS，让绿色方块同时在容器的水平与垂直方向居中。",
+  "order": 1,
+  "status": "published",
+  "hints": [
+    "先确认容器已经进入 flex 布局上下文。",
+    "分别处理主轴与交叉轴的对齐。"
+  ],
+  "checks": [
+    {
+      "id": "container-display-flex",
+      "type": "style",
+      "selector": ".container",
+      "property": "display",
+      "equals": "flex",
+      "message": "将 .container 设置为 flex 布局"
+    },
+    {
+      "id": "container-justify-content-center",
+      "type": "style",
+      "selector": ".container",
+      "property": "justify-content",
+      "equals": "center",
+      "message": "将主轴上的内容居中"
+    },
+    {
+      "id": "container-align-items-center",
+      "type": "style",
+      "selector": ".container",
+      "property": "align-items",
+      "equals": "center",
+      "message": "将交叉轴上的内容居中"
+    }
+  ]
+}

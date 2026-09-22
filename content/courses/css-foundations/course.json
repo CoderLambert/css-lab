@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "css-foundations",
+  "slug": "css-foundations",
+  "title": "CSS Foundations",
+  "description": "通过可视化练习掌握现代 CSS 的核心能力。",
+  "order": 1,
+  "status": "published"
+}
