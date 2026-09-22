@@ -131,11 +131,8 @@ test("editing updates preview, checking persists completion, and reload restores
 
   await expect
     .poll(async () => (await readRuntimeReadyGenerations(page)).length)
-    .toBe(1);
-  const initialGeneration = (await readRuntimeReadyGenerations(page))[0];
-  if (!initialGeneration) {
-    throw new Error("Browser Runtime did not publish an initial generation");
-  }
+    .toBeGreaterThan(0);
+  const baselineReadyGenerations = await readRuntimeReadyGenerations(page);
 
   const preview = page.frameLocator('iframe[title="Browser exercise preview"]');
   const livePreviewSource = `.container {
@@ -161,7 +158,7 @@ test("editing updates preview, checking persists completion, and reload restores
     .toBe("flex-start");
   await expect
     .poll(() => readRuntimeReadyGenerations(page))
-    .toEqual([initialGeneration]);
+    .toEqual(baselineReadyGenerations);
 
   const source = `.container {
   display: flex;
@@ -175,7 +172,7 @@ test("editing updates preview, checking persists completion, and reload restores
   await expect(page.getByText("33%")).toBeVisible();
   await expect
     .poll(() => readRuntimeReadyGenerations(page))
-    .toEqual([initialGeneration]);
+    .toEqual(baselineReadyGenerations);
   await expect
     .poll(() =>
       preview

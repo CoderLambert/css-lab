@@ -23,7 +23,7 @@ async function writeJson(path: string, value: unknown): Promise<void> {
 }
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), "css-lab-m6a-security-"));
+  const root = await mkdtemp(join(tmpdir(), "m6a-sec-"));
   const courses = join(root, "courses");
   const lesson = join(
     courses,

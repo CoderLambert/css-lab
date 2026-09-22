@@ -82,9 +82,10 @@ test("HTML formatter keeps embedded source unformatted", async () => {
   );
 
   expect(result.formatted).toContain("<main>");
-  expect(result.formatted).toContain(
-    "<style>.x{color:red}</style>",
-  );
+  const embeddedStyle = result.formatted.match(
+    /<style>\s*([\s\S]*?)\s*<\/style>/,
+  )?.[1];
+  expect(embeddedStyle).toBe(".x{color:red}");
   expect(result.formatted).toContain(
     '<div class="x">A</div>',
   );

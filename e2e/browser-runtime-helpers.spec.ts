@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { createServer } from "node:http";
 
 import { createBrowserDocument } from "../src/features/exercise/runtime/browser/lib/browser-document";
 import {
@@ -315,58 +316,79 @@ test("checker scope excludes runtime shell and reports invalid/missing selectors
 
 test("CSP blocks learner HTML and CSS HTTP(S) egress", async ({ page }) => {
   let egressRequests = 0;
-  page.on("request", (request) => {
-    if (request.url().startsWith("https://m6a-egress.invalid/")) {
-      egressRequests += 1;
+  const server = createServer((_request, response) => {
+    egressRequests += 1;
+    response.writeHead(204);
+    response.end();
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", resolve);
+  });
+
+  try {
+    const address = server.address();
+    if (!address || typeof address === "string") {
+      throw new Error("missing egress test server address");
     }
-  });
+    const origin = `http://127.0.0.1:${address.port}`;
 
-  const descriptor = createBrowserDocument({
-    runtime,
-    snapshot: snapshot(
-      '<img class="target" src="https://m6a-egress.invalid/image.png">',
-    ),
-    generationId: "generation-egress",
-    nonce: "20112233445566778899aabbccddeeff",
-  });
-
-  await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
-  await page.evaluate(async ({ srcDoc, generationId }) => {
-    const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
-    if (!iframe) throw new Error("missing iframe");
-
-    const ready = new Promise<void>((resolve) => {
-      const onMessage = (event: MessageEvent) => {
-        if (
-          event.source === iframe.contentWindow &&
-          event.data?.source === "lab-runtime" &&
-          event.data?.type === "runtime:ready" &&
-          event.data?.generationId === generationId
-        ) {
-          window.removeEventListener("message", onMessage);
-          resolve();
-        }
-      };
-      window.addEventListener("message", onMessage);
+    const descriptor = createBrowserDocument({
+      runtime,
+      snapshot: snapshot(
+        `<img class="target" src="${origin}/image.png">`,
+      ),
+      generationId: "generation-egress",
+      nonce: "20112233445566778899aabbccddeeff",
     });
 
-    iframe.srcdoc = srcDoc;
-    await ready;
-    iframe.contentWindow?.postMessage(
-      {
-        source: "lab-host",
-        type: "css:update",
-        generationId,
-        path: "style.css",
-        content:
-          '@import url("https://m6a-egress.invalid/import.css"); .target { background-image: url("https://m6a-egress.invalid/bg.png"); }',
-      },
-      "*",
-    );
-  }, { srcDoc: descriptor.srcDoc, generationId: descriptor.generationId });
+    await page.setContent('<iframe id="runtime" sandbox="allow-scripts"></iframe>');
+    await page.evaluate(async ({ srcDoc, generationId, origin }) => {
+      const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
+      if (!iframe) throw new Error("missing iframe");
 
-  await page.waitForTimeout(100);
-  expect(egressRequests).toBe(0);
+      const ready = new Promise<void>((resolve) => {
+        const onMessage = (event: MessageEvent) => {
+          if (
+            event.source === iframe.contentWindow &&
+            event.data?.source === "lab-runtime" &&
+            event.data?.type === "runtime:ready" &&
+            event.data?.generationId === generationId
+          ) {
+            window.removeEventListener("message", onMessage);
+            resolve();
+          }
+        };
+        window.addEventListener("message", onMessage);
+      });
+
+      iframe.srcdoc = srcDoc;
+      await ready;
+      iframe.contentWindow?.postMessage(
+        {
+          source: "lab-host",
+          type: "css:update",
+          generationId,
+          path: "style.css",
+          content:
+            `@import url("${origin}/import.css"); .target { background-image: url("${origin}/bg.png"); }`,
+        },
+        "*",
+      );
+    }, {
+      srcDoc: descriptor.srcDoc,
+      generationId: descriptor.generationId,
+      origin,
+    });
+
+    await page.waitForTimeout(100);
+    expect(egressRequests).toBe(0);
+  } finally {
+    await new Promise<void>((resolve) => {
+      server.close(() => resolve());
+    });
+  }
 });
 
 
@@ -856,6 +878,9 @@ test("link, area and form guards prevent learner navigation", async ({
   const frame = page.frames().find((candidate) => candidate !== page.mainFrame());
   expect(frame).toBeTruthy();
 
+  await expect
+    .poll(() => frame!.url())
+    .toBe("about:srcdoc");
   const beforeUrl = frame!.url();
   await frame!.locator(".nav-link").click();
   expect(frame!.url()).toBe(beforeUrl);
