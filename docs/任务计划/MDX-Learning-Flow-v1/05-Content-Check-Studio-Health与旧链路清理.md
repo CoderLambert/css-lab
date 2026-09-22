@@ -165,6 +165,42 @@ scripts/mdx/remark-collect-exercise-references.mjs
 <Exercise slug="..." ... />
 ```
 
+实现必须通过 VFile data 传递结果，避免第二次解析或全局 mutable state。推荐：
+
+```js
+export function remarkCollectExerciseReferences() {
+  return (tree, file) => {
+    const references = [];
+    // walk real MDX JSX nodes
+    // push { slug, position }
+    file.data.lessonExerciseReferences = references;
+  };
+}
+```
+
+`content:check`：
+
+```js
+const compiled = await compile(source, {
+  remarkPlugins: [
+    remarkLessonContract,
+    remarkCollectExerciseReferences,
+  ],
+});
+
+const references =
+  compiled.data.lessonExerciseReferences ?? [];
+```
+
+plugin 顺序固定为：
+
+```text
+contract validation
+→ reference collection
+```
+
+这样 collector 只处理已经满足静态 authoring contract 的 Exercise node。
+
 每个 reference 验证：
 
 ```text
@@ -381,7 +417,42 @@ postinstall
 
 ---
 
-## 10. 本任务验证
+## 10. 正式 CI hard gate
+
+更新：
+
+```text
+.github/workflows/quality.yml
+```
+
+在 dependency install 完成后、build/e2e 之前加入正式步骤：
+
+```yaml
+- name: Check content
+  run: pnpm content:check
+
+- name: Test content contract
+  run: pnpm test:content
+```
+
+保持现有 lint/build/e2e 流程。
+
+不要创建新的长期重复 quality workflow。
+
+目的：
+
+```text
+PR / push
+→ stale registry 不能合入
+→ invalid MDX contract 不能合入
+→ broken Exercise reference 不能合入
+```
+
+`content:generate` **不能**在 CI 中自动运行，因为 CI 应检测 stale，而不是替作者修 source。
+
+---
+
+## 11. 本任务验证
 
 ```bash
 pnpm content:generate
@@ -404,7 +475,7 @@ git status --short
 
 ---
 
-## 11. Acceptance Criteria
+## 12. Acceptance Criteria
 
 - [ ] @mdx-js/mdx 为直接 devDependency。
 - [ ] content:generate 存在。
@@ -421,3 +492,6 @@ git status --short
 - [ ] react-markdown 删除。
 - [ ] AGENTS 记录 MDX 正式规则。
 - [ ] package/lockfile 一致。
+- [ ] quality.yml 正式执行 content:check。
+- [ ] quality.yml 正式执行 test:content。
+- [ ] CI 不自动执行 content:generate。

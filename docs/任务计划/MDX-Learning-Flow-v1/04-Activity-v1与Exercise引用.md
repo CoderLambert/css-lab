@@ -166,6 +166,32 @@ MDX 中的 `label` 是教学叙事中的展示文案，可以一致，也允许�
 
 三个当前 Exercise 都如此。
 
+### Compare literal props 同步迁移
+
+Task 03 的正式 MDX contract 要求 Compare 的 string props 使用 literal attribute，不允许无意义的 JSX expression 包装。
+
+当前类似：
+
+```mdx
+<Compare
+  leftCode={"justify-content: center;"}
+  rightCode={"align-items: center;"}
+/>
+```
+
+必须改为：
+
+```mdx
+<Compare
+  leftCode="justify-content: center;"
+  rightCode="align-items: center;"
+/>
+```
+
+其他 Compare string props 同理保持 literal string。
+
+不要为了通过 contract 放宽 Task 03 允许任意 expression。
+
 ---
 
 ## 5. Heading 调整

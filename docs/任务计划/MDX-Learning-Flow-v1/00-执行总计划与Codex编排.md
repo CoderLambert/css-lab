@@ -519,6 +519,7 @@ test: finalize MDX learning flow v1
 - [ ] `pnpm lint` 通过。
 - [ ] `pnpm build` 通过。
 - [ ] `pnpm test:e2e` 通过。
+- [ ] 正式 `.github/workflows/quality.yml` 已将 `content:check` 与 `test:content` 纳入 CI hard gate。
 - [ ] `git diff --check` 通过。
 - [ ] 无临时 CI workflow / debug 文件残留。
 
