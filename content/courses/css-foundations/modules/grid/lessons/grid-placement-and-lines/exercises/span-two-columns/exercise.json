@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.grid-placement-and-lines.span-two-columns.001",
+  "revision": 1,
+  "slug": "span-two-columns",
+  "title": "用 span 表达占据范围",
+  "prompt": "让 .banner 从第 1 条 column line 开始，使用 span 2 表达它占据两条 columns。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "span 表示占据多少条 tracks，不是一个要替换成具体 end line 的数字。",
+    "先从第 1 条 column line 开始。",
+    "把结束值写成 span 2，表达从起点起跨两条 tracks。"
+  ],
+  "checks": [
+    {
+      "type": "style",
+      "selector": ".banner",
+      "property": "grid-column-start",
+      "equals": "1"
+    },
+    {
+      "type": "style",
+      "selector": ".banner",
+      "property": "grid-column-end",
+      "equals": "span 2"
+    }
+  ]
+}

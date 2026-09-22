@@ -1,0 +1,3 @@
+.board {
+  grid-template-columns: 160px 1fr;
+}

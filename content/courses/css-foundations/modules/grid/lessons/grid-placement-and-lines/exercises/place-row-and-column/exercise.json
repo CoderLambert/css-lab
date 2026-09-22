@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.grid-placement-and-lines.place-row-and-column.001",
+  "revision": 1,
+  "slug": "place-row-and-column",
+  "title": "同时指定行与列",
+  "prompt": "把 .summary 放到第 2 列、第 2 行对应的 grid area；使用 line start 声明，不要改 HTML 顺序。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "Grid 有独立的 column line 和 row line；不要把两个方向混成一个坐标。",
+    "目标是第 2 条 column line 与第 2 条 row line 的起点。",
+    "把 .summary 的 grid-column-start 和 grid-row-start 都设为 2。"
+  ],
+  "checks": [
+    {
+      "type": "style",
+      "selector": ".summary",
+      "property": "grid-column-start",
+      "equals": "2"
+    },
+    {
+      "type": "style",
+      "selector": ".summary",
+      "property": "grid-row-start",
+      "equals": "2"
+    }
+  ]
+}

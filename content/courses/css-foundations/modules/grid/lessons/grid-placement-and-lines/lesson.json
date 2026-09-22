@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.grid-placement-and-lines",
+  "slug": "grid-placement-and-lines",
+  "title": "用 grid lines 放置项目",
+  "description": "理解 grid-column/grid-row 使用 start/end lines 或 span 表达占据区域，而不是把 Grid 当作坐标系统。",
+  "estimatedMinutes": 18,
+  "order": 2,
+  "status": "draft"
+}

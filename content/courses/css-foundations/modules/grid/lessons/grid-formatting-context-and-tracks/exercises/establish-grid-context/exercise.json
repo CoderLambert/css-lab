@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.grid-formatting-context-and-tracks.establish-grid-context.001",
+  "revision": 1,
+  "slug": "establish-grid-context",
+  "title": "建立 Grid formatting context",
+  "prompt": "让 .board 建立 grid formatting context，先观察 direct children 如何成为 grid items。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先找容器 .board；Grid formatting context 由容器建立。",
+    "direct children 才会成为 grid items，后代不会自动加入同一个 grid。",
+    "对 .board 设置 display: grid。"
+  ],
+  "checks": [
+    {
+      "id": "grid-context",
+      "type": "style",
+      "selector": ".board",
+      "property": "display",
+      "equals": "grid",
+      "message": "让 .board 建立 Grid formatting context"
+    }
+  ]
+}

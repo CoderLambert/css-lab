@@ -1,0 +1,58 @@
+## 用 lines 表达 item 占据的 area
+
+Grid item 的位置不是一对任意的 x/y 坐标。作者告诉 Grid：这个 item 从哪条 line 开始、到哪条 line 结束，或从起点开始跨过几条 tracks；placement algorithm 再把这个区域与 grid tracks 对上。
+
+<Concept title="start/end line 与 span">
+`grid-column-start` / `grid-column-end` 描述 column lines，`grid-row-start` / `grid-row-end` 描述 row lines。start line 包含 item 的起边界，end line 是结束边界；例如从 column line 1 到 line 3 覆盖两条 column tracks，而不是三条。
+
+`span 2` 不是 line number，它表示从已知的起点跨越两条 tracks。line number 也不是 track number：两条 tracks 有三条 lines，line 3 是第二条 track 的 end edge。
+
+显式 placement 改变的是 item 在 grid area 中的位置，不会改写 HTML 的 DOM/source order。视觉位置和 source order 需要分别推理。
+</Concept>
+
+<Predict
+  question="一个 grid 有两条 column tracks。要让 `.feature` 覆盖两条 tracks，哪种 line placement 最符合模型？"
+  options={["grid-column: 1 / 3", "grid-column: 1 / 2", "grid-column: 2 / 2"]}
+  answer="grid-column: 1 / 3"
+  explanation="line 1 到 line 3 之间有两段 track；end line 是边界，不是又多占一条 track。"
+/>
+
+<Compare
+  leftTitle="line number"
+  leftCode="grid-column-start: 1"
+  leftMeaning="引用轨道边界；它不是“第 1 个格子”。"
+  rightTitle="span count"
+  rightCode="grid-column-end: span 2"
+  rightMeaning="从起点跨越两条 tracks；它不是把 end line 写成数字 2。"
+/>
+
+<Compare
+  leftTitle="placement"
+  leftCode="grid-row: 2 / 3"
+  leftMeaning="把 item 放在由 row lines 围出的区域内。"
+  rightTitle="DOM order"
+  rightCode="HTML source order"
+  rightMeaning="仍然由 HTML source order 决定；placement 不会重排 DOM。"
+/>
+
+## 通过 line declarations 放置项目
+
+<Exercise
+  slug="place-across-columns"
+  label="跨列放置项目"
+  goal="让 .feature 从第 1 条 column line 延伸到第 3 条 column line，覆盖两条 tracks。"
+/>
+
+<Exercise
+  slug="place-row-and-column"
+  label="同时指定行与列"
+  goal="把 .summary 放到第 2 列、第 2 行对应的 grid area；使用 line start 声明，不要改 HTML 顺序。"
+/>
+
+<Exercise
+  slug="span-two-columns"
+  label="用 span 表达占据范围"
+  goal="让 .banner 从第 1 条 column line 开始，使用 span 2 表达它占据两条 columns。"
+/>
+
+这些 Exercise 的 checker 只验证明确的 line start/end/span declarations；它们不从静态声明推断最终像素 geometry，也不把 placement 当作 source-order 改写。

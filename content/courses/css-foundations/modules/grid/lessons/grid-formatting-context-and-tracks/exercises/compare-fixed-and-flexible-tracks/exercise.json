@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.grid-formatting-context-and-tracks.compare-fixed-and-flexible-tracks.001",
+  "revision": 1,
+  "slug": "compare-fixed-and-flexible-tracks",
+  "title": "比较 fixed 与 flexible tracks",
+  "prompt": "为 .board 组合一条固定列和一条 fr 列，观察 fr 如何参与剩余空间分配；不要把它当作固定百分比。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先找到 fixed track 占用的空间，再问剩余空间由谁分配。",
+    "fr 是 flexible fraction；它不是把容器宽度直接乘一个百分比。",
+    "对 .board 设置 grid-template-columns: 160px 1fr，并在 Preview 中观察第二列。"
+  ],
+  "checks": []
+}

@@ -1,0 +1,58 @@
+## Grid 先建立二维 track system
+
+Flexbox 先沿一条轴处理项目；Grid 则先建立水平与垂直两组 tracks，再把 items 放进这些 tracks 形成的 areas。不要把 Grid 记成“二维 Flexbox”：它们可以组合，但 mental model 的起点不同。
+
+<Concept title="track、line 与 explicit grid">
+`display: grid` 建立 grid formatting context。`grid-template-columns` 和 `grid-template-rows` 定义 explicit grid 的 tracks。track 是两条相邻 grid lines 之间的空间；line 是 track 的边界。因此定义两条 column tracks 会得到三条 vertical grid lines，line number 不是 track number。
+
+固定 track（例如 `160px`）直接给出一个 sizing function；`fr` 是 flexible fraction，用于在固定/内容所需空间和 gutters 之后分配剩余空间。`1fr 2fr` 表达剩余空间的比例，不是两个永远等于 33%/67% 的百分比，也可能受到内容、最小尺寸和可用空间影响。
+
+本课只把 track definition 当作作者输入来观察。当前 preview checker 读取 computed/resolved style，而浏览器可能把 `repeat()`、`fr` 等 authored expression 序列化成逐条的 used pixel tracks，所以不能用 `equals: "1fr 2fr"` 假装证明作者语义。
+</Concept>
+
+<Predict
+  question="`grid-template-columns: 160px 1fr` 放在一个有剩余空间的 grid container 上时，`1fr` 最合理的解释是什么？"
+  options={["第二列永远是容器宽度的 1%", "第二列在固定列等已占用空间之后参与剩余空间分配", "第二列等于第二条 grid line"]}
+  answer="第二列在固定列等已占用空间之后参与剩余空间分配"
+  explanation="fr 是 flexible fraction，不是百分号；它参与 track sizing algorithm，并受可用空间与其他约束影响。"
+/>
+
+<Compare
+  leftTitle="track"
+  leftCode="grid-template-columns: 160px 1fr"
+  leftMeaning="两条相邻 grid lines 之间的轨道空间；这是 Grid sizing 的对象。"
+  rightTitle="grid line"
+  rightCode="grid-column-start: 1"
+  rightMeaning="轨道边界的编号；两条 column tracks 需要三条 column lines。"
+/>
+
+<Compare
+  leftTitle="fixed track"
+  leftCode="160px"
+  leftMeaning="使用固定长度 sizing function。"
+  rightTitle="flexible track"
+  rightCode="1fr"
+  rightMeaning="参与剩余空间分配；不是固定百分比的另一个写法。"
+/>
+
+## 在 Preview 中观察 track system
+
+<Exercise
+  slug="establish-grid-context"
+  label="建立 Grid formatting context"
+  goal="让 .board 建立 grid formatting context，先观察 direct children 如何成为 grid items。"
+/>
+
+<Exercise
+  slug="define-explicit-tracks"
+  label="定义 explicit tracks"
+  goal="为 .board 定义两列 explicit tracks，并在 Preview 中区分 tracks 与它们之间的 grid lines。"
+/>
+
+<Exercise
+  slug="compare-fixed-and-flexible-tracks"
+  label="比较 fixed 与 flexible tracks"
+  goal="为 .board 组合一条固定列和一条 fr 列，观察 fr 如何参与剩余空间分配；不要把它当作固定百分比。"
+/>
+
+后续 placement lesson 会使用这些 lines 表达 start/end；它不会把项目当作任意二维坐标点。
