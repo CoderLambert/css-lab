@@ -1,21 +1,23 @@
-# CSS Lab
+# Front-end Lab Platform
 
-CSS Lab 是一个专注于 CSS 实践的交互式学习项目。核心学习闭环：
+这是一个面向前端学习实验的交互式平台。当前正式课程仍是 **CSS Lab**，M6A 已把底层能力从单一 CSS 字符串编辑升级为 content-defined Workspace：
 
 ```text
 学习概念
-→ 编辑 CSS
-→ 在隔离 Preview 中即时查看结果
-→ 运行 Checker
-→ 保存进度
+→ 编辑 Workspace 中允许修改的 HTML / CSS 文件
+→ 在隔离 Browser Runtime 中观察结果
+→ 运行 Browser DOM Checker
+→ 保存 Draft / completion
 → 前往下一题
 ```
+
+JavaScript Runtime、TypeScript Toolchain 尚未实现。
 
 ## Stack
 
 - Next.js 16 / React 19 / TypeScript
 - Tailwind CSS v4 + shadcn/Base UI
-- CodeMirror 6
+- CodeMirror 6（HTML / CSS）
 - Zod
 - MDX lesson content with a generated, validated teaching registry
 - IndexedDB via `idb`
@@ -38,6 +40,7 @@ pnpm dev
 ## Verification
 
 ```bash
+pnpm test:authoring-skill
 pnpm content:check
 pnpm test:content
 pnpm lint
@@ -46,32 +49,47 @@ pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-CI 会执行 frozen install、content check、content contract tests、lint、build 和 Chromium E2E。
+CI 对 `main` 与指向 `main` 的 Pull Request 执行 frozen install、authoring/content checks、lint、build 和 Chromium E2E。
 
 ## Architecture
 
 ```text
-content/
+Content
+→ Workspace
+→ optional Toolchain
+→ optional Runtime
+→ Checker
+→ Progress / Learning Shell
+```
+
+M6A 当前实际链路：
+
+```text
+exercise.json + starter/
   ↓ FileContentReader + Zod
-Server learner routes
-  ├─ lesson.json → Lesson metadata
-  ├─ lesson.mdx → generated MDX registry → Server Component slot
+ExerciseWorkspace
+  ↓ useExerciseProgress
+ExerciseDraft
+  ↓ createExecutionSnapshot
+ExecutionSnapshot
+  ↓ Browser Runtime
+sandboxed iframe + Browser DOM Checker
   ↓
-LearningWorkspace
-  ├─ CodeMirror editor
-  ├─ sandboxed iframe preview/checker
-  ├─ URL-driven Previous/Next navigation
-  └─ ProgressStore → idb → IndexedDB
+ProgressStore → idb → IndexedDB v2
 ```
 
 主要边界：
 
-- `src/features/learning/`：learner workspace、导航与学习体验
-- `src/features/exercise/`：CodeMirror、Preview、Checker runtime
-- `src/features/progress/`：progress domain 与 IndexedDB adapter
-- `src/features/studio/`：只读内容目录与跨文件 Content Health 审计
-- `src/lib/content/`：file-backed content domain 与 reader
+- `src/features/learning/`：learner shell、MDX teaching flow、导航与 check lifecycle
+- `src/features/exercise/workspace/`：Workspace Editor（content-defined HTML / CSS editable files）
+- `src/features/exercise/runtime/browser/`：Browser Runtime、CSP、protocol、DOM Checker
+- `src/features/progress/`：Workspace Draft / completion 与 IndexedDB v2
+- `src/features/studio/`：只读 Content Health / source health
+- `src/lib/content/`：file-backed content domain 与 secure reader
+- `src/lib/workspace/`：Workspace / Draft / ExecutionSnapshot domain
 - `src/components/ui/`：共享 UI primitives
+
+Browser Runtime 的 `runtime.entry` 是 **HTML fragment**，不是完整 HTML document。Runtime 自己拥有 document shell、CSP、CSS slots 与 bridge。当前 Runtime 只执行 HTML + CSS；schema 中出现 JavaScript / TypeScript vocabulary 不代表已有对应执行能力。
 
 ## Content
 
@@ -81,32 +99,77 @@ LearningWorkspace
 content/courses/<course>/modules/<module>/lessons/<lesson>/
 ```
 
-每个 `lessons/*` 直接子目录都是 Lesson source directory，必须同时包含 `lesson.json + lesson.mdx`。`lesson.json` 由 `FileContentReader` 提供 runtime metadata，`lesson.mdx` 由生成的 registry 提供教学内容。修改或新增 lesson 后运行 `pnpm content:generate`，提交生成文件；提交前运行 `pnpm content:check`。
+每个 Lesson source directory 必须包含 `lesson.json + lesson.mdx`。Lesson teaching content 继续通过 generated MDX registry 渲染；`Concept / Predict / Compare / Exercise` 是 MDX Learning Flow v1 的受控 Activity。
 
-`exercise.order` 是 learner navigation 的唯一 canonical sequence。effective learner-visible Lesson 的 MDX Exercise references 必须将所有 published Exercise 各引用一次，且顺序完全一致；draft 或因上级发布链而非 learner-visible 的 Lesson 可以暂时引用 draft Exercise。`hidden` 不是 content status。
+`exercise.order` 是 learner navigation 的 canonical sequence。状态 vocabulary 只有：
 
-每道 exercise：
+```text
+draft | published
+```
+
+`hidden` 不是 content status。
+
+每道 Exercise 使用 schemaVersion 2：
 
 ```text
 exercise.json
-fixture.html
-base.css
-starter.css
-solution.css
+starter/
+  index.html
+  base.css
+  style.css
+solution/
+  style.css
 ```
 
-Learner runtime 只读取 published chain。稳定 `id` 与可变 `slug` 分离，exercise `revision` 是 progress compatibility boundary。
+`exercise.json` 声明固定 Workspace file set、language、editable 与 Browser entry。learner 不能 create/delete/rename files。locked file 不是 secret，也不能用于隐藏 solution。
 
-`solution.css` 仅用于创作/参考，不进入 learner client runtime。
+`solution/` 只供 Studio / server-side authoring inspection 使用，永不进入 learner Exercise、Draft、ExecutionSnapshot 或 Browser Runtime。
 
-`/studio` 当前提供只读 Content Health：检查 stable ID 重复、同级 order 冲突、published 链遮蔽、空 lesson/fixture、缺失 checks 与重复 check ID。它直接复用 `ContentReader`，不引入 CMS/API/数据库。
+当前 CSS curriculum 的三个 Exercise 保持：
 
-## Current learner coverage
+- `index.html` locked
+- `base.css` locked
+- `style.css` editable
 
-Flexbox Alignment 目前包含三道 published exercise：
+平台本身已支持 content 把 HTML 标记为 editable；首个真实 HTML-editable curriculum PR 必须补正式 learner-route E2E。
 
-- 水平与垂直居中
-- 在主轴上拉开间距
-- 沿交叉轴底部对齐
+## Progress compatibility
 
-这组内容用于真实覆盖 URL 导航、Checker、IndexedDB completion 与课程进度聚合。
+IndexedDB contract：
+
+```text
+database = css-lab
+version  = 2
+store    = exercise-progress
+key      = [exerciseId, revision]
+```
+
+Progress 只保存 learner-owned mutable Draft files 和 completion achievement，不保存 locked files、active tab、hint/UI state。
+
+M6A 是 forward migration。生产环境一旦打开 DB v2 / Exercise v2：
+
+- rollback/hotfix 仍必须理解 Exercise schema v2；
+- rollback/hotfix 仍必须能打开 IndexedDB version 2；
+- 不得用 `DATABASE_VERSION = 1` 或 `deleteDatabase` 作为回滚手段；
+- 可以关闭有问题的新 UI/Runtime path，但 content/storage compatibility 必须保持向前兼容。
+
+## Current and planned scope
+
+当前已实现：
+
+- CSS curriculum
+- content-defined HTML/CSS Workspace
+- Workspace Draft
+- Browser Runtime
+- Browser DOM checks
+- IndexedDB draft/progress v2
+- Studio workspace/source health
+
+计划中、尚未实现：
+
+- JavaScript Worker Runtime
+- JavaScript Browser Runtime
+- TypeScript Toolchain
+- TypeScript no-runtime/type-check workflow
+
+项目不会因为 Workspace 平台化而自动扩展为 generic cloud IDE、VFS、terminal、npm/WebContainer 或 arbitrary package runtime。
