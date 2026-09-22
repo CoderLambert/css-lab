@@ -57,6 +57,7 @@ src/app/                        routes and server entry points
 src/components/ui/              shadcn/shared UI primitives only
 src/features/learning/          learner product components
 src/features/exercise/          editor / preview / checker runtime
+src/features/progress/          learner progress domain and IndexedDB adapter
 src/features/studio/            authoring UI when implemented
 src/lib/content/                content schemas, domain types and adapters
 src/lib/                        small shared utilities
