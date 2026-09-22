@@ -57,7 +57,7 @@ async function createRepoFixture(t) {
 
   const exerciseRoot = join(lessonRoot, "exercises", "center-box");
   await writeJson(join(exerciseRoot, "exercise.json"), {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id: "css.flexbox.alignment.center-box.001",
     revision: 1,
     slug: "center-box",
@@ -67,8 +67,22 @@ async function createRepoFixture(t) {
     status: "published",
     hints: [],
     checks: [],
+    workspace: {
+      files: [
+        { path: "index.html", language: "html", editable: false },
+        { path: "base.css", language: "css", editable: false },
+        { path: "style.css", language: "css", editable: true },
+      ],
+    },
+    runtime: { type: "browser", entry: "index.html" },
   });
-  for (const file of ["fixture.html", "base.css", "starter.css", "solution.css"]) {
+  for (const file of [
+    "starter/index.html",
+    "starter/base.css",
+    "starter/style.css",
+    "solution/style.css",
+  ]) {
+    await mkdir(dirname(join(exerciseRoot, file)), { recursive: true });
     await writeFile(join(exerciseRoot, file), "", "utf8");
   }
 
@@ -159,7 +173,7 @@ test("scaffoldLesson rejects a duplicate stable id", async (t) => {
   );
 });
 
-test("scaffoldExercise creates current v1 assets with draft metadata", async (t) => {
+test("scaffoldExercise creates Exercise v2 workspace assets with draft metadata", async (t) => {
   const repoRoot = await createRepoFixture(t);
 
   const result = await scaffoldExercise({
@@ -192,17 +206,35 @@ test("scaffoldExercise creates current v1 assets with draft metadata", async (t)
   const metadata = JSON.parse(
     await readFile(join(exerciseRoot, "exercise.json"), "utf8"),
   );
+  assert.equal(metadata.schemaVersion, 2);
   assert.equal(metadata.revision, 1);
   assert.deepEqual(metadata.hints, []);
   assert.deepEqual(metadata.checks, []);
+  assert.deepEqual(
+    metadata.workspace.files.map((file) => file.path),
+    ["index.html", "base.css", "style.css"],
+  );
+  assert.deepEqual(metadata.runtime, { type: "browser", entry: "index.html" });
 
   for (const file of [
+    "starter/index.html",
+    "starter/base.css",
+    "starter/style.css",
+    "solution/style.css",
+  ]) {
+    assert.equal(typeof (await readFile(join(exerciseRoot, file), "utf8")), "string");
+  }
+
+  for (const legacyPath of [
     "fixture.html",
     "base.css",
     "starter.css",
     "solution.css",
   ]) {
-    assert.equal(typeof (await readFile(join(exerciseRoot, file), "utf8")), "string");
+    await assert.rejects(
+      () => readFile(join(exerciseRoot, legacyPath), "utf8"),
+      /ENOENT/,
+    );
   }
 });
 
