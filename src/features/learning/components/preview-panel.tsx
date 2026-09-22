@@ -26,7 +26,7 @@ export function PreviewPanel() {
               <span className="size-2 rounded-full bg-muted-foreground/25" />
               <span className="size-2 rounded-full bg-muted-foreground/25" />
             </div>
-            <div className="preview-dot-pattern flex min-h-[255px] items-center justify-center p-6">
+            <div className="flex min-h-[255px] items-center justify-center p-6 [background-image:radial-gradient(var(--preview-grid)_0.8px,transparent_0.8px)] [background-size:18px_18px]">
               <div className="flex h-[190px] w-full max-w-[290px] items-center justify-center rounded-[1.35rem] bg-lesson-highlight shadow-inner">
                 <div className="flex size-16 items-center justify-center rounded-2xl bg-primary font-heading text-2xl font-semibold text-primary-foreground shadow-sm">
                   A

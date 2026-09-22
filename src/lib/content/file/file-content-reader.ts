@@ -12,6 +12,7 @@ import type { ContentReader } from "../reader";
 import type { Course, Exercise, Lesson, Module } from "../types";
 import {
   assertSlugMatchesDirectory,
+  directoryExists,
   readJsonFile,
   readTextFile,
 } from "./file-utils";
@@ -52,14 +53,18 @@ export class FileContentReader implements ContentReader {
       directoryNames.map((directoryName) => this.readCourse(directoryName)),
     );
 
-    return sortByOrder(courses.filter((course) => course.status === "published"));
+    return sortByOrder(courses);
   }
 
   async getCourseBySlug(slug: string): Promise<Course | null> {
     ensureSlug(slug);
-    const courses = await this.listCourses();
+    const directoryPath = join(this.coursesRoot, slug);
 
-    return courses.find((course) => course.slug === slug) ?? null;
+    if (!(await directoryExists(directoryPath))) {
+      return null;
+    }
+
+    return this.readCourse(slug);
   }
 
   async listModules(courseSlug: string): Promise<Module[]> {
@@ -78,7 +83,7 @@ export class FileContentReader implements ContentReader {
       ),
     );
 
-    return sortByOrder(modules.filter((module) => module.status === "published"));
+    return sortByOrder(modules);
   }
 
   async getModuleBySlug(
@@ -87,9 +92,24 @@ export class FileContentReader implements ContentReader {
   ): Promise<Module | null> {
     ensureSlug(courseSlug);
     ensureSlug(moduleSlug);
-    const modules = await this.listModules(courseSlug);
+    const course = await this.getCourseBySlug(courseSlug);
 
-    return modules.find((module) => module.slug === moduleSlug) ?? null;
+    if (!course) {
+      return null;
+    }
+
+    const directoryPath = join(
+      this.coursesRoot,
+      courseSlug,
+      "modules",
+      moduleSlug,
+    );
+
+    if (!(await directoryExists(directoryPath))) {
+      return null;
+    }
+
+    return this.readModule(courseSlug, moduleSlug, course.id);
   }
 
   async listLessons(courseSlug: string, moduleSlug: string): Promise<Lesson[]> {
@@ -115,7 +135,7 @@ export class FileContentReader implements ContentReader {
       ),
     );
 
-    return sortByOrder(lessons.filter((lesson) => lesson.status === "published"));
+    return sortByOrder(lessons);
   }
 
   async getLessonBySlug(
@@ -126,9 +146,31 @@ export class FileContentReader implements ContentReader {
     ensureSlug(courseSlug);
     ensureSlug(moduleSlug);
     ensureSlug(lessonSlug);
-    const lessons = await this.listLessons(courseSlug, moduleSlug);
+    const parentModule = await this.getModuleBySlug(courseSlug, moduleSlug);
 
-    return lessons.find((lesson) => lesson.slug === lessonSlug) ?? null;
+    if (!parentModule) {
+      return null;
+    }
+
+    const directoryPath = join(
+      this.coursesRoot,
+      courseSlug,
+      "modules",
+      moduleSlug,
+      "lessons",
+      lessonSlug,
+    );
+
+    if (!(await directoryExists(directoryPath))) {
+      return null;
+    }
+
+    return this.readLesson(
+      courseSlug,
+      moduleSlug,
+      lessonSlug,
+      parentModule,
+    );
   }
 
   async listExercises(
@@ -167,7 +209,7 @@ export class FileContentReader implements ContentReader {
       ),
     );
 
-    return sortByOrder(exercises.filter((exercise) => exercise.status === "published"));
+    return sortByOrder(exercises);
   }
 
   async getExerciseBySlug(
@@ -180,9 +222,34 @@ export class FileContentReader implements ContentReader {
     ensureSlug(moduleSlug);
     ensureSlug(lessonSlug);
     ensureSlug(exerciseSlug);
-    const exercises = await this.listExercises(courseSlug, moduleSlug, lessonSlug);
+    const lesson = await this.getLessonBySlug(courseSlug, moduleSlug, lessonSlug);
 
-    return exercises.find((exercise) => exercise.slug === exerciseSlug) ?? null;
+    if (!lesson) {
+      return null;
+    }
+
+    const directoryPath = join(
+      this.coursesRoot,
+      courseSlug,
+      "modules",
+      moduleSlug,
+      "lessons",
+      lessonSlug,
+      "exercises",
+      exerciseSlug,
+    );
+
+    if (!(await directoryExists(directoryPath))) {
+      return null;
+    }
+
+    return this.readExercise(
+      courseSlug,
+      moduleSlug,
+      lessonSlug,
+      exerciseSlug,
+      lesson,
+    );
   }
 
   private async readCourse(directoryName: string): Promise<Course> {

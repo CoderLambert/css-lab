@@ -3,7 +3,6 @@ import { z } from "zod";
 import {
   CommonRecordSchema,
   NonEmptyStringSchema,
-  SlugSchema,
 } from "./common";
 
 const CheckBaseSchema = z
@@ -28,7 +27,7 @@ export const ExistsCheckSchema = CheckBaseSchema.extend({
 export const CountCheckSchema = CheckBaseSchema.extend({
   type: z.literal("count"),
   selector: NonEmptyStringSchema,
-  equals: z.number().int().positive(),
+  equals: z.number().int().nonnegative(),
 }).strict();
 
 export const CheckSchema = z.discriminatedUnion("type", [
@@ -50,5 +49,3 @@ export type ExistsCheck = z.infer<typeof ExistsCheckSchema>;
 export type CountCheck = z.infer<typeof CountCheckSchema>;
 export type Check = z.infer<typeof CheckSchema>;
 export type ExerciseRecord = z.infer<typeof ExerciseRecordSchema>;
-
-export { SlugSchema };

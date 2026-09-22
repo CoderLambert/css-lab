@@ -1,4 +1,5 @@
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
+import { basename } from "node:path";
 
 import { z } from "zod";
 
@@ -46,12 +47,30 @@ export async function readTextFile(filePath: string): Promise<string> {
   }
 }
 
+export async function directoryExists(directoryPath: string): Promise<boolean> {
+  try {
+    return (await stat(directoryPath)).isDirectory();
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error as NodeJS.ErrnoException).code === "ENOENT"
+    ) {
+      return false;
+    }
+
+    throw new Error(`Failed to inspect content directory: ${directoryPath}`, {
+      cause: error,
+    });
+  }
+}
+
 export function assertSlugMatchesDirectory(
   directoryPath: string,
   metadataPath: string,
   metadataSlug: string,
 ): void {
-  const directorySlug = directoryPath.split(/[\\/]/).at(-1);
+  const directorySlug = basename(directoryPath);
 
   if (directorySlug !== metadataSlug) {
     throw new Error(

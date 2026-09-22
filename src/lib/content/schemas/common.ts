@@ -17,7 +17,7 @@ export const CommonRecordSchema = z
     schemaVersion: SchemaVersionSchema,
     id: EntityIdSchema,
     slug: SlugSchema,
-    order: z.number().int().nonnegative(),
+    order: z.number().int().positive(),
     status: EntityStatusSchema,
   })
   .strict();
