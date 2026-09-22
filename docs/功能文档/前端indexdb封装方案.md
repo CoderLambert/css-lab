@@ -1,92 +1,82 @@
-先阅读并严格遵守仓库根目录 AGENTS.md。
+# CSS Lab 前端 IndexedDB Progress Persistence
 
-任务：收口 CSS Lab M4 —— IndexedDB Progress Persistence。
+## 1. 目标
 
-当前 main 已经存在 M4 初步实现：
+CSS Lab 使用浏览器 IndexedDB 持久化 learner 的 exercise 进度，使用户刷新页面后可以恢复当前 CSS，并在通过 Checker 后保留完成状态。
 
-- idb@8.0.3
-- async ProgressStore
-- IndexedDbProgressStore
-- typed DBSchema
-- ExerciseProgress Zod schema
-- useExerciseProgress
-- LearningWorkspace 已接入 persistence
-- Checker passed 后会 markCompleted
-- IndexedDB primary key 为 [exerciseId, revision]
+这套持久化是核心学习流程的渐进增强：
 
-不要重新设计架构，不要换成 Dexie，不要退回 localStorage。
+```text
+编辑 CSS
+→ React 立即更新
+→ Preview 立即更新
+→ IndexedDB 异步持久化
+```
 
-本任务主要是审查、修正并完成当前实现。
+IndexedDB 失败不能阻塞：
 
-==================================================
-1. 先审查现状
-==================================================
+- CodeMirror 编辑
+- Preview
+- Checker
+- Reset
 
-重点检查：
+当前只持久化 exercise progress，不承担 Course / Module / Lesson progress，也不提供云同步、多 Tab 实时同步或服务端存储。
 
-src/features/progress/lib/progress-schema.ts
-src/features/progress/lib/progress-store.ts
-src/features/progress/lib/indexeddb-progress-store.ts
-src/features/progress/hooks/use-exercise-progress.ts
-src/features/learning/components/learning-workspace.tsx
-src/features/learning/components/workspace-footer.tsx
+---
 
-以及：
+## 2. 架构
 
-package.json
-pnpm-lock.yaml
-AGENTS.md
+当前调用链：
 
-确认：
-
-- idb 是 direct dependency
-- lockfile 与 package.json 一致
-- 不存在 localStorage Progress 实现
-- UI / feature component 不直接访问 indexedDB
-- 没有自己实现 IDBRequest Promise wrapper
-- 没有引入第二套 persistence abstraction
-
-==================================================
-2. 保留当前架构
-==================================================
-
-保持：
-
-React
-  ↓
+```text
+LearningWorkspace
+      ↓
 useExerciseProgress
-  ↓
+      ↓
 ProgressStore
-  ↓
+      ↓
 IndexedDbProgressStore
-  ↓
+      ↓
 idb
-  ↓
+      ↓
 IndexedDB
+```
 
-ProgressStore 必须保持 async。
+对应文件：
 
-不要让 React component import idb。
+```text
+src/features/progress/
+├── hooks/
+│   └── use-exercise-progress.ts
+└── lib/
+    ├── progress-schema.ts
+    ├── progress-store.ts
+    └── indexeddb-progress-store.ts
 
-不要让 IndexedDbProgressStore 泄漏到 LearningWorkspace。
+src/features/learning/components/
+├── learning-workspace.tsx
+└── workspace-footer.tsx
+```
 
-不要使用：
+边界约束：
 
-Dexie
-localForage
-raw IDBRequest helper
-localStorage fallback
-Zustand
-Redux
+- React feature/component 不直接调用原生 `indexedDB`。
+- UI 不依赖 `IndexedDbProgressStore` 具体实现。
+- `ProgressStore` 保持异步接口。
+- IndexedDB 访问集中在 progress adapter。
+- 使用 `idb` 的 Promise API 和 typed `DBSchema`。
+- 不维护自定义 `IDBRequest → Promise` wrapper。
+- React state 是当前编辑 CSS 的 UI source of truth；IndexedDB 是 persistence layer，不直接驱动每次 render。
 
-==================================================
-3. Progress 数据结构
-==================================================
+---
 
-继续使用当前 discriminated union。
+## 3. Progress 数据模型
 
-started：
+Progress 使用 strict Zod discriminated union。
 
+### 3.1 Started
+
+```ts
 {
   exerciseId: string;
   revision: number;
@@ -94,9 +84,11 @@ started：
   status: "started";
   updatedAt: number;
 }
+```
 
-completed：
+### 3.2 Completed
 
+```ts
 {
   exerciseId: string;
   revision: number;
@@ -105,720 +97,523 @@ completed：
   completedAt: number;
   updatedAt: number;
 }
+```
 
-Zod schema 继续 strict。
+约束：
 
-要求：
+- `exerciseId`：非空字符串。
+- `revision`：正整数。
+- `updatedAt`：非负整数。
+- `completedAt`：非负整数。
+- 时间使用 `Date.now()` 得到的 number。
+- 不向 IndexedDB 写入 `Date` object。
+- 读取到非法记录时通过 Zod `safeParse` 视为无有效 progress，不让非法数据进入 UI。
 
-exerciseId:
-non-empty string
+---
 
-revision:
-positive integer
+## 4. IndexedDB Schema
 
-updatedAt:
-non-negative integer
+当前数据库定义：
 
-completedAt:
-non-negative integer
+```text
+Database: css-lab
+Version: 1
+Object Store: exercise-progress
+Primary Key: [exerciseId, revision]
+```
 
-不要把 Date object 写进 IndexedDB。
+复合主键体现了一个重要兼容边界：
 
-时间继续使用 Date.now()。
+```text
+exercise A / revision 1
+≠
+exercise A / revision 2
+```
 
-==================================================
-4. IndexedDB Schema
-==================================================
+内容 revision 更新后，旧 revision 的 code / completed 状态不会自动恢复到新版本。
 
-保持：
+当前没有实际查询需求，因此不增加额外 index。
 
-DATABASE_NAME = "css-lab"
-DATABASE_VERSION = 1
-STORE = "exercise-progress"
+---
 
-继续使用 idb：
+## 5. Database 生命周期
 
-openDB
-DBSchema
-IDBPDatabase
+数据库连接按需创建，不在 module evaluation 阶段打开 IndexedDB。
 
-Primary key：
+目标行为：
 
+```text
+第一次 ProgressStore 操作
+→ getDatabase()
+→ openDB()
+→ 缓存 connection / opening promise
+```
+
+当前生命周期规则：
+
+- 成功打开后复用数据库 connection。
+- open 失败后清理 opening promise，允许未来重试。
+- connection `terminated` 后清理缓存。
+- upgrade blocking 时关闭旧 connection，并清理缓存。
+- schema migration 只放在 `upgrade` callback。
+- 不把数据库 connection 状态暴露给产品 UI。
+
+---
+
+## 6. ProgressStore Contract
+
+核心接口语义：
+
+```ts
+interface ProgressStore {
+  getExercise(
+    exerciseId: string,
+    revision: number,
+  ): Promise<ExerciseProgress | null>;
+
+  saveCode(input: SaveExerciseCodeInput): Promise<void>;
+
+  markCompleted(input: MarkExerciseCompletedInput): Promise<void>;
+}
+```
+
+### 6.1 getExercise
+
+按：
+
+```text
 [exerciseId, revision]
+```
 
-继续使用 compound key。
+读取记录。
 
-不要改成随机 ID。
+读取后必须经过 Zod validation。
 
-不要增加无实际查询需求的 index。
+非法记录返回 `null`，不向上抛出无效 domain data。
 
-==================================================
-5. Database Lifecycle
-==================================================
+### 6.2 saveCode
 
-检查 getDatabase() 实现。
+普通编辑和 Reset 使用 `saveCode`。
 
-要求：
+如果当前记录尚未完成：
 
-- 不在 module evaluation 时打开 IndexedDB
-- 第一次真正调用 store 时才 openDB
-- database connection 可以复用
-- open 失败后允许未来再次尝试
-- terminated 后清理缓存 connection
-- blocking/versionchange 时关闭旧 connection
-- upgrade 内只做 schema migration
-- 不自己包装 IDBRequest
-
-如果认为有必要，可以增加轻量 blocked development warning，
-但不要增加复杂数据库状态 UI。
-
-==================================================
-6. Transaction 规则
-==================================================
-
-saveCode 和 markCompleted 都属于 read-modify-write。
-
-必须使用一个：
-
-readwrite transaction
-
-完成：
-
-get
-→ domain decision
-→ put
-
-最后：
-
-await transaction.done
-
-不要：
-
-先 db.get()
-再单独 db.put()
-
-因为这会把 read / write 拆成两个 transaction。
-
-不要在 IndexedDB transaction 内：
-
-fetch
-setTimeout
-网络请求
-React state 更新
-其他无关 async 工作
-
-==================================================
-7. saveCode 语义
-==================================================
-
-saveCode：
-
-如果当前记录：
-
-status === "completed"
-
-则用户继续编辑 CSS 后：
-
-必须保留：
-
-status = completed
-completedAt = 原值
-
-只更新：
-
-code
-updatedAt
-
-如果当前没有 completed：
-
-保存为：
-
+```text
 status = started
+code = latest code
+updatedAt = latest time
+```
 
-Exercise 完成后继续实验 CSS，
-不能把学习完成记录降级成 started。
+如果当前记录已经完成：
 
-==================================================
-8. markCompleted 语义
-==================================================
+```text
+status = completed        保留
+completedAt               保留首次完成时间
+code                      更新
+updatedAt                 更新
+```
 
-markCompleted：
+因此 learner 完成 exercise 后继续实验 CSS，不会把完成状态降级回 `started`。
 
-第一次通过：
+### 6.3 markCompleted
 
+Checker 通过时使用 `markCompleted`。
+
+第一次完成：
+
+```text
 status = completed
-completedAt = 当前时间
+completedAt = current time
+updatedAt = current time
+code = checked code
+```
 
 同 revision 后续再次通过：
 
-保留第一次 completedAt。
+```text
+completedAt = original completedAt
+updatedAt   = latest time
+code        = latest checked code
+```
 
-updatedAt 可以更新。
+`completedAt` 表示首次完成时间。
 
-必须保存本次真正被 Checker 验证通过的 CSS。
+---
 
-不要通过：
+## 7. Transaction 模型
 
-currentCss === solutionCss
+`saveCode` 和 `markCompleted` 都属于 read-modify-write，必须在单个 `readwrite` transaction 中完成：
 
-判断完成。
+```text
+begin readwrite transaction
+        ↓
+get current progress
+        ↓
+domain decision
+        ↓
+put next progress
+        ↓
+await transaction.done
+```
 
-唯一完成来源仍然是：
+不要拆成：
 
-accepted check:result.passed === true
+```text
+db.get()
+↓
+transaction 结束
+↓
+db.put()
+```
 
-==================================================
-9. 修复 Hydration / Check Race
-==================================================
+否则 read 和 write 之间失去原子性的业务判断窗口。
 
-当前 useExerciseProgress：
+Transaction 内只做与当前 IndexedDB 操作直接相关的异步工作，不加入：
 
-初始 css = starterCss
+- network request
+- timer
+- React state update
+- 其它无关 async workflow
 
-随后 effect 从 IndexedDB hydrate。
+### 7.1 当前 write ordering 结论
 
-保留这个 SSR / hydration 安全设计：
+当前应用中，`saveCode` 和 `markCompleted` 都作用于同一个 object store，并使用 overlapping `readwrite` transaction。浏览器会串行执行这类事务；后创建的 transaction 在获得 store 访问权后会看到先前成功提交的数据。
 
-禁止在：
+结合当前 adapter 的 read-modify-write：
 
-render
-useState initializer
-module scope
+- `saveCode` 会重新读取当前记录。
+- 如果已经 completed，会保留 `completed` 与 `completedAt`。
+- `markCompleted` 会重新读取当前记录并保留首次 `completedAt`。
 
-读取 IndexedDB。
+因此当前实现没有发现 completed 状态被旧普通保存降级覆盖的问题。
 
-但是需要增加明确的 hydration 状态。
+这个结论只针对**当前单页应用、当前 transaction 创建方式和同一 object store 的实现**。它不等于通用的“IndexedDB 自动保证业务 latest-write-wins”。
 
-建议：
+如果未来加入 debounce、异步写队列、跨 Tab 协调、后台 flush 或网络同步，需要重新设计业务 operation ordering。
 
-type ProgressHydrationState =
-  | "hydrating"
-  | "ready";
+---
 
-或等价清晰设计。
+## 8. React Hydration 模型
 
-useExerciseProgress 返回：
+`useExerciseProgress` 初始使用：
 
+```text
+css = starterCss
+```
+
+IndexedDB hydration 在 Effect 中异步执行。
+
+不要在：
+
+- render
+- `useState` initializer
+- module scope
+
+访问 IndexedDB。
+
+当前 hook 暴露：
+
+```ts
 {
   css,
   isHydrated,
   updateCss,
   resetCss,
-  markCompleted
+  markCompleted,
 }
+```
 
-要求：
+### 8.1 Hydration identity
 
-初始：
+当前 exercise identity：
 
-isHydrated = false
+```text
+exerciseId:revision
+```
 
-IndexedDB：
+`hydratedExerciseKey` 记录完成 hydration 的 identity，render 时与当前 exercise key 比较得到 `isHydrated`。
 
-读取成功
-或
-读取失败
+这样即使 exercise identity 改变，也不会错误复用上一个 exercise 的 ready 状态。
 
-最终都必须：
+### 8.2 用户输入优先于晚到的 storage
 
+Hydration 可能和用户输入并发：
+
+```text
+显示 starterCss
+↓
+IndexedDB 正在读取
+↓
+用户开始编辑 / Reset
+↓
+saved progress 晚到
+```
+
+一旦发生本地 mutation，晚到的 saved code 不得覆盖用户当前输入。
+
+当前使用 `hasLocalMutationRef` 表达这个非 UI 协调状态。
+
+### 8.3 Unmount / exercise change
+
+Effect cleanup 使用 cancelled guard。
+
+旧 exercise 的 IndexedDB Promise 即使随后 resolve，也不能再 hydrate 已卸载或已切换的 session。
+
+### 8.4 Storage failure
+
+读取失败后仍要结束 hydration：
+
+```text
+IndexedDB read failed
+↓
+development warning
+↓
+当前 CSS 保持可用
+↓
 isHydrated = true
+```
 
-Persistence failure 不能导致永久 loading。
+否则 Checker 会永久停留在“准备中”。
 
-==================================================
-10. Hydration Race 行为
-==================================================
+---
 
-需要保持现有：
+## 9. Checker 与 Persistence 一致性
 
-hasLocalMutationRef
+Checker 是唯一的 completion source。
 
-或等价机制。
+不要通过：
 
-场景：
+```text
+currentCss === solutionCss
+```
 
-IndexedDB 读取尚未完成
-↓
-用户开始编辑
-↓
-IndexedDB saved progress 晚到
+判断完成。
 
-不能覆盖用户的新输入。
+完成条件是：
 
-如果发生过本地 edit / reset：
-
-忽略晚到的 saved code。
-
-如果用户没有发生本地 mutation：
-
-正常恢复 saved code。
-
-effect cleanup 后不得继续 hydrate 已卸载的 Exercise Session。
-
-==================================================
-11. Hydration 期间 Checker
-==================================================
-
-当前存在一个 correctness race：
-
-starterCss 已显示
-↓
-用户立即点击 Check
-↓
-IndexedDB saved code 恢复
-↓
-旧检查结果可能对应不同 CSS
-
-修复：
-
-在 progress hydration 完成前，
-“检查答案”按钮暂时 disabled。
-
-Storage 读取成功或失败后均恢复可检查。
-
-不要因为 IndexedDB 不可用永久禁用 Checker。
-
-WorkspaceFooter 可以增加类似：
-
-isCheckReady
-
-或等价 prop。
-
-按钮规则：
-
-disabled =
-  isChecking ||
-  !isHydrated
-
-可以在 hydration 时显示：
-
-准备中…
-
-hydration 完成：
-
-检查答案
-
-不要增加 Spinner dependency。
-
-==================================================
-12. Check 时捕获 CSS Snapshot
-==================================================
-
-不要让异步 check result 最终依赖 React render closure 中的 css。
-
-发起 check 时捕获：
-
-{
-  requestId,
-  code
-}
-
-建议：
-
-const activeCheckRef = useRef<{
-  requestId: string;
-  code: string;
-} | null>(null);
-
-handleCheck：
-
-const requestId = ...
-
-activeCheckRef.current = {
-  requestId,
-  code: css,
-};
-
-然后进入 checking state。
-
-==================================================
-13. Check Result
-==================================================
-
-收到 result：
-
-首先验证：
-
-activeCheckRef.current !== null
-
-以及：
-
-activeCheckRef.current.requestId === result.requestId
-
-否则直接忽略。
-
-接受结果后：
-
-const checkedCode =
-  activeCheckRef.current.code;
-
-activeCheckRef.current = null;
-
-更新 CheckState。
-
-如果：
-
+```text
+accepted check:result
++
 result.passed === true
+```
 
-调用：
+### 9.1 Hydration 完成前禁止 Check
 
-markCompleted(checkedCode)
-
-修改 useExerciseProgress API：
-
-markCompleted(code: string)
-
-不要让 markCompleted 隐式读取一个可能已经变化的 css closure。
-
-==================================================
-14. CSS 修改后的 stale check
-==================================================
-
-用户修改 CSS：
-
-activeCheckRef.current = null
-updateCss(nextCss)
-checkState = idle
-
-Reset：
-
-activeCheckRef.current = null
-resetCss()
-checkState = idle
-
-这样之前发出的异步 Check Result 即使晚到：
-
-也不能写 completed。
-
-==================================================
-15. Autosave
-==================================================
-
-编辑继续：
-
-updateCss(nextCss)
-
-行为：
-
-1. React state 立即更新
-2. IndexedDB async save
-
-不要 await persistence 后再更新 UI。
-
-不要因为 persistence error 阻塞 CodeMirror。
-
-当前阶段保持 immediate async save。
-
-不要自行加入：
-
-setTimeout debounce
-手写 debounce helper
-lodash
-use-debounce
-
-如果未来需要优化 write frequency，
-应该另做明确的 write-coalescing + flush 设计。
-
-==================================================
-16. Persistence Failure
-==================================================
-
-必须保证：
-
-IndexedDB unavailable
-openDB error
-transaction error
-quota/storage error
-invalid stored record
-
-都不能破坏：
-
-CodeMirror
-Preview
-Checker
-Reset
-
-invalid stored value：
-
-Zod safeParse
-→ 视为没有有效 progress
-
-不要 throw 到用户页面。
-
-development 可以 console.warn。
-
-production 不显示技术异常。
-
-==================================================
-17. Footer
-==================================================
-
-IndexedDB autosave 已经真实存在。
-
-保留：
-
-自动保存到本地 · 舒适专注模式
-
-但 hydration 期间 Check 按钮必须正确反映不可检查状态。
-
-不要新增：
-
-保存成功 toast
-保存 spinner
-数据库状态面板
-
-==================================================
-18. Revision
-==================================================
-
-revision 继续作为 progress identity 的组成部分：
-
-[exerciseId, revision]
+页面刚打开时，starter CSS 可能只是 hydration 前的暂态值。
 
 因此：
 
-revision 1 progress
+```text
+disabled =
+  isChecking ||
+  !isHydrated
+```
 
-不能自动恢复到：
+Storage 成功或失败完成 hydration 后都恢复 Checker 可用。
 
-revision 2
+### 9.2 Check 必须绑定 code snapshot
 
-不要在 React 层再人为比较旧 revision。
+发起 Check 时保存：
 
-不要把 revision 从 IndexedDB key 中移除。
-
-==================================================
-19. React Best Practices
-==================================================
-
-保持现有 keyed Exercise Session：
-
-key={`${exercise.id}:${exercise.revision}`}
-
-遵循：
-
-- React state 是当前编辑 CSS 的 UI source of truth
-- IndexedDB 是 persistence，不直接驱动每次 render
-- effect 只负责 external storage hydration
-- 输入 / Reset / Check 等用户行为放 event handler
-- 不使用 effect 响应普通用户事件
-- 不用 effect 做 props → state 同步
-- 不保存 derived state
-- async checker 使用 request snapshot 防 stale closure
-- ref 只用于不驱动 UI 的异步协调状态
-- 不新增 Context
-- 不新增 global store
-
-==================================================
-20. 不要扩大范围
-==================================================
-
-本任务不要实现：
-
-Course progress
-Module progress
-Lesson progress
-Next Exercise
-Previous Exercise
-课程导航
-跨 tab reactive query
-BroadcastChannel
-云同步
-Auth
-数据库后端
-IndexedDB content cache
-Studio persistence
-undo history persistence
-Dexie
-localStorage migration
-Service Worker
-
-只完成 M4 persistence hardening。
-
-==================================================
-21. 安装与验证
-==================================================
-
-首先运行：
-
-pnpm install --frozen-lockfile
-
-确保当前：
-
-package.json
-pnpm-lock.yaml
-
-完全一致。
-
-然后：
-
-pnpm lint
-pnpm build
-
-必须全部通过。
-
-如果 lockfile 有问题：
-
-使用 pnpm 正常重新生成 lockfile。
-
-不要手工伪造 lockfile dependency graph。
-
-==================================================
-22. 手动验收
-==================================================
-
-如果有浏览器环境，验证：
-
-1.
-首次进入 center-box：
-
-显示 starter CSS。
-
-2.
-输入：
-
-.container {
-  display: flex;
+```ts
+{
+  requestId,
+  code,
 }
+```
 
-刷新：
+异步 result 返回后，只有 requestId 仍然属于当前 active check 才接受结果。
 
-恢复相同 CSS。
+通过时：
 
-3.
-Reset：
+```text
+markCompleted(checkedCode)
+```
 
-恢复 starterCss。
+保存的是**真正参与该次 Checker 的代码快照**，而不是 result 返回瞬间 React 中可能已经变化的 CSS。
 
-刷新：
+### 9.3 CSS 修改会使旧 Check 失效
 
-仍然是 starterCss。
+用户编辑或 Reset 后：
 
-4.
-输入完整正确答案并 Check：
+```text
+active check = null
+checkState = idle
+```
 
-全部通过。
+之前已经发出的旧 Checker result 即使晚到，也不能再写 completed。
 
-IndexedDB：
+---
 
-status = completed
-completedAt 存在
-revision 正确。
+## 10. Autosave
 
-5.
-完成后继续修改：
+当前采用 immediate async persistence：
 
-刷新恢复最后代码，
-status 仍为 completed，
-completedAt 不改变。
+```text
+CodeMirror change
+↓
+React state 立即更新
+↓
+Preview 立即更新
+↓
+saveCode() fire-and-forget
+↓
+IndexedDB
+```
 
-6.
-完成后 Reset：
+持久化失败只记录开发环境 warning，不回滚 React state，也不阻塞用户输入。
 
-刷新后为 starterCss，
-status 仍为 completed。
+### 10.1 已知技术债：write amplification
 
-7.
-快速修改 CSS 后，
-旧 Checker result 不能写 completed。
+当前每次编辑都可能产生一次：
 
-8.
-页面刚打开、IndexedDB 尚未 hydrate 时：
+```text
+readwrite transaction
+→ get
+→ put
+```
 
-Check 不可触发。
+连续输入会产生较多 IndexedDB transaction。
 
-hydrate 完成后：
+目前保持该实现，因为：
 
-Check 恢复正常。
+- 逻辑简单。
+- 数据语义明确。
+- 没有 timer lifecycle。
+- Reset / Checker completion ordering 容易推理。
+- 当前 exercise CSS 数据量较小。
 
-9.
-如果 hydration 前用户已经开始编辑：
+未来如果确有性能需求，可以设计 latest-write coalescing / debounce，但必须同时解决：
 
-IndexedDB 晚到的数据不能覆盖用户新代码。
-
-10.
-模拟 revision +1：
-
-不恢复 revision 1 的 code / completed。
-
-11.
-模拟 invalid IndexedDB record：
-
-页面不崩溃，
-使用 starterCss。
-
-12.
-模拟 IndexedDB 不可用：
-
-Editor / Preview / Checker / Reset 仍可使用。
-
-如果没有浏览器 surface：
-
-明确列出无法执行的 GUI / IndexedDB 项目，
-不要声称已完成手动验证。
-
-==================================================
-23. 完成后汇报
-==================================================
-
-只汇报：
-
-1. 修改文件
-2. ProgressStore 最终接口
-3. IndexedDB schema / key
-4. transaction 实现
-5. hydration race 修复
-6. check CSS snapshot 实现
-7. completed sticky semantics
-8. persistence failure 策略
-9. pnpm install --frozen-lockfile
-10. lint
-11. build
-12. 无法手动验证的项目
-
-完成后停止。
-
-不要继续实现 Course Progress 或课程导航。
-
-==================================================
-24. 后续 persistence 技术债与产品不变量
-==================================================
-
-### Autosave transaction write amplification
-
-Problem:
-
-每次编辑都会触发一次 IndexedDB readwrite transaction。连续输入 CSS 时，
-可能产生大量 get → put 操作，形成写放大。
-
-Current decision:
-
-当前保持 immediate persistence，因为实现简单，且读写顺序与正确性清晰。
-本阶段不直接加入 debounce。
-
-Future direction:
-
-如果未来需要优化写入频率，实现 latest-write coalescing / debounce。
-
-Future implementation must consider:
-
-- 在导航或卸载时适当 flush
-- Reset 语义
-- markCompleted 的写入顺序
-- pending save 与 completed write 的顺序
-- 过期异步写入
+- pending write 与 `markCompleted` 的顺序
+- Reset 的顺序语义
+- stale async write
+- navigation / unmount 时是否 flush
+- page lifecycle
 - persistence failure fallback
 
-### Reset 与 completion 不变量
+不要只增加一个简单 `setTimeout` debounce。
 
-Reset 只重置可编辑 CSS，不清除学习完成状态。
+---
 
-Reset 不得清除：
+## 11. Reset 产品语义
 
-- completed status
-- completedAt
+当前定义：
 
-如果未来产品需要“重新开始”或“清除进度”，应新增明确的
-ProgressStore 操作，不应改变 saveCode 的语义。
+> Reset 只重置当前可编辑 CSS，不清除已经取得的学习完成状态。
 
-当前没有实现 debounce、clearProgress 或相关 UI。
+因此：
+
+```text
+completed exercise
+↓
+Reset
+↓
+code = starterCss
+status = completed
+completedAt = original completedAt
+```
+
+这是有意设计，不是 persistence bug。
+
+如果未来产品增加“重新开始”或“清除进度”，应该增加明确的 `ProgressStore` domain operation，而不是改变 `saveCode` 语义。
+
+---
+
+## 12. Failure Strategy
+
+Persistence 是 progressive enhancement。
+
+以下情况都不能让 learner workflow 崩溃：
+
+- IndexedDB unavailable
+- `openDB` failure
+- transaction failure
+- quota/storage error
+- invalid stored record
+
+处理原则：
+
+```text
+Persistence failure
+↓
+development: console.warn
+production: 不展示技术异常
+↓
+保留当前 React CSS
+↓
+Editor / Preview / Checker / Reset 继续工作
+```
+
+不使用 localStorage 作为静默 fallback，以避免形成第二套 persistence semantics。
+
+---
+
+## 13. 当前明确不做的能力
+
+当前 progress persistence 不承担：
+
+- Course progress
+- Module progress
+- Lesson progress
+- cloud sync
+- authentication
+- backend database
+- cross-tab reactive synchronization
+- BroadcastChannel
+- IndexedDB content cache
+- Studio persistence
+- undo history persistence
+- Service Worker persistence
+- localStorage migration
+- generic persistence framework
+
+这些能力只有在真实产品需求出现后再扩展。
+
+---
+
+## 14. 关键不变量
+
+维护 persistence 时必须保持：
+
+1. `[exerciseId, revision]` 是 progress identity。
+2. 不同 revision 的 progress 不互相恢复。
+3. 用户本地 mutation 优先于晚到的 hydration 数据。
+4. Storage failure 不阻塞核心学习流程。
+5. Hydration 完成前 Checker 不运行。
+6. Checker completion 保存被实际检查通过的 code snapshot。
+7. CSS 修改 / Reset 会使旧 Checker result 失效。
+8. 普通 `saveCode` 不得把 `completed` 降级成 `started`。
+9. `completedAt` 保留首次完成时间。
+10. Reset 不清除 `completed` / `completedAt`。
+11. read-modify-write 保持在单个 `readwrite` transaction 内。
+12. React state 是当前 UI source of truth；IndexedDB 是异步 persistence。
+
+---
+
+## 15. 变更后的验证重点
+
+修改 progress persistence 后至少验证：
+
+### 静态 / 构建
+
+```bash
+pnpm lint
+pnpm build
+```
+
+### 浏览器行为
+
+有 browser surface 时重点检查：
+
+- 首次进入使用 starter CSS。
+- 编辑后刷新恢复最后 CSS。
+- Reset 后刷新仍是 starter CSS。
+- Checker passed 后记录变为 completed。
+- 完成后继续编辑，completed 状态与首次 completedAt 保留。
+- 完成后 Reset，code 回 starter CSS，但 completed 状态保留。
+- Hydration 前 Check 不可触发。
+- Hydration 前用户已经编辑时，晚到 saved code 不覆盖用户输入。
+- CSS 修改后，旧 Checker result 不得写 completed。
+- revision 改变后不恢复旧 revision progress。
+- invalid IndexedDB record 不导致页面崩溃。
+- IndexedDB 不可用时 Editor / Preview / Checker / Reset 仍可使用。
