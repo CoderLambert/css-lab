@@ -30,6 +30,11 @@ updateCss
 resetCss
 css-lab-parent
 css-lab-preview
+bodyMdxSource
+lesson-content-registry.tsx
+LessonMarkdown
+react-markdown
+href="/learn
 CSS exercise preview
 CSS Lab progress persistence failed
 draft.files["style.css"]
@@ -81,7 +86,32 @@ LearningWorkspace负责：
 - solution读取。
 - Workspace path validation。
 
-## 3. Current 3 CSS Exercise regression
+## 3. MDX Learning Flow v1 regression
+
+M6A 是底层 Workspace/Runtime 重构，不得让已合入 main 的教学产品能力退化。
+
+最终必须验证：
+
+- `lesson.json` 仍只承载 metadata，Lesson runtime 无 MDX source/body/path。
+- `lesson.mdx` 仍通过 generated static registry 渲染。
+- MDX contract 仍拒绝 import/export、arbitrary expression、unknown JSX、H1。
+- `Concept / Predict / Compare / Exercise` 四个 Activity 行为可用。
+- learner-visible Lesson 的 Exercise Activity references 仍满足 canonical `exercise.order` 完整/唯一/同序约束。
+- progressive hints 初始隐藏、逐层 reveal、按钮 N/M 状态无回归。
+- Preview bounded canvas 与 `Auto / 390 / 768 / 1280` presets 无回归。
+- checker mismatch 与 checker/runtime fault 仍有 structured diagnostics；语义等价 accepted value 场景仍通过。
+- generated registry 不因 Exercise Workspace migration 产生无解释 diff。
+
+对应质量门禁：
+
+```bash
+pnpm content:check
+pnpm test:content
+pnpm content:generate
+git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
+```
+
+## 4. Current 3 CSS Exercise regression
 
 必须验证：
 
@@ -422,9 +452,13 @@ module CDN adapter
 ## 13. 最终验证
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
+pnpm content:generate
+git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
 git diff --check
 git status --short
 ```
@@ -491,6 +525,8 @@ BrowserRuntime reading ProgressStore
 ## 16. Acceptance Criteria
 
 - [ ] Task 01-05 criteria全部满足。
+- [ ] MDX Learning Flow v1 content contract、Activity、hints、Preview presets、structured diagnostics 与 canonical sequence 无回归。
+- [ ] `content:check` / `test:content` / generated registry idempotency通过。
 - [ ] current CSS learner E2E通过。
 - [ ] Workspace multi-file domain测试通过。
 - [ ] Browser isolated HTML/security E2E通过。

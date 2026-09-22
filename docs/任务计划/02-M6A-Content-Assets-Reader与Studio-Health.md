@@ -18,6 +18,8 @@ Task 02 结束后不再存在 production v1 Exercise runtime contract。
 
 ```text
 docs/任务计划/01-M6A-Workspace-Domain与Exercise-Schema-v2.md
+docs/功能文档/MDX-Learning-Flow-v1-产品方案.md
+docs/任务计划/MDX-Learning-Flow-v1/07-M6A-衔接约束.md
 src/lib/workspace/*
 src/lib/content/file/file-content-reader.ts
 src/lib/content/file/file-utils.ts
@@ -59,6 +61,19 @@ ExerciseRecordSchema
 
 不要长期保留 v1/v2 双读 fallback。
 
+### Lesson Content Domain 明确不参与本次 cutover
+
+以下正式 MDX v1 基线必须原样保留：
+
+- `lesson.json` metadata contract。
+- `lesson.mdx` teaching source。
+- generated lesson registry。
+- `LessonContentInspector`。
+- `scripts/content/*` / MDX contract tooling。
+- `content:generate` / `content:check` / `test:content`。
+
+`lesson.mdx` **不是** Workspace asset；Exercise v1 → v2 只迁移 Exercise 自己的 metadata/assets。不要把 Lesson source 放进 `starter/`，也不要让 `FileContentReader` 重新读取 MDX body。
+
 ## 3. 现有 Exercise asset 迁移
 
 每个当前 exercise：
@@ -97,6 +112,8 @@ solution.css  -> solution/style.css
 不创建 `support/`。
 
 当前 3 个 Exercise 的 id/slug/order/revision/URL 不变；仅 asset representation 改变不 bump revision。
+
+其中 `exercise.order` 已是 MDX v1 的 canonical learner sequence。迁移后 `content:check` 必须继续证明 learner-visible Lesson 对三个 published Exercise 的引用完整、唯一且同序；不得因 v2 metadata 改写 sequence 语义。
 
 ## 4. exercise.json v2
 
@@ -155,7 +172,27 @@ Task 01 transitional alias如已无用，本阶段删除/收敛。
 
 Runtime 永远看不到 OS path。
 
-## 7. Hard loading errors 与 Content Health 分工
+## 7. Studio source dependencies
+
+MDX v1 已让 Studio 依赖 `LessonContentInspector`。Task 02 新增 Exercise asset/source inspection 时，不得覆盖或绕开该依赖。
+
+推荐把多个 source dependency 收敛为显式 options object，而不是继续增加 positional 参数，例如：
+
+```ts
+readStudioContentHealth(contentReader, {
+  lessonContentInspector,
+  exerciseAssetInspector,
+});
+```
+
+名称可按实际代码调整。要求是：
+
+- Lesson source facts 与 Exercise source facts 仍是两个窄职责。
+- 两个 inspector 都保持 server-only。
+- learner route/client graph 不 import source inspector。
+- 不设计 generic `ContentInspectorRegistry`。
+
+## 7A. Hard loading errors 与 Content Health 分工
 
 ### Hard loading/schema error
 
@@ -346,12 +383,21 @@ schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
 ## 14. 验证
 
-```bash
+ ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
 git diff --check
 git status --short
+```
+
+并确认 Lesson registry 因 Exercise asset migration 保持幂等：
+
+```bash
+pnpm content:generate
+git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
 ```
 
 人工确认旧 root assets不与新结构双存。注意 `starter/base.css` 是合法新路径。
@@ -373,4 +419,6 @@ git status --short
 - [ ] solution path set 等于 editable path set。
 - [ ] Studio 当前 0 error / 0 warning。
 - [ ] URL/id/revision不变。
-- [ ] lint/build/e2e通过。
+- [ ] `lesson.mdx` / generated registry / LessonContentInspector 未被 Workspace migration 污染。
+- [ ] canonical `exercise.order` 与 MDX Exercise references 仍通过 `content:check`。
+- [ ] content:check/test:content/lint/build/e2e通过。

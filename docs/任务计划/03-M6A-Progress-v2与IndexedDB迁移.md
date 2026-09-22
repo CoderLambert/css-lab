@@ -18,6 +18,18 @@ files: Record<WorkspacePath, string>
 
 Progress 只存 learner-owned mutable state。
 
+## 0. MDX Learning Flow v1 state boundary
+
+Progress v2 只迁移 **Exercise learner-owned mutable state**。以下 MDX/Learning Shell state 在 v1 明确不持久化，本任务不得顺手加入 Progress schema：
+
+- `Predict` 选择/解释状态。
+- `Concept / Compare` 阅读状态。
+- progressive hints 的 `revealedHintCount`。
+- Lesson scroll、active Activity、Preview viewport preset。
+- generated registry / MDX source state。
+
+completion 仍以 Exercise 为核心；Activity mastery/analytics 属于未来独立产品设计。
+
 ## 1. 开始前读取
 
 ```text
@@ -417,6 +429,8 @@ locked saved -> ignore
 ## 15. 验证
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
@@ -436,6 +450,7 @@ git status --short
 - [ ] code -> files["style.css"] 精确。
 - [ ] completedAt 保留。
 - [ ] completed 后继续 edit 仍 completed。
+- [ ] Predict / progressive hints / Lesson UI state 未进入 Progress v2。
 - [ ] reconciliation只产生当前 editable paths。
 - [ ] hydration不覆盖 local mutation。
 - [ ] malformed record不导致 app永久不可用。

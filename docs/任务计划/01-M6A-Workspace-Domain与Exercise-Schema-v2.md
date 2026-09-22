@@ -27,6 +27,9 @@ src/lib/content/schemas/common.ts
 src/lib/content/schemas/exercise.ts
 src/lib/content/file/file-content-reader.ts
 src/features/exercise/lib/preview-messages.ts
+src/features/exercise/components/check-results.tsx
+docs/功能文档/MDX-Learning-Flow-v1-产品方案.md
+docs/任务计划/MDX-Learning-Flow-v1/07-M6A-衔接约束.md
 package.json
 tsconfig.json
 ```
@@ -333,6 +336,14 @@ current Browser runtime capability
 
 Task 05 前不向 content 添加 JS/TS。
 
+### Checker compatibility invariant
+
+Exercise v2 schema 迁移必须保留当前 Browser checker 已经验证的产品语义：
+
+- style check 可以接受一个 canonical expected value + 多个语义等价 computed values。
+- 本 milestone 可以继续保留 `alsoAccepts` 作为 transitional field；不要仅为了 schema 美化改成 matcher framework。
+- `content:check` / MDX reference integrity 与 Exercise v2 metadata 必须继续兼容；不得因 schema cutover 破坏 canonical `exercise.order`。
+
 ## 9. Transitional type boundary
 
 本阶段不要删除当前 `Exercise` 的：
@@ -358,23 +369,50 @@ type Exercise = ExerciseV1 | ExerciseV2
 
 然后 UI 到处分支。
 
-## 10. CheckResult 准备
+## 10. CheckResult / diagnostics 边界准备
 
-可新增 neutral type：
+Task 01 **不要切 production Preview protocol**；当前 `preview-messages.ts` / `CheckResults` 继续工作到 Task 05。
+
+可以建立后续 Runtime 共用的 neutral semantic base，但不能把当前 diagnostics 简化掉。目标语义至少能表达：
 
 ```ts
+export type CheckOutcomeReason =
+  | "matched"
+  | "mismatch"
+  | "target-not-found"
+  | "checker-error";
+
 export interface CheckResult {
   id: string;
   message: string;
   passed: boolean;
+  reason: CheckOutcomeReason;
   expected: string | number | boolean | null;
   actual: string | number | boolean | null;
 }
 ```
 
-不要包含 `type: Check["type"]`。
+Browser checker 当前还需要 selector/property 等诊断信息。它们应在 Task 05 通过 Browser-specific result/detail 承载，例如：
 
-Task 05 再切 protocol。
+```ts
+export interface BrowserCheckDiagnostic {
+  selector: string | null;
+  property: string | null;
+}
+
+export interface BrowserCheckResult extends CheckResult {
+  diagnostic: BrowserCheckDiagnostic | null;
+}
+```
+
+具体命名可以按实现调整，但必须满足：
+
+- learner mismatch 与 checker/runtime fault 可区分。
+- selector/target missing 不得伪装成普通 learner mismatch。
+- UI 仍能展示 expected / actual，并在 Browser check 需要时展示 selector/property。
+- neutral base 不再依赖 `Check["type"]`。
+- 不把 Browser-specific fields 强塞进未来所有 Runtime 的公共结果。
+- 不在 Task 01 修改当前生产 protocol/UI。
 
 ## 11. 本阶段禁止
 
@@ -389,6 +427,8 @@ Task 05 再切 protocol。
 ## 12. 验证
 
 ```bash
+pnpm content:check
+pnpm test:content
 pnpm lint
 pnpm build
 pnpm test:e2e
@@ -412,5 +452,7 @@ Task 01 核心就是“新定义存在，但旧 production flow 无回归”，�
 - [ ] ExerciseRecordV2Schema 已存在且只接受 v2。
 - [ ] production ExerciseRecordSchema/Reader 仍可读取当前 v1 content。
 - [ ] v2 schema 接受 JS/TS vocabulary，但没有执行能力。
+- [ ] style check 的语义等价 accepted-values 能力未丢失。
+- [ ] production structured checker diagnostics 未被 Task 01 neutralization 提前破坏。
 - [ ] production learner flow 无 v1/v2 union 分支污染。
 - [ ] lint/build/e2e 全过。
