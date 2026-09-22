@@ -1,0 +1,337 @@
+import type { BrowserRuntimeDefinition } from "@/lib/content/schemas/exercise";
+import type { ExecutionSnapshot } from "@/lib/workspace/types";
+import {
+  createGenerationId,
+  createRandomNonce,
+  deriveBrowserSnapshotModel,
+  serializeLearnerHtml,
+} from "./browser-security";
+
+export const BROWSER_RUNTIME_BRIDGE_VERSION = 1;
+
+export interface BrowserDocumentDescriptor {
+  generationId: string;
+  nonce: string;
+  srcDoc: string;
+  entryHtml: string;
+  cssTopology: readonly string[];
+}
+
+interface BrowserDocumentOptions {
+  runtime: BrowserRuntimeDefinition;
+  snapshot: ExecutionSnapshot;
+  generationId?: string;
+  nonce?: string;
+}
+
+function escapeHtmlAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function createRuntimeBridge(
+  generationId: string,
+  learnerHtml: string,
+  cssPaths: readonly string[],
+): string {
+  const generationLiteral = JSON.stringify(generationId);
+  const learnerHtmlLiteral = serializeLearnerHtml(learnerHtml);
+  const cssPathsLiteral = JSON.stringify(cssPaths).replaceAll("<", "\\u003c");
+
+  return `(() => {
+  "use strict";
+
+  const generationId = ${generationLiteral};
+  const learnerHtml = ${learnerHtmlLiteral};
+  const cssPaths = ${cssPathsLiteral};
+  const hostSource = "lab-host";
+  const runtimeSource = "lab-runtime";
+  const learnerRoot = document.getElementById("learner-root");
+  const cssSlots = new Map();
+
+  if (!learnerRoot) {
+    return;
+  }
+
+  for (const path of cssPaths) {
+    const slot = document.querySelector(
+      'style[data-runtime-workspace-path="' + CSS.escape(path) + '"]',
+    );
+    if (!(slot instanceof HTMLStyleElement)) {
+      return;
+    }
+    cssSlots.set(path, slot);
+  }
+
+  const isRecord = (value) =>
+    typeof value === "object" && value !== null && !Array.isArray(value);
+
+  const normalizeScheme = (value) =>
+    value.replace(/[\\u0000-\\u0020\\u007f]+/g, "").toLowerCase();
+
+  const template = document.createElement("template");
+  template.innerHTML = learnerHtml;
+
+  for (const element of template.content.querySelectorAll(
+    "script,iframe,object,embed,base",
+  )) {
+    element.remove();
+  }
+
+  for (const meta of template.content.querySelectorAll("meta")) {
+    if (
+      (meta.getAttribute("http-equiv") || "").trim().toLowerCase() === "refresh"
+    ) {
+      meta.remove();
+    }
+  }
+
+  for (const element of template.content.querySelectorAll("*")) {
+    for (const attribute of [...element.attributes]) {
+      const name = attribute.name.toLowerCase();
+      if (name.startsWith("on")) {
+        element.removeAttribute(attribute.name);
+        continue;
+      }
+      if (
+        name === "href" ||
+        name === "src" ||
+        name === "xlink:href" ||
+        name === "formaction"
+      ) {
+        if (normalizeScheme(attribute.value).startsWith("javascript:")) {
+          element.removeAttribute(attribute.name);
+        }
+      }
+    }
+  }
+
+  learnerRoot.replaceChildren(template.content);
+
+  learnerRoot.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest("a")) {
+        event.preventDefault();
+      }
+    },
+    true,
+  );
+
+  learnerRoot.addEventListener(
+    "submit",
+    (event) => event.preventDefault(),
+    true,
+  );
+
+  const result = (check, passed, reason, expected, actual, property = null) => ({
+    id: check.id,
+    message: check.message,
+    passed,
+    reason,
+    expected,
+    actual,
+    diagnostic: {
+      selector: typeof check.selector === "string" ? check.selector : null,
+      property,
+    },
+  });
+
+  const queryOne = (selector) => {
+    try {
+      return { element: learnerRoot.querySelector(selector), error: null };
+    } catch {
+      return { element: null, error: "checker-error" };
+    }
+  };
+
+  const runCheck = (check) => {
+    if (!isRecord(check) || typeof check.id !== "string" || typeof check.message !== "string") {
+      return {
+        id: typeof check?.id === "string" ? check.id : "invalid-check",
+        message: typeof check?.message === "string" ? check.message : "Invalid checker rule",
+        passed: false,
+        reason: "checker-error",
+        expected: null,
+        actual: null,
+        diagnostic: null,
+      };
+    }
+
+    if (check.type === "count" && typeof check.selector === "string" && Number.isInteger(check.equals)) {
+      try {
+        const actual = learnerRoot.querySelectorAll(check.selector).length;
+        return result(check, actual === check.equals, actual === check.equals ? "matched" : "mismatch", check.equals, actual);
+      } catch {
+        return result(check, false, "checker-error", check.equals, null);
+      }
+    }
+
+    if (
+      (check.type === "exists" || check.type === "style") &&
+      typeof check.selector === "string"
+    ) {
+      const queried = queryOne(check.selector);
+      if (queried.error) {
+        return result(check, false, "checker-error", check.type === "exists" ? true : check.equals ?? null, null);
+      }
+      if (!queried.element) {
+        return result(check, false, "target-not-found", check.type === "exists" ? true : check.equals ?? null, null);
+      }
+
+      if (check.type === "exists") {
+        return result(check, true, "matched", true, true);
+      }
+
+      if (
+        typeof check.property !== "string" ||
+        typeof check.equals !== "string"
+      ) {
+        return result(check, false, "checker-error", null, null);
+      }
+
+      try {
+        const actual = getComputedStyle(queried.element).getPropertyValue(check.property).trim();
+        const accepted = [
+          check.equals,
+          ...(Array.isArray(check.alsoAccepts)
+            ? check.alsoAccepts.filter((value) => typeof value === "string")
+            : []),
+        ];
+        return result(
+          check,
+          accepted.includes(actual),
+          accepted.includes(actual) ? "matched" : "mismatch",
+          check.equals,
+          actual,
+          check.property,
+        );
+      } catch {
+        return result(check, false, "checker-error", check.equals, null, check.property);
+      }
+    }
+
+    return {
+      id: check.id,
+      message: check.message,
+      passed: false,
+      reason: "checker-error",
+      expected: null,
+      actual: null,
+      diagnostic: null,
+    };
+  };
+
+  window.addEventListener("message", (event) => {
+    if (event.source !== window.parent || !isRecord(event.data)) {
+      return;
+    }
+
+    const message = event.data;
+    if (
+      message.source !== hostSource ||
+      message.generationId !== generationId
+    ) {
+      return;
+    }
+
+    if (
+      message.type === "css:update" &&
+      typeof message.path === "string" &&
+      typeof message.content === "string"
+    ) {
+      const slot = cssSlots.get(message.path);
+      if (slot) {
+        slot.textContent = message.content;
+      }
+      return;
+    }
+
+    if (
+      message.type !== "check:run" ||
+      typeof message.requestId !== "string" ||
+      !Array.isArray(message.checks)
+    ) {
+      return;
+    }
+
+    const results = message.checks.map(runCheck);
+    window.parent.postMessage(
+      {
+        source: runtimeSource,
+        type: "check:result",
+        generationId,
+        requestId: message.requestId,
+        passed: results.every((item) => item.passed),
+        results,
+      },
+      "*",
+    );
+  });
+
+  window.parent.postMessage(
+    {
+      source: runtimeSource,
+      type: "runtime:ready",
+      generationId,
+    },
+    "*",
+  );
+})();`;
+}
+
+export function createBrowserDocument(
+  options: BrowserDocumentOptions,
+): BrowserDocumentDescriptor {
+  const model = deriveBrowserSnapshotModel(options.runtime, options.snapshot);
+  const generationId = options.generationId ?? createGenerationId();
+  const nonce = options.nonce ?? createRandomNonce();
+  const bridge = createRuntimeBridge(
+    generationId,
+    model.entryHtml,
+    model.cssTopology,
+  );
+  const cssSlots = model.cssTopology
+    .map(
+      (path) =>
+        `<style data-runtime-workspace-path="${escapeHtmlAttribute(path)}"></style>`,
+    )
+    .join("\n    ");
+  const csp = [
+    "default-src 'none'",
+    `script-src 'nonce-${nonce}'`,
+    "style-src 'unsafe-inline'",
+    "img-src data:",
+    "object-src 'none'",
+    "frame-src 'none'",
+    "base-uri 'none'",
+    "form-action 'none'",
+    "connect-src 'none'",
+  ].join("; ");
+
+  const srcDoc = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="${escapeHtmlAttribute(csp)}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    ${cssSlots}
+  </head>
+  <body>
+    <div id="learner-root"></div>
+    <script nonce="${escapeHtmlAttribute(nonce)}">${bridge}</script>
+  </body>
+</html>`;
+
+  return {
+    generationId,
+    nonce,
+    srcDoc,
+    entryHtml: model.entryHtml,
+    cssTopology: model.cssTopology,
+  };
+}
