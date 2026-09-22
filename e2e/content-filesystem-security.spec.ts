@@ -213,3 +213,75 @@ test("source inspector rejects unsafe source-only solution entries without parti
     await rm(f.root, { recursive: true, force: true });
   }
 });
+
+
+test("nested starter intermediate symlink and non-regular final target fail closed", async () => {
+  const f = await fixture();
+
+  try {
+    const metadataPath = join(f.exercise, "exercise.json");
+    const metadata = JSON.parse(
+      await (await import("node:fs/promises")).readFile(metadataPath, "utf8"),
+    );
+    metadata.workspace.files = [
+      { path: "index.html", language: "html", editable: false },
+      { path: "styles/theme.css", language: "css", editable: true },
+    ];
+    await writeJson(metadataPath, metadata);
+    await rm(join(f.exercise, "starter", "style.css"));
+
+    const outsideStyles = join(f.root, "outside-styles");
+    await mkdir(outsideStyles);
+    await writeFile(join(outsideStyles, "theme.css"), "", "utf8");
+    await symlink(outsideStyles, join(f.exercise, "starter", "styles"));
+
+    await expect(
+      new FileContentReader(f.courses).getExerciseBySlug(
+        "course",
+        "module",
+        "lesson",
+        "exercise",
+      ),
+    ).rejects.toThrow(/non-symlink|Content/);
+
+    await rm(join(f.exercise, "starter", "styles"), {
+      recursive: true,
+      force: true,
+    });
+    await mkdir(join(f.exercise, "starter", "styles", "theme.css"), {
+      recursive: true,
+    });
+
+    await expect(
+      new FileContentReader(f.courses).getExerciseBySlug(
+        "course",
+        "module",
+        "lesson",
+        "exercise",
+      ),
+    ).rejects.toThrow(/regular file|Content/);
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("source inspector rejects unsafe undeclared starter entry", async () => {
+  const f = await fixture();
+
+  try {
+    const outside = join(f.root, "outside.css");
+    await writeFile(outside, "outside", "utf8");
+    await symlink(outside, join(f.exercise, "starter", "rogue.css"));
+
+    await expect(
+      new FileExerciseSourceInspector(f.courses).inspectExercise({
+        courseSlug: "course",
+        moduleSlug: "module",
+        lessonSlug: "lesson",
+        exerciseSlug: "exercise",
+      }),
+    ).rejects.toThrow(/Failed to inspect exercise source/);
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});

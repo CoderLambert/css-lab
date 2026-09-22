@@ -224,3 +224,62 @@ test("source-only inspector failure becomes a blocking health issue", async () =
     }),
   );
 });
+
+
+test("existing duplicate order and duplicate check id rules remain active", async () => {
+  const duplicateChecks = makeExercise({
+    checks: [
+      {
+        id: "duplicate",
+        type: "exists",
+        selector: ".target",
+        message: "one",
+      },
+      {
+        id: "duplicate",
+        type: "exists",
+        selector: ".other",
+        message: "two",
+      },
+    ],
+  });
+
+  const checkReport = await audit(duplicateChecks, {
+    starterPaths: ["index.html", "style.css"],
+    solutionPaths: ["style.css"],
+  });
+  expect(checkReport.issues).toContainEqual(
+    expect.objectContaining({
+      code: "duplicate-check-id",
+      severity: "error",
+    }),
+  );
+
+  const secondExercise = {
+    ...makeExercise({
+      id: "exercise-id-2",
+      slug: "exercise-two",
+    }),
+    order: 1,
+  };
+  const duplicateOrderReader: ContentReader = {
+    ...reader(makeExercise()),
+    listExercises: async () => [makeExercise(), secondExercise],
+  };
+  const sourceInspector = exerciseInspector({
+    starterPaths: ["index.html", "style.css"],
+    solutionPaths: ["style.css"],
+  });
+  const orderReport = await readStudioContentHealth(duplicateOrderReader, {
+    lessonContentInspector,
+    exerciseSourceInspector: sourceInspector,
+  });
+
+  expect(orderReport.issues).toContainEqual(
+    expect.objectContaining({
+      code: "duplicate-order",
+      severity: "error",
+      location: expect.stringContaining("lesson:lesson"),
+    }),
+  );
+});
