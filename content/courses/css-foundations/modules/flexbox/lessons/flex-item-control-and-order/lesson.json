@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flex-item-control-and-order",
+  "slug": "flex-item-control-and-order",
+  "title": "Flex item 控制与 source order",
+  "description": "用 align-self、flex context 中的 auto margin 与 order 做 item-level control，同时保持 source order 与可访问性意识。",
+  "estimatedMinutes": 20,
+  "order": 5,
+  "status": "draft"
+}

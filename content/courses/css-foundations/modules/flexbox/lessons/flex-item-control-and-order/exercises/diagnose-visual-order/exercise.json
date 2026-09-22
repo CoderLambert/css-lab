@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flex-item-control-and-order.diagnose-visual-order.001",
+  "revision": 1,
+  "slug": "diagnose-visual-order",
+  "title": "诊断 visual order",
+  "prompt": "让 .primary 使用 order: 1、.secondary 使用 order: 2，恢复视觉顺序；注意这不会改变 DOM/source order。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先查看 HTML source order；order 只改变 flex items 的视觉排列。",
+    "本题目标是 primary 先视觉出现，secondary 后视觉出现。",
+    "分别设置 primary 为 1、secondary 为 2，并保留 source-order/accessibility caution。"
+  ],
+  "checks": [
+    {
+      "id": "primary-visual-order",
+      "type": "style",
+      "selector": ".primary",
+      "property": "order",
+      "equals": "1",
+      "message": "让 primary 使用 visual order: 1"
+    },
+    {
+      "id": "secondary-visual-order",
+      "type": "style",
+      "selector": ".secondary",
+      "property": "order",
+      "equals": "2",
+      "message": "让 secondary 使用 visual order: 2"
+    }
+  ]
+}

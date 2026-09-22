@@ -1,0 +1,25 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.tray {
+  display: flex;
+  gap: 12px;
+  width: 340px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.primary,
+.secondary {
+  padding: 10px 12px;
+  border: 1px solid;
+}

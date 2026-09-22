@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flex-item-control-and-order.use-auto-margin.001",
+  "revision": 1,
+  "slug": "use-auto-margin",
+  "title": "用 auto margin 推开 item",
+  "prompt": "让 .actions 使用 margin-inline-start: auto，把它推向 flex context 的 main-axis 末端；最终空间分配需要在 Preview 中观察。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "auto margin 吸收对应 axis 上的剩余空间，不是固定像素 offset。",
+    "actions 在 inline-start 一侧设置 auto margin，可以把它推向 main-axis 末端。",
+    "设置 margin-inline-start: auto；本题 checker 不把 computed pixel value 当成 authored auto 证明。"
+  ],
+  "checks": []
+}

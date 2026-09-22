@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flex-item-control-and-order.align-single-item.001",
+  "revision": 1,
+  "slug": "align-single-item",
+  "title": "单独控制一个 item",
+  "prompt": "让 .featured 使用 align-self: end 覆盖 container 的默认 cross-axis alignment。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先读取 tray 的 flex-direction 与 align-items；本题只控制一个 item。",
+    "align-self 沿同一条 cross axis 工作，不会改变 main axis。",
+    "对 .featured 设置 align-self: end；普通书写模式下 flex-end 也是等价值。"
+  ],
+  "checks": [
+    {
+      "id": "featured-align-self",
+      "type": "style",
+      "selector": ".featured",
+      "property": "align-self",
+      "equals": "end",
+      "alsoAccepts": ["flex-end"],
+      "message": "让 featured 覆盖默认值并沿 cross axis 对齐到 end"
+    }
+  ]
+}

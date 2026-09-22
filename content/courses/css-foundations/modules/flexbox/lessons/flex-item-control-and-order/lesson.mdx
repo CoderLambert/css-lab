@@ -1,0 +1,58 @@
+## item-level control 不会重写整个 container 算法
+
+Flex container 已经决定了 main/cross axis 和基本的 line layout；item-level properties 只在这个模型上做局部调整。先区分“覆盖某个 item 的 cross-axis 对齐”“把剩余空间推到某个 margin”“改变视觉顺序”这三种问题。
+
+<Concept title="align-self、auto margin 与 order 的边界">
+`align-self` 可以覆盖单个 item 的 `align-items` 默认值，但它仍然沿同一条 cross axis 工作。它不是另一套坐标系统。
+
+Flex context 中的 auto margin 会吸收对应 axis 上的剩余空间，因此 `margin-inline-start: auto` 常用来把一组 actions 推向 main-axis 末端。它描述的是空间分配，不是一个固定像素位置。
+
+`order` 影响 flex items 的视觉排列顺序，但不会重写 DOM/source order，也不会自动重排键盘焦点、屏幕阅读器阅读顺序或其他 accessibility 顺序。视觉顺序与交互顺序不一致时应当谨慎使用。
+</Concept>
+
+<Predict
+  question="HTML source order 是 `Primary` 再 `Secondary`，但 `.secondary { order: -1 }`。最准确的结论是什么？"
+  options={["Secondary 可能先视觉绘制，但 DOM 与键盘/source order 不会因此自动交换", "DOM 会被浏览器永久重写为 Secondary、Primary", "order 只对 cross-axis alignment 生效"]}
+  answer="Secondary 可能先视觉绘制，但 DOM 与键盘/source order 不会因此自动交换"
+  explanation="order 改变 flex items 的视觉排列；它不改变 source order，也不自动修复由 source order 决定的可访问性交互顺序。"
+/>
+
+<Compare
+  leftTitle="align-items"
+  leftCode="align-items: center"
+  leftMeaning="给 container 中 items 提供默认 cross-axis alignment。"
+  rightTitle="align-self"
+  rightCode="align-self: end"
+  rightMeaning="让单个 item 覆盖这个默认值，仍然使用同一条 cross axis。"
+/>
+
+<Compare
+  leftTitle="auto margin"
+  leftCode="margin-inline-start: auto"
+  leftMeaning="吸收 main-axis 剩余空间；是空间分配规则，不是固定坐标。"
+  rightTitle="order"
+  rightCode="order: -1"
+  rightMeaning="改变视觉排列，不改变 DOM/source/keyboard order。"
+/>
+
+## 在 item-level control 中保留 source-order 意识
+
+<Exercise
+  slug="align-single-item"
+  label="单独控制一个 item"
+  goal="用 align-self: end 覆盖 .featured 的默认 cross-axis alignment，先读取 container 的 axis。"
+/>
+
+<Exercise
+  slug="use-auto-margin"
+  label="用 auto margin 推开 item"
+  goal="在 flex context 中用 margin-inline-start: auto 把 .actions 推向 main-axis 末端，并在 Preview 中观察空间分配。"
+/>
+
+<Exercise
+  slug="diagnose-visual-order"
+  label="诊断 visual order"
+  goal="用 order 调整视觉顺序，同时明确 visual order 不等于 DOM/source order 或 keyboard/accessibility order。"
+/>
+
+当前 checker 可以检查 `align-self` 与 `order` 声明，但 computed style 会把 auto margin 解析为与布局有关的 used value，不能诚实证明 learner 写了 authored `auto`。因此 auto-margin exercise 保留真实目标、空 checks 与 draft 状态；不要用固定像素 proxy 冒充 auto-margin mastery。
