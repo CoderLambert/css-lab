@@ -17,6 +17,8 @@ style.css editable=true
 
 Task 04 的重构边界是 **Editor domain**，不是重新设计整个 learner shell。
 
+当前 `AGENTS.md` 的 Product Scope 仍写着“Unless explicitly requested, do not add HTML editing”。**本 M6A Task 04 就是已经经过设计审核的显式请求**，因此该默认限制不阻止本任务。不要借此扩展 JavaScript editing / generic IDE；Task 06 再把 AGENTS 更新为 M6A 完成后的长期 Front-end Lab wording。
+
 必须保留 MDX Learning Flow v1 已确认的布局/行为：
 
 - 左侧 LessonPanel 渲染完整 MDX teaching flow。
@@ -371,6 +373,7 @@ Task 05 用 isolated sandbox iframe验证 HTML Runtime behavior/security。
 ## 15. 验证
 
 ```bash
+pnpm test:authoring-skill
 pnpm content:check
 pnpm test:content
 pnpm lint

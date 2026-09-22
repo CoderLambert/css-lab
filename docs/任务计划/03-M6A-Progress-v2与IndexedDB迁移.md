@@ -179,6 +179,20 @@ upgrade(db, oldVersion, _newVersion, transaction) {
 
 实际实现要结合 store existence，避免重复 create store。
 
+### Versionchange transaction 约束
+
+`idb.openDB(..., { upgrade })` 已把当前 upgrade 的 `versionchange` transaction 传入 callback。migration 必须围绕这个 transaction 设计：
+
+- 不在 upgrade 中再调用 `db.transaction(...)` 创建第二个普通 transaction。
+- 不把 migration 数据读取/写入放到 transaction 之外。
+- upgrade callback 本身不要依赖网络、timer、React state 或其他无关异步工作。
+- 需要 cursor / get / put/update 时，只使用 supplied versionchange transaction 对应 store 发起 IndexedDB request。
+- migration helper 可以做纯同步数据转换；真正的持久化请求必须属于 supplied transaction。
+- 不依赖“upgrade callback 返回 Promise 后 idb 会等待该 Promise”这种假设；migration correctness 以 IndexedDB versionchange transaction 的 request 生命周期为准。
+- transaction abort / open reject 时按本任务 persistence failure策略处理，不自动 delete DB。
+
+由于 v1 stored record 与 v2 `DBSchema` value 类型不同，允许**仅在 migration implementation 内**使用窄的 Legacy store type / `unknown` boundary，然后先经 `LegacyExerciseProgressV1Schema.safeParse` 再转换。不要为了 TypeScript 方便把 v1 字段重新加入 v2 product schema。
+
 ### Record conversion
 
 v1：
@@ -237,6 +251,18 @@ learner 后续 `saveDraft` 可以覆盖同 key。
 - hook 捕获。
 - learner session 使用 in-memory draft 继续。
 - 不自动清 DB。
+- 不尝试降回 DATABASE_VERSION = 1。
+
+### Forward-only compatibility
+
+DB version 2 一旦被真实浏览器打开并完成 upgrade，就把它视为已经发生的 forward migration。
+
+因此：
+
+- 后续 hotfix/rollback 代码仍必须能打开 version 2。
+- 不能通过恢复旧 `DATABASE_VERSION = 1` 实现生产回滚。
+- 不能依赖 deleteDatabase 让用户“回到 v1”。
+- M6A 发布回滚必须保持 v2 storage compatibility，与总计划的 release policy 一致。
 
 ## 8. completed achievement semantics
 
@@ -393,6 +419,16 @@ IndexedDB seed需要稳定 same-origin document。
 
 `/studio` 当前不使用 learner ProgressStore，适合作为同源 seed page。
 
+### Upgrade transaction coverage
+
+除数据语义外，测试还要证明：
+
+- fresh database 从 oldVersion 0 正确创建 v2 store。
+- version 1 existing store 使用 supplied versionchange transaction完成转换。
+- malformed v1 record 不阻断其他合法 record迁移。
+- migration 完成后没有长期 v1/v2 双写。
+- 打开已经是 version 2 的 DB 不重复执行 v1 migration。
+
 ### 必须覆盖两种 record
 
 至少：
@@ -429,6 +465,7 @@ locked saved -> ignore
 ## 15. 验证
 
 ```bash
+pnpm test:authoring-skill
 pnpm content:check
 pnpm test:content
 pnpm lint
@@ -445,6 +482,9 @@ git status --short
 - [ ] Progress runtime contract 无 `code`。
 - [ ] saveCode 删除，使用 saveDraft。
 - [ ] Legacy v1 schema 明确且仅 migration 使用。
+- [ ] upgrade 只使用 supplied versionchange transaction，不在其中开启第二个 db.transaction。
+- [ ] migration 不依赖 upgrade callback Promise 生命周期或外部异步工作。
+- [ ] Legacy/v2 typing boundary 只存在于 migration implementation。
 - [ ] started v1 自动迁移。
 - [ ] completed v1 自动迁移。
 - [ ] code -> files["style.css"] 精确。
@@ -455,4 +495,5 @@ git status --short
 - [ ] hydration不覆盖 local mutation。
 - [ ] malformed record不导致 app永久不可用。
 - [ ] storage failure不破坏 learner runtime。
+- [ ] 已升级到 DB v2 后的 rollback/hotfix 仍保持 v2 compatibility，不以 DATABASE_VERSION=1 或 deleteDatabase 回退。
 - [ ] migration + reconciliation 自动化覆盖通过。

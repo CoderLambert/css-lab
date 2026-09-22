@@ -408,7 +408,10 @@ export interface BrowserCheckResult extends CheckResult {
 具体命名可以按实现调整，但必须满足：
 
 - learner mismatch 与 checker/runtime fault 可区分。
-- selector/target missing 不得伪装成普通 learner mismatch。
+- `target-not-found` 必须与普通 value mismatch 保持独立 reason，但它**不天然等于 checker fault**。
+- Runtime/CheckResult 不知道 `editable`，因此不在 Runtime 层判断 target missing 的责任归属。
+- Learning Shell 在展示时结合 Workspace metadata：存在 editable HTML 时，target missing 可能是 learner 可修复的 DOM mismatch；HTML 全 locked 时，它更可能是 content/check configuration issue。
+- `checker-error` 才是明确的 checker/runtime fault。
 - UI 仍能展示 expected / actual，并在 Browser check 需要时展示 selector/property。
 - neutral base 不再依赖 `Check["type"]`。
 - 不把 Browser-specific fields 强塞进未来所有 Runtime 的公共结果。
@@ -427,6 +430,7 @@ export interface BrowserCheckResult extends CheckResult {
 ## 12. 验证
 
 ```bash
+pnpm test:authoring-skill
 pnpm content:check
 pnpm test:content
 pnpm lint
@@ -455,4 +459,4 @@ Task 01 核心就是“新定义存在，但旧 production flow 无回归”，�
 - [ ] style check 的语义等价 accepted-values 能力未丢失。
 - [ ] production structured checker diagnostics 未被 Task 01 neutralization 提前破坏。
 - [ ] production learner flow 无 v1/v2 union 分支污染。
-- [ ] lint/build/e2e 全过。
+- [ ] test:authoring-skill/content:check/test:content/lint/build/e2e 全过。

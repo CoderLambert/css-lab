@@ -14,12 +14,20 @@ Studio -> workspace/source health
 
 Task 02 结束后不再存在 production v1 Exercise runtime contract。
 
+注意：这不等于旧 learner UI/Progress/Preview 在本阶段已经全部重写。Task 02 必须提供一个**局部、显式、可删除的 compatibility bridge**，让现有 CSS learner flow 在 Exercise v2/Workspace 上继续运行，直到 Task 03~05 逐步替换。
+
 ## 1. 开始前读取
 
 ```text
 docs/任务计划/01-M6A-Workspace-Domain与Exercise-Schema-v2.md
 docs/功能文档/MDX-Learning-Flow-v1-产品方案.md
 docs/任务计划/MDX-Learning-Flow-v1/07-M6A-衔接约束.md
+AGENTS.md
+.agents/skills/css-lesson-authoring/SKILL.md
+.agents/skills/css-lesson-authoring/references/*
+.agents/skills/css-lesson-authoring/assets/**
+.agents/skills/css-lesson-authoring/scripts/scaffold.mjs
+.agents/skills/css-lesson-authoring/scripts/authoring-skill.test.mjs
 src/lib/workspace/*
 src/lib/content/file/file-content-reader.ts
 src/lib/content/file/file-utils.ts
@@ -44,6 +52,9 @@ base.css
 starter.css
 solution.css
 ExerciseRecordSchema
+current v1 asset layout
+introduce Exercise v2
+.agents/skills/css-lesson-authoring
 ```
 
 ## 2. 原子 cutover 原则
@@ -115,6 +126,114 @@ solution.css  -> solution/style.css
 
 其中 `exercise.order` 已是 MDX v1 的 canonical learner sequence。迁移后 `content:check` 必须继续证明 learner-visible Lesson 对三个 published Exercise 的引用完整、唯一且同序；不得因 v2 metadata 改写 sequence 语义。
 
+### CSS Lesson Authoring Skill 同步迁移
+
+最新 main 已把 `.agents/skills/css-lesson-authoring/` 作为正式 curriculum authoring tool，并在 CI 运行 `pnpm test:authoring-skill`。
+
+因此 Exercise v2 cutover 必须同一 Task 原子更新 Skill，不能留下：
+
+```text
+runtime/content reader = v2
+official scaffolder    = v1
+```
+
+至少同步：
+
+#### Skill contract / references
+
+更新：
+
+```text
+.agents/skills/css-lesson-authoring/SKILL.md
+.agents/skills/css-lesson-authoring/references/content-contract.md
+以及其他仍描述旧 root asset layout 的 active references
+```
+
+要求：
+
+- Course/Module/Lesson 仍明确 schemaVersion 1。
+- Exercise 明确 schemaVersion 2。
+- Exercise source layout 改为 `starter/` + `solution/`。
+- 删除“scaffolder creates current v1 asset layout”。
+- 删除“Skill must not introduce Exercise v2”这种已经失效的边界；替换为“不自行重新设计既有 Exercise v2/Workspace/Runtime contract”。
+- 删除“Skill must not implement M6A”这种一次性 milestone 边界；替换为长期规则：“curriculum authoring Skill 不负责重构 learner UI、Workspace domain、Runtime protocol 或平台架构；遇到能力缺口应报告，而不是在 authoring workflow 中扩展平台”。
+- Skill frontmatter/description 中的 “M6A architecture work” 等 milestone-specific措辞也同步改成长期平台边界，避免 M6A 完成后说明过期。
+- status 只使用当前真实 `draft | published` vocabulary，不引入不存在的 `hidden` status。
+
+#### Templates
+
+`exercise.json.template` 必须生成 v2 metadata：
+
+```json
+{
+  "schemaVersion": 2,
+  "workspace": {
+    "files": [
+      { "path": "index.html", "language": "html", "editable": false },
+      { "path": "base.css", "language": "css", "editable": false },
+      { "path": "style.css", "language": "css", "editable": true }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}
+```
+
+将 active asset templates 的命名/目录也同步到 v2 语义，推荐：
+
+```text
+assets/starter/index.html.template
+assets/starter/base.css.template
+assets/starter/style.css.template
+assets/solution/style.css.template
+```
+
+不要继续保留 fixture/starter.css/solution.css root-layout template 作为第二套 scaffold source of truth。
+
+#### Scaffolder
+
+`scaffold.mjs exercise` 必须创建：
+
+```text
+exercise.json
+starter/index.html
+starter/base.css
+starter/style.css
+solution/style.css
+```
+
+并继续保持：
+
+- draft status。
+- caller supplied stable id。
+- revision/order semantics。
+- duplicate id/order/path overwrite protection。
+- deterministic structure。
+
+Lesson scaffolding与 source-pack tooling不因 M6A 改写。
+
+#### Skill tests
+
+`authoring-skill.test.mjs` 至少断言：
+
+- scaffolded Exercise schemaVersion === 2。
+- workspace/runtime metadata与输出 files一致。
+- old root `fixture.html/base.css/starter.css/solution.css` 不再生成。
+- nested `starter/` / `solution/` files存在。
+- draft/revision/order/id invariants仍成立。
+
+#### AGENTS minimum sync at Task 02
+
+Task 02 就要更新 AGENTS 中已经因 cutover 变成错误事实的：
+
+- Exercise Assets layout。
+- CSS Lesson Authoring Skill scaffold contract。
+- Lesson/Exercise status 描述中任何不存在的 `hidden` vocabulary，统一到真实 `draft | published` schema。
+
+不要等 Task 06 才修这些 factual contracts；Task 06 再负责 Front-end Lab Platform 的完整产品/架构措辞升级。
+
 ## 4. exercise.json v2
 
 当前 CSS exercises：
@@ -157,6 +276,39 @@ Task 02 完成后 `Exercise`：
 
 Task 01 transitional alias如已无用，本阶段删除/收敛。
 
+### Task 02 compatibility bridge
+
+当前真实代码中 `LearningWorkspace`、旧 Progress hook、旧 Preview 仍消费 CSS-only字段。Task 02 删除 Exercise legacy fields 后，必须在 learner integration 边界提供临时 bridge，而不是把旧字段重新加回 Exercise。
+
+bridge 只服务当前 3 个 CSS Exercise 的已知 topology：
+
+```text
+index.html locked
+base.css   locked
+style.css  editable
+runtime.entry = index.html
+```
+
+它可以局部派生：
+
+- entry HTML content。
+- 当前 locked CSS content。
+- 当前唯一 editable CSS path 与 starter content。
+- 旧 Preview 所需的 CSS-only input。
+
+要求：
+
+- 来源只能是 `exercise.workspace` + `exercise.runtime`。
+- 不建立新的长期 public domain type。
+- 不让 `FileContentReader` 再产出 `fixtureHtml/baseCss/starterCss`。
+- 对不符合当前 compatibility topology 的 Exercise 必须显式失败，不能假装通用支持。
+- hardcode `style.css` 若不可避免，只能集中在这个临时 bridge，并带 Task 03/04/05 删除说明。
+- Task 03 后 Progress 不再依赖该 bridge 的 starterCss/code contract。
+- Task 04 后 Editor 不再依赖该 bridge 的 CSS-only state。
+- Task 05 删除最后的旧 Preview adapter 与 compatibility bridge。
+
+这个 bridge 的存在是为了保持阶段事务完整，不是新的平台架构。
+
 ## 6. FileContentReader hydration
 
 `readExercise()`：
@@ -169,6 +321,22 @@ Task 01 transitional alias如已无用，本阶段删除/收敛。
 6. 返回 solution-free Exercise。
 
 只有通过 WorkspacePath schema 的 logical path 可以进入 OS `join()`。
+
+### Starter filesystem containment
+
+WorkspacePath grammar 只能防止字符串层面的 `../` / separator escape，**不能阻止 filesystem symlink escape**。
+
+FileContentReader 读取每个 declared starter file 时必须 fail closed：
+
+- Exercise `starter/` root 本身必须是 non-symlink directory。
+- 从该已验证 root 开始解析。
+- `starter/` 下参与 logical path 的中间目录不得是 symlink。
+- 最终 declared file 不得是 symlink，且必须是 regular file。
+- 可使用 `lstat` + segment walk，或等价的 `realpath` containment + no-symlink policy；不能只做 `join().startsWith(...)` 字符串判断。
+- missing / symlink / non-regular / root escape 都属于 hard loading error。
+- Reader 与 ExerciseSourceInspector 应共享窄的安全 path/file helper，避免两套 filesystem规则漂移；不要因此抽 generic VFS/filesystem framework。
+
+该约束必须由 FileContentReader 自己执行，不能只依赖 Studio Health，因为 learner route 不以“先访问 Studio”为安全前提。
 
 Runtime 永远看不到 OS path。
 
@@ -270,6 +438,7 @@ File implementation与 FileContentReader使用同一 courses root convention。
 
 - 不 follow。
 - 作为 source inspection error/health error。
+- 与 FileContentReader 使用同一 no-symlink / regular-file / containment规则；Inspector 不是 Reader 安全性的替代品。
 
 不得暴露绝对 OS path 到 Studio domain。
 
@@ -293,7 +462,7 @@ File implementation与 FileContentReader使用同一 courses root convention。
 
 ```text
 visible published exercise -> error
-draft/hidden exercise      -> warning
+draft exercise             -> warning
 ```
 
 ### Browser current capability
@@ -369,7 +538,22 @@ Task 02-04 期间不得向 content 添加 JS/TS workspace file。
 
 schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
-## 14. E2E
+## 14. Compatibility / filesystem tests
+
+除 Studio E2E 外，必须增加可自动化的临时目录测试，至少覆盖：
+
+- declared starter normal regular file 可读。
+- declared starter missing -> hard error。
+- final-file symlink -> hard error。
+- intermediate-directory symlink -> hard error。
+- symlink 指向 starter root 外 -> hard error。
+- non-regular entry 不被当作 starter file。
+- Task 02 compatibility bridge 对当前 3 个 CSS Exercise 正常。
+- compatibility bridge 遇到第二个 editable CSS / editable HTML / 非预期 topology 明确失败，而不是静默取第一个文件。
+
+测试应直接针对 server-side helper/Reader，不依赖 Studio 页面才发现问题。
+
+## 15. E2E
 
 更新 `e2e/studio-content-health.spec.ts`：
 
@@ -383,9 +567,10 @@ schema vocabulary允许，但 Browser fail-closed 到 Task 05 才完成。
 
 不要依赖样式 class。
 
-## 15. 验证
+## 16. 验证
 
  ```bash
+pnpm test:authoring-skill
 pnpm content:check
 pnpm test:content
 pnpm lint
@@ -404,14 +589,21 @@ git diff --exit-code -- src/features/learning/generated/lesson-content-registry.
 
 人工确认旧 root assets不与新结构双存。注意 `starter/base.css` 是合法新路径。
 
-## 16. Acceptance Criteria
+## 17. Acceptance Criteria
 
 - [ ] 当前 3 个 exercise 已迁移 starter/solution。
+- [ ] CSS Lesson Authoring Skill 同步迁移到 Exercise v2 + starter/solution layout。
+- [ ] scaffolder/template/reference/test 不再把 v1 root assets当 current contract。
+- [ ] AGENTS 中 Exercise Assets / authoring scaffold factual contract 在 Task 02 即同步 v2。
 - [ ] Exercise production schema/type 原子切 v2。
 - [ ] 不存在 v1/v2 UI union。
 - [ ] fixtureHtml/baseCss/starterCss 从 runtime Exercise 删除。
+- [ ] Task 02 compatibility bridge 只从 Workspace/runtime 派生现有 CSS flow，不把 legacy fields 放回 Exercise。
+- [ ] compatibility bridge 对超出当前 CSS topology 的输入 fail closed，并有后续 Task 删除路径。
 - [ ] Reader metadata-driven hydrate declared starter files。
 - [ ] declared starter missing 明确为 hard load error。
+- [ ] declared starter 的 final/intermediate symlink、non-regular file、root escape 明确为 hard load error。
+- [ ] Reader filesystem containment 不依赖 Studio 先运行。
 - [ ] ExerciseSourceInspector server-only。
 - [ ] Inspector 只返回 normalized logical paths。
 - [ ] solution 不进入 Exercise。
@@ -423,4 +615,4 @@ git diff --exit-code -- src/features/learning/generated/lesson-content-registry.
 - [ ] URL/id/revision不变。
 - [ ] `lesson.mdx` / generated registry / LessonContentInspector 未被 Workspace migration 污染。
 - [ ] canonical `exercise.order` 与 MDX Exercise references 仍通过 `content:check`。
-- [ ] content:check/test:content/lint/build/e2e通过。
+- [ ] test:authoring-skill/content:check/test:content/lint/build/e2e通过。
