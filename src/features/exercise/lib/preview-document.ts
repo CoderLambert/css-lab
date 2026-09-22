@@ -8,8 +8,8 @@ interface PreviewDocumentInput {
   baseCss: string;
 }
 
-function escapeClosingTag(value: string, tagName: string): string {
-  return value.replace(new RegExp(`</${tagName}`, "gi"), `<\\/${tagName}`);
+function escapeStyleClosingTag(value: string): string {
+  return value.replace(/<\/style/gi, "<\\/style");
 }
 
 function createPreviewBridgeScript(): string {
@@ -60,11 +60,14 @@ function createPreviewBridgeScript(): string {
 `;
 }
 
-export function createPreviewDocument({ html, baseCss }: PreviewDocumentInput): string {
-  const safeBaseCss = escapeClosingTag(baseCss, "style");
-  const safeFixtureHtml = escapeClosingTag(html, "script");
+export function createPreviewDocument({
+  html,
+  baseCss,
+}: PreviewDocumentInput): string {
+  const safeBaseCss = escapeStyleClosingTag(baseCss);
   const bridgeScript = createPreviewBridgeScript();
 
+  // fixtureHtml is trusted course-author content. Learners cannot edit HTML.
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -74,7 +77,7 @@ export function createPreviewDocument({ html, baseCss }: PreviewDocumentInput): 
     <style id="user-css"></style>
   </head>
   <body>
-    ${safeFixtureHtml}
+    ${html}
     <script>${bridgeScript}</script>
   </body>
 </html>`;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 import {
   ResizableHandle,
@@ -19,40 +19,38 @@ interface LearningWorkspaceProps {
   exercise: Exercise;
 }
 
-interface EditorState {
-  exerciseId: string;
-  starterCss: string;
-  css: string;
+const DESKTOP_WORKSPACE_QUERY = "(min-width: 1200px)";
+
+function subscribeToDesktopWorkspace(onStoreChange: () => void): () => void {
+  const mediaQuery = window.matchMedia(DESKTOP_WORKSPACE_QUERY);
+  mediaQuery.addEventListener("change", onStoreChange);
+
+  return () => {
+    mediaQuery.removeEventListener("change", onStoreChange);
+  };
 }
 
-export function LearningWorkspace({
+function getDesktopWorkspaceSnapshot(): boolean {
+  return window.matchMedia(DESKTOP_WORKSPACE_QUERY).matches;
+}
+
+function getDesktopWorkspaceServerSnapshot(): boolean {
+  return false;
+}
+
+function LearningWorkspaceSession({
   lesson,
   exercise,
 }: LearningWorkspaceProps) {
-  const [editorState, setEditorState] = useState<EditorState>(() => ({
-    exerciseId: exercise.id,
-    starterCss: exercise.starterCss,
-    css: exercise.starterCss,
-  }));
-  const hasCurrentExercise =
-    editorState.exerciseId === exercise.id &&
-    editorState.starterCss === exercise.starterCss;
-  const css = hasCurrentExercise ? editorState.css : exercise.starterCss;
-
-  const handleCssChange = (nextCss: string) => {
-    setEditorState({
-      exerciseId: exercise.id,
-      starterCss: exercise.starterCss,
-      css: nextCss,
-    });
-  };
+  const [css, setCss] = useState(exercise.starterCss);
+  const isDesktopWorkspace = useSyncExternalStore(
+    subscribeToDesktopWorkspace,
+    getDesktopWorkspaceSnapshot,
+    getDesktopWorkspaceServerSnapshot,
+  );
 
   const handleReset = () => {
-    setEditorState({
-      exerciseId: exercise.id,
-      starterCss: exercise.starterCss,
-      css: exercise.starterCss,
-    });
+    setCss(exercise.starterCss);
   };
 
   return (
@@ -61,45 +59,60 @@ export function LearningWorkspace({
         <WorkspaceHeader />
 
         <main className="min-h-0 flex-1 bg-workspace">
-          <div className="hidden h-full min-h-[620px] min-[1200px]:flex">
-            <ResizablePanelGroup orientation="horizontal" className="h-full">
-              <ResizablePanel defaultSize="25" minSize="19" className="min-w-0">
+          {isDesktopWorkspace ? (
+            <div className="h-full min-h-[620px]">
+              <ResizablePanelGroup orientation="horizontal" className="h-full">
+                <ResizablePanel defaultSize="25" minSize="19" className="min-w-0">
+                  <LessonPanel lesson={lesson} exercise={exercise} />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize="40" minSize="28" className="min-w-0">
+                  <EditorPanel value={css} onChange={setCss} />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize="35" minSize="26" className="min-w-0">
+                  <PreviewPanel
+                    html={exercise.fixtureHtml}
+                    baseCss={exercise.baseCss}
+                    css={css}
+                  />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+          ) : (
+            <div className="grid min-h-[760px] grid-cols-1 min-[800px]:grid-cols-2">
+              <div className="min-h-[560px] min-w-0 border-b border-border min-[800px]:border-r">
                 <LessonPanel lesson={lesson} exercise={exercise} />
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize="40" minSize="28" className="min-w-0">
-                <EditorPanel value={css} onChange={handleCssChange} />
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize="35" minSize="26" className="min-w-0">
+              </div>
+              <div className="min-h-[520px] min-w-0 border-b border-border">
+                <EditorPanel value={css} onChange={setCss} />
+              </div>
+              <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
                 <PreviewPanel
                   html={exercise.fixtureHtml}
                   baseCss={exercise.baseCss}
                   css={css}
                 />
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </div>
-
-          <div className="grid min-h-[760px] grid-cols-1 min-[800px]:grid-cols-2 min-[1200px]:hidden">
-            <div className="min-h-[560px] min-w-0 border-b border-border min-[800px]:border-r">
-              <LessonPanel lesson={lesson} exercise={exercise} />
+              </div>
             </div>
-            <div className="min-h-[520px] min-w-0 border-b border-border">
-                <EditorPanel value={css} onChange={handleCssChange} />
-            </div>
-            <div className="min-h-[560px] min-w-0 min-[800px]:col-span-2">
-              <PreviewPanel
-                html={exercise.fixtureHtml}
-                baseCss={exercise.baseCss}
-                css={css}
-              />
-            </div>
-          </div>
+          )}
         </main>
 
         <WorkspaceFooter onReset={handleReset} />
       </div>
     </div>
+  );
+}
+
+export function LearningWorkspace({
+  lesson,
+  exercise,
+}: LearningWorkspaceProps) {
+  return (
+    <LearningWorkspaceSession
+      key={`${exercise.id}:${exercise.revision}`}
+      lesson={lesson}
+      exercise={exercise}
+    />
   );
 }

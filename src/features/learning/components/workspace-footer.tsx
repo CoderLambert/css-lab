@@ -15,17 +15,12 @@ export function WorkspaceFooter({ onReset }: WorkspaceFooterProps) {
           Reset
         </Button>
         <span className="hidden text-xs text-muted-foreground sm:inline">
-          自动保存到本地 · 舒适专注模式
+          实时预览 · 舒适专注模式
         </span>
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <span className="mr-1 hidden items-center gap-1 text-[11px] text-muted-foreground md:flex">
-          <kbd className="rounded border border-border bg-panel-subtle px-1.5 py-0.5 font-mono text-[10px]">⌘</kbd>
-          <kbd className="rounded border border-border bg-panel-subtle px-1.5 py-0.5 font-mono text-[10px]">Enter</kbd>
-          检查
-        </span>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" disabled>
           <Lightbulb />
           提示
         </Button>
