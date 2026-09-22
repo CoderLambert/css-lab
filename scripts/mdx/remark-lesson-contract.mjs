@@ -257,3 +257,5 @@ export function remarkLessonContract() {
     });
   };
 }
+
+export default remarkLessonContract;
