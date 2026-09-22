@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flexible-items-and-free-space.set-flex-basis.001",
+  "revision": 1,
+  "slug": "set-flex-basis",
+  "title": "设置 flex basis",
+  "prompt": "为 .item 设置 flex-basis: 120px，先建立参与 free-space 分配的起始尺寸。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "basis 是 Flex sizing 的起点，不是最终尺寸保证。",
+    "本题要求一个明确的 main-axis basis 值。",
+    "对 .item 设置 flex-basis: 120px。"
+  ],
+  "checks": [
+    {
+      "id": "item-basis",
+      "type": "style",
+      "selector": ".item",
+      "property": "flex-basis",
+      "equals": "120px",
+      "message": "让 item 使用 flex-basis: 120px"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flexible-items-and-free-space",
+  "slug": "flexible-items-and-free-space",
+  "title": "Flex items 与 free space",
+  "description": "用 basis、positive/negative free space、grow 与 shrink 建立 flex item sizing mental model，而不是把 flex 当成 width shorthand。",
+  "estimatedMinutes": 24,
+  "order": 4,
+  "status": "draft"
+}

@@ -1,0 +1,56 @@
+## wrap 创建 lines，alignment 有不同层级
+
+当一行 flex container 放不下所有 items 时，`flex-wrap: wrap` 允许 Flexbox 把 items 分成多条 flex lines。每条 line 仍然沿 main axis 排列 items；新增的 line 不是把 Flexbox 变成 Grid，而是同一个一维算法产生了多个 line。
+
+<Concept title="item alignment 与 line alignment 不是一层">
+`align-items` 处理每条 flex line 内，items 沿 cross axis 的默认对齐；`align-content` 处理多条 lines 作为整体在 container cross axis 中如何分布。单行 flex container 没有多条 line 可分布，`align-content` 通常不会产生你期待的多行效果。
+
+`gap` 是相邻 items/lines 之间的 gutter；它不是 `justify-content`。`justify-content` 仍然沿每条 line 的 main axis 分配剩余空间。读 property 前先确认它作用在 item、line 还是 gutter。
+</Concept>
+
+<Predict
+  question="一个 `flex-wrap: wrap` 的 container 产生两条 lines。想让每条 line 里的 items 沿 cross axis 居中，同时让两条 lines 在 container 中上下分布，应该关注哪些属性？"
+  options={["align-items 与 align-content", "justify-content 与 gap", "只设置 align-content，align-items 永远不会作用"]}
+  answer="align-items 与 align-content"
+  explanation="align-items 作用于每条 line 内的 items，align-content 作用于多条 lines 的整体分布；它们是不同层级。"
+/>
+
+<Compare
+  leftTitle="align-items"
+  leftCode="align-items: center"
+  leftMeaning="在每条 flex line 内处理 items 的 cross-axis 默认对齐。"
+  rightTitle="align-content"
+  rightCode="align-content: space-between"
+  rightMeaning="在有多条 lines 时分布这些 lines 的整体 cross-axis 空间。"
+/>
+
+<Compare
+  leftTitle="gap"
+  leftCode="gap: 12px"
+  leftMeaning="直接表达 items 与 flex lines 之间的 gutter。"
+  rightTitle="justify-content"
+  rightCode="justify-content: space-between"
+  rightMeaning="沿每条 line 的 main axis 分配剩余空间；不是固定 gutter 的同义词。"
+/>
+
+## 在多条 flex lines 中观察层级
+
+<Exercise
+  slug="create-flex-lines"
+  label="创建 flex lines"
+  goal="让 .tray 使用 wrap，在空间不足时创建多条 flex lines；用 Preview 观察 line 的形成。"
+/>
+
+<Exercise
+  slug="separate-item-and-line-alignment"
+  label="区分 item 与 line 对齐"
+  goal="分别设置 align-items 与 align-content，表达 line 内 item 对齐和多条 lines 的整体分布。"
+/>
+
+<Exercise
+  slug="use-gap-with-wrap"
+  label="用 gap 表达 line spacing"
+  goal="让多行 flex container 使用 gap: 12px 表达 item 与 line 之间的 gutter，而不是假装成 justify-content。"
+/>
+
+当前 checker 可以检查 `flex-wrap`、alignment 和 gap 声明，但不能用固定几何结果完整证明实际 line 数量、line 分布或最终换行；这些结果必须在 Preview 中观察。本课保持 draft，避免把单个 computed declaration 说成完整 wrapping mastery。
