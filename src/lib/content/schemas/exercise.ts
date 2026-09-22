@@ -1,52 +1,52 @@
 import { z } from "zod";
 
-import {
-  CommonRecordSchema,
-  NonEmptyStringSchema,
-} from "./common";
+import { WorkspaceDefinitionSchema, WorkspacePathSchema } from "../../workspace/schemas";
+import { CommonRecordFields, CommonRecordSchema, NonEmptyStringSchema, SchemaVersionV2Schema } from "./common";
 
-const CheckBaseSchema = z
-  .object({
-    id: NonEmptyStringSchema,
-    message: NonEmptyStringSchema,
-  })
-  .strict();
+const CheckBaseSchema = z.object({ id: NonEmptyStringSchema, message: NonEmptyStringSchema }).strict();
 
 export const StyleCheckSchema = CheckBaseSchema.extend({
-  type: z.literal("style"),
-  selector: NonEmptyStringSchema,
-  property: NonEmptyStringSchema,
-  equals: NonEmptyStringSchema,
-  alsoAccepts: z.array(NonEmptyStringSchema).optional(),
+  type: z.literal("style"), selector: NonEmptyStringSchema, property: NonEmptyStringSchema,
+  equals: NonEmptyStringSchema, alsoAccepts: z.array(NonEmptyStringSchema).optional(),
 }).strict();
+export const ExistsCheckSchema = CheckBaseSchema.extend({ type: z.literal("exists"), selector: NonEmptyStringSchema }).strict();
+export const CountCheckSchema = CheckBaseSchema.extend({ type: z.literal("count"), selector: NonEmptyStringSchema, equals: z.number().int().nonnegative() }).strict();
+export const CheckSchema = z.discriminatedUnion("type", [StyleCheckSchema, ExistsCheckSchema, CountCheckSchema]);
 
-export const ExistsCheckSchema = CheckBaseSchema.extend({
-  type: z.literal("exists"),
-  selector: NonEmptyStringSchema,
-}).strict();
-
-export const CountCheckSchema = CheckBaseSchema.extend({
-  type: z.literal("count"),
-  selector: NonEmptyStringSchema,
-  equals: z.number().int().nonnegative(),
-}).strict();
-
-export const CheckSchema = z.discriminatedUnion("type", [
-  StyleCheckSchema,
-  ExistsCheckSchema,
-  CountCheckSchema,
-]);
-
-export const ExerciseRecordSchema = CommonRecordSchema.extend({
+const ExerciseFields = {
   revision: z.number().int().positive(),
   title: NonEmptyStringSchema,
   prompt: NonEmptyStringSchema,
   hints: z.array(NonEmptyStringSchema),
   checks: z.array(CheckSchema),
-}).strict();
+} as const;
+
+export const ExerciseRecordSchema = CommonRecordSchema.extend(ExerciseFields).strict();
+
+export const BrowserRuntimeDefinitionSchema = z.object({ type: z.literal("browser"), entry: WorkspacePathSchema }).strict();
+
+export const ExerciseRecordV2Schema = z
+  .object({
+    schemaVersion: SchemaVersionV2Schema,
+    ...CommonRecordFields,
+    ...ExerciseFields,
+    workspace: WorkspaceDefinitionSchema,
+    runtime: BrowserRuntimeDefinitionSchema,
+  })
+  .strict()
+  .superRefine((record, context) => {
+    const entry = record.workspace.files.find((file) => file.path === record.runtime.entry);
+    if (!entry) {
+      context.addIssue({ code: "custom", message: "browser runtime entry must exist in workspace", path: ["runtime", "entry"] });
+    } else if (entry.language !== "html") {
+      context.addIssue({ code: "custom", message: "browser runtime entry must be an HTML file", path: ["runtime", "entry"] });
+    }
+  });
 
 export type StyleCheck = z.infer<typeof StyleCheckSchema>;
 export type ExistsCheck = z.infer<typeof ExistsCheckSchema>;
 export type CountCheck = z.infer<typeof CountCheckSchema>;
 export type Check = z.infer<typeof CheckSchema>;
 export type ExerciseRecord = z.infer<typeof ExerciseRecordSchema>;
+export type ExerciseRecordV2 = z.infer<typeof ExerciseRecordV2Schema>;
+export type BrowserRuntimeDefinition = z.infer<typeof BrowserRuntimeDefinitionSchema>;
