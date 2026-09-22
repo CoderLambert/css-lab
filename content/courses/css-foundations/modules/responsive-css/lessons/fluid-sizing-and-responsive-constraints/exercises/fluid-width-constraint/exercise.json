@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css.fluid-sizing-and-responsive-constraints.fluid-width-constraint.001",
+  "revision": 1,
+  "slug": "fluid-width-constraint",
+  "title": "把 rigid width 变成 fluid constraint",
+  "prompt": "为 .card 添加 max-width: 100%，让 authored width 不超过 containing block 的可用 inline size。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先保留 card 的 width 意图，再问 containing block 能否容纳它。",
+    "max-width: 100% 把可用 inline size 变成一个上限。",
+    "对 .card 设置 max-width: 100%；多个 viewport 的最终 geometry 仍需 Preview 观察。"
+  ],
+  "checks": [
+    {
+      "id": "card-fluid-cap",
+      "type": "style",
+      "selector": ".card",
+      "property": "max-width",
+      "equals": "100%",
+      "message": "让 card 的 max-width 受 containing block 可用空间约束"
+    }
+  ]
+}

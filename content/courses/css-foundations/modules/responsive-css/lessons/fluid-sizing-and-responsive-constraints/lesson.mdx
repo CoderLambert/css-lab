@@ -1,0 +1,56 @@
+## responsive 先从 constraints 开始
+
+Responsive behavior 不等于先列出几个设备宽度。元素能否适应 available space，通常先由 intrinsic content、preferred size、min/max constraints 以及 Flexbox/Grid 的 flexible tracks/items 共同决定。
+
+<Concept title="available space + intrinsic constraints + flexible layout">
+`width: 100%`、百分比、`max-width`、`min-width` 等声明把组件放回 containing context 的可用空间中；它们仍然要和内容的 intrinsic size、box model 和 overflow 一起推理。一个固定的 `320px` 并不自动错误，但如果它超过可用空间，就需要约束或另一种布局策略。
+
+Flexbox 的 wrap、Grid 的 flexible tracks、`minmax()` 或一个合理的 max constraint 都可能让同一份 CSS 在不同 available space 下自然变化。Media query 是在某个真实 layout/content break 出现时选择另一组规则，不是 responsive 的唯一来源。
+</Concept>
+
+<Predict
+  question="`.card` 有 `width: 480px`，但它位于更窄的 containing block。哪一种思路最先值得尝试？"
+  options={["加 max-width: 100% 让 preferred width 受可用空间约束", "为 390px、768px、1280px 各复制一套完整 CSS", "把所有内容改成 position: absolute"]}
+  answer="加 max-width: 100% 让 preferred width 受可用空间约束"
+  explanation="先把 available space 和 authored constraint 放在一起推理；自然约束可以解决问题时，不需要先写设备分类 breakpoint。"
+/>
+
+<Compare
+  leftTitle="fluid constraint"
+  leftCode="width: 100%; max-width: 480px"
+  leftMeaning="让组件跟随 containing context，同时保留一个内容/设计上限。"
+  rightTitle="device recipe"
+  rightCode="@media (max-width: 390px)"
+  rightMeaning="只有在真实内容或布局断裂需要规则切换时才有理由出现；不是 responsive 的起点。"
+/>
+
+<Compare
+  leftTitle="natural flexibility"
+  leftCode="display: flex; flex-wrap: wrap"
+  leftMeaning="让已有 Flexbox 算法根据 available space 重新分配或换行。"
+  rightTitle="manual duplication"
+  rightCode="三份独立 layout rules"
+  rightMeaning="按设备复制布局会增加 cascade 分支；先判断约束是否已经能自然适应。"
+/>
+
+## 先让一份 layout 适应空间
+
+<Exercise
+  slug="fluid-width-constraint"
+  label="把 rigid width 变成 fluid constraint"
+  goal="为 .card 添加 max-width: 100%，让 authored width 不超过 containing block 的可用 inline size。"
+/>
+
+<Exercise
+  slug="combine-width-constraints"
+  label="组合 width 与 max-width"
+  goal="保留 width: 100%，再用 max-width: 480px 表达组件的内容上限。"
+/>
+
+<Exercise
+  slug="flexible-layout-without-breakpoint"
+  label="不用 breakpoint 的 flexible layout"
+  goal="让 .cards 使用 Flexbox wrap 与 gap，先依赖自然 flexibility 适应 available space。"
+/>
+
+Preview 的 `390 / 768 / 1280` presets 适合观察同一份 CSS 如何变化，但当前 checker 没有把同一 draft 在多个 viewport 独立执行并返回 viewport-specific diagnostics 的能力。因此本课的 checks 只覆盖 declaration subset，不宣称 automated multi-viewport responsive mastery；本课保持 `NEEDS_CHECKER_CAPABILITY` draft。

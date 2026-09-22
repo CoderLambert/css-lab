@@ -1,0 +1,18 @@
+.layout {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .layout {
+    display: flex;
+    gap: 16px;
+  }
+
+  .sidebar {
+    flex: 0 0 120px;
+  }
+
+  .content {
+    flex: 1;
+  }
+}

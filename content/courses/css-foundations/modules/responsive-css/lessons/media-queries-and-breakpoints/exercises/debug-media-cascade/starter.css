@@ -1,0 +1,13 @@
+.notice {
+  color: black;
+}
+
+@media (min-width: 600px) {
+  .notice {
+    color: darkgreen;
+  }
+}
+
+.notice {
+  color: black;
+}

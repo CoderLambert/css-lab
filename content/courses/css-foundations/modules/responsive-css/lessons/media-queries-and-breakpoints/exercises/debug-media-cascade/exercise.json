@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css.media-queries-and-breakpoints.debug-media-cascade.001",
+  "revision": 1,
+  "slug": "debug-media-cascade",
+  "title": "诊断 media cascade",
+  "prompt": "修复 media condition 与 source order 冲突，让宽空间 query 的 color declaration 在命中时真正成为 winner。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先确认 media condition 是否命中，再检查 query 内外 declaration 的 source order。",
+    "命中 query 不会自动跳过后面的 unconditional rule。",
+    "把 baseline 放在前面，把宽空间覆盖规则放在对应 media block 中；当前 checker 不读取 source。"
+  ],
+  "checks": []
+}
