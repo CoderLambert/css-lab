@@ -34,10 +34,10 @@ test("learner navigation follows the published exercise sequence", async ({
 
   await expect(page).toHaveURL(new RegExp(`${FIRST_EXERCISE_URL}$`));
   await expect(
-    page.getByRole("heading", { level: 1, name: "水平与垂直居中" }),
+    page.getByRole("heading", { level: 2, name: "水平与垂直居中" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { level: 3, name: "主轴：justify-content" }),
+    page.getByRole("heading", { level: 2, name: "先判断轴，再选择属性" }),
   ).toBeVisible();
   await expect(
     page.locator("code").filter({ hasText: "justify-content" }).first(),
@@ -47,13 +47,13 @@ test("learner navigation follows the published exercise sequence", async ({
   await page.locator("a").filter({ hasText: "下一题" }).click();
   await expect(page).toHaveURL(new RegExp(`${SECOND_EXERCISE_URL}$`));
   await expect(
-    page.getByRole("heading", { level: 1, name: "在主轴上拉开间距" }),
+    page.getByRole("heading", { level: 2, name: "在主轴上拉开间距" }),
   ).toBeVisible();
 
   await page.locator("a").filter({ hasText: "下一题" }).click();
   await expect(page).toHaveURL(new RegExp(`${THIRD_EXERCISE_URL}$`));
   await expect(
-    page.getByRole("heading", { level: 1, name: "沿交叉轴底部对齐" }),
+    page.getByRole("heading", { level: 2, name: "沿交叉轴底部对齐" }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "下一题" })).toBeDisabled();
 });
@@ -153,4 +153,51 @@ test("format is one undoable editor action and color swatches stay editor-local"
   await editor.press(UNDO);
 
   await expect.poll(() => readEditorCss(page)).toBe(unformatted);
+});
+
+
+test("failed checks explain actual values, hints reveal progressively, and equivalent end alignment passes", async ({
+  page,
+}) => {
+  await page.goto(THIRD_EXERCISE_URL);
+  await waitForExerciseHydration(page);
+
+  await replaceEditorCss(
+    page,
+    `.container {
+  display: flex;
+  align-items: stretch;
+}`,
+  );
+
+  await page.getByRole("button", { name: "检查答案" }).click();
+
+  await expect(
+    page.getByText("当前实现还未满足全部条件"),
+  ).toBeVisible();
+  await expect(page.getByText("当前值")).toBeVisible();
+  await expect(page.getByText("stretch", { exact: true })).toBeVisible();
+  await expect(page.getByText("flex-end / end", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("检测器已正常执行；这里是当前实现与验收条件不一致，不是检测器运行失败。"),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "提示" }).click();
+  await expect(
+    page.getByText("先确认 .container 已经是 flex container；这道题不需要改变三个项目自身的高度。"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "提示 1/3" }),
+  ).toBeVisible();
+
+  await replaceEditorCss(
+    page,
+    `.container {
+  display: flex;
+  align-items: end;
+}`,
+  );
+
+  await page.getByRole("button", { name: "检查答案" }).click();
+  await expect(page.getByText("全部检查通过")).toBeVisible();
 });
