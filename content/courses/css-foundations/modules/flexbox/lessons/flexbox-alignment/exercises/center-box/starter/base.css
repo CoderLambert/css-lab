@@ -1,7 +1,35 @@
 *,
 *::before,
-*::after { box-sizing: border-box; }
-html, body { min-height: 100%; }
-body { margin: 0; padding: 24px; font-family: ui-sans-serif, system-ui, sans-serif; background: #f1f6f0; }
-.container { min-height: 220px; border: 1px solid #cfdfce; border-radius: 20px; background: #e5f0e3; }
-.box { display: grid; width: 84px; height: 84px; place-items: center; border-radius: 18px; background: #79aa80; color: #f7fbf6; font: 600 28px/1 ui-sans-serif, system-ui, sans-serif; }
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  background: #f1f6f0;
+}
+
+.container {
+  min-height: 220px;
+  border: 1px solid #cfdfce;
+  border-radius: 20px;
+  background: #e5f0e3;
+}
+
+.box {
+  display: grid;
+  width: 84px;
+  height: 84px;
+  place-items: center;
+  border-radius: 18px;
+  background: #79aa80;
+  color: #f7fbf6;
+  font: 600 28px/1 ui-sans-serif, system-ui, sans-serif;
+}
