@@ -40,6 +40,16 @@ async function listDirectoryNames(directoryPath: string): Promise<string[]> {
     .toSorted();
 }
 
+async function listDirectoryNamesIfPresent(
+  directoryPath: string,
+): Promise<string[]> {
+  if (!(await directoryExists(directoryPath))) {
+    return [];
+  }
+
+  return listDirectoryNames(directoryPath);
+}
+
 export class FileContentReader implements ContentReader {
   private readonly coursesRoot: string;
 
@@ -76,7 +86,7 @@ export class FileContentReader implements ContentReader {
     }
 
     const modulesDirectory = join(this.coursesRoot, courseSlug, "modules");
-    const directoryNames = await listDirectoryNames(modulesDirectory);
+    const directoryNames = await listDirectoryNamesIfPresent(modulesDirectory);
     const modules = await Promise.all(
       directoryNames.map((directoryName) =>
         this.readModule(courseSlug, directoryName, course.id),
@@ -128,7 +138,7 @@ export class FileContentReader implements ContentReader {
       moduleSlug,
       "lessons",
     );
-    const directoryNames = await listDirectoryNames(lessonsDirectory);
+    const directoryNames = await listDirectoryNamesIfPresent(lessonsDirectory);
     const lessons = await Promise.all(
       directoryNames.map((directoryName) =>
         this.readLesson(courseSlug, moduleSlug, directoryName, parentModule),
@@ -196,7 +206,7 @@ export class FileContentReader implements ContentReader {
       lessonSlug,
       "exercises",
     );
-    const directoryNames = await listDirectoryNames(exercisesDirectory);
+    const directoryNames = await listDirectoryNamesIfPresent(exercisesDirectory);
     const exercises = await Promise.all(
       directoryNames.map((directoryName) =>
         this.readExercise(
