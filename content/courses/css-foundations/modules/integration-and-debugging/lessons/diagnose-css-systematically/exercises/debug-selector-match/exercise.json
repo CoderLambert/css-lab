@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.integration-and-debugging.diagnose-css-systematically.debug-selector-match.001",
+  "revision": 1,
+  "slug": "debug-selector-match",
+  "title": "定位 selector match",
+  "prompt": "修复 selector 选择范围，让目标 notice 获得预期的 color declaration。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先比较 fixture 的 class/关系和 starter selector，判断规则是否能匹配目标元素。",
+    "这是 selector match 阶段的问题，不需要提高 specificity 或修改 HTML。",
+    "让 `.notice-card > .notice` 的 color 成为 `rgb(151, 62, 48)`。"
+  ],
+  "checks": [
+    {
+      "id": "notice-color",
+      "type": "style",
+      "selector": ".notice",
+      "property": "color",
+      "equals": "rgb(151, 62, 48)",
+      "message": "让匹配到的 notice 使用目标前景色"
+    }
+  ]
+}

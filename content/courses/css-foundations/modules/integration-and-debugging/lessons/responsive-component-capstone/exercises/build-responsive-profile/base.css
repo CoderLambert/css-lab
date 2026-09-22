@@ -1,0 +1,81 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.dashboard {
+  width: 720px;
+  padding: 20px;
+  border: 1px solid;
+}
+
+.dashboard-header,
+.dashboard-grid,
+.feature,
+.details,
+.dashboard-actions {
+  padding: 12px;
+  border: 1px solid;
+}
+
+.eyebrow,
+.dashboard-heading h2,
+.summary,
+.feature h3,
+.feature p,
+.details h3,
+.details dl {
+  margin: 0;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.dashboard-heading h2 {
+  font-size: 1.45rem;
+}
+
+.summary {
+  max-width: 42ch;
+  line-height: 1.5;
+}
+
+.feature h3,
+.details h3 {
+  font-size: 1rem;
+}
+
+.details dl {
+  display: grid;
+  gap: 8px;
+}
+
+.details dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.details dt,
+.details dd {
+  margin: 0;
+}
+
+.status,
+.dashboard-actions a {
+  padding: 6px 10px;
+  border: 1px solid;
+}
+
+.dashboard-actions a {
+  text-decoration: none;
+}

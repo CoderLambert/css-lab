@@ -1,0 +1,49 @@
+## 综合练习的边界先于具体 property
+
+Capstone 的 HTML 是固定 fixture；你只编辑 CSS。目标不是复制 screenshot 的像素，而是把前面学过的 mental models 组合成一个能解释的实现：先把 surface 和 typography 做成可读的组件，再安排内部 layout，接着处理更宽的 section 约束，最后用 selective responsive rule 和 debugging pass 检查它在 available space 改变时是否仍然合理。
+
+<Concept title="固定 HTML，分阶段建立可解释的 CSS system">
+先把问题拆成几个能回看的阶段：
+
+1. surface / typography：确认 color、background、border、font 与 line metrics 不会让内容失去可读性。
+2. box / constraints：使用 `box-sizing`、`max-width`、padding 和可接受的 intrinsic measure，避免 rigid width 成为 overflow 根源。
+3. internal layout：根据 DOM 关系选择 normal flow、Flexbox 或 Grid；区分 container context、items、tracks 与 alignment。
+4. broader layout：让 header、body、actions 之间形成清楚的 spacing 和 source-order 结构。
+5. responsive adaptation：先让 constraints 与 flexible layout 自然承担变化，只在真实 content/layout break 时加入一个 selective media query。
+6. debugging pass：若结果不对，沿 selector → cascade → resolved value → context → constraint → environment pipeline 回查，而不是继续堆叠规则。
+
+HTML 不可编辑是边界的一部分：它迫使你用已经存在的 DOM 关系解释布局，同时避免 capstone 变成另一个 HTML editor 或 generic IDE。
+</Concept>
+
+<Predict
+  question="固定 HTML 的 profile 在窄 viewport 溢出；你还没有建立内部 layout。哪一个顺序最稳妥？"
+  options={["先为外层 surface 添加 max-width 约束，再建立内部 flexible layout，最后观察是否需要 query", "先按 390、768、1280 各复制一套完整 CSS", "先给每个 child 写绝对坐标，再用 z-index 修复遮挡"]}
+  answer="先为外层 surface 添加 max-width 约束，再建立内部 flexible layout，最后观察是否需要 query"
+  explanation="外层 available space 是 responsive system 的边界；先处理 constraint，再选择能自然适应的 layout，query 只解决剩余的真实结构变化。"
+/>
+
+<Predict
+  question="一个可用的 capstone solution 使用 Grid，另一个使用 Flexbox；两者都满足固定 HTML 的内容和布局目标。课程 checker 应该怎样描述结果？"
+  options={["把能诚实验证的 declaration subset 作为检查，并说明 geometry/等价实现需要 Preview review", "只接受其中一个 property 字符串并宣称另一种实现错误", "用 screenshot 的每个 pixel 作为唯一验收标准"]}
+  answer="把能诚实验证的 declaration subset 作为检查，并说明 geometry/等价实现需要 Preview review"
+  explanation="当前 checker DSL 没有完整 geometry、multi-viewport 或多解等价判断能力；诚实的 subset 不应伪装成完整 acceptance。"
+/>
+
+<Compare
+  leftTitle="分阶段建立 system"
+  leftCode="surface → constraints → layout → responsive → debug"
+  leftMeaning="每个阶段都有 mental model 和可观察证据，下一阶段不会掩盖上一阶段的错误。"
+  rightTitle="截图驱动调参"
+  rightCode="看起来不像 → 再加一个 property"
+  rightMeaning="可能碰巧接近一个 viewport，却无法解释 source order、intrinsic sizing、formatting context 或其他 viewport 的结果。"
+/>
+
+## 在固定 fixture 上完成综合 component
+
+<Exercise
+  slug="build-responsive-profile"
+  label="构建 responsive profile"
+  goal="在固定 HTML 上分阶段完成 surface、typography、box constraints、internal/broader layout 与 responsive adaptation，并进行最终 debugging pass。"
+/>
+
+本练习的 checker 只保留为 draft：当前 DSL 可以表达少量明确的 declaration，但不足以可靠判断多个 viewport 的 geometry、wrapping、paint order 或多个等价 CSS solution。因此请在 Preview 的 `390 / 768 / 1280` presets 中观察同一份 CSS，并记录你选择 breakpoint 的 content/layout 理由；这些 presets 是 observation，不是 automated multi-viewport acceptance。

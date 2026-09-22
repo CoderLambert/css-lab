@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "css.integration-and-debugging.diagnose-css-systematically.debug-constraints-and-environment.001",
+  "revision": 1,
+  "slug": "debug-constraints-and-environment",
+  "title": "追踪 constraints 与 environment",
+  "prompt": "从 sizing/overflow 与 viewport condition 中找出 realistic responsive failure 的控制阶段。",
+  "order": 4,
+  "status": "draft",
+  "hints": [
+    "先定位到 sizing/overflow branch：比较 fixed width、containing block 与 available space。",
+    "`max-width` 可以约束 authored width；长文本还需要一个适合内容的 wrapping strategy。",
+    "设置 `.notice` 的 `max-width: 100%` 与 `overflow-wrap: anywhere`。viewport/media condition 的最终 outcome 仍需 Preview 观察。"
+  ],
+  "checks": [
+    {
+      "id": "notice-fluid-cap",
+      "type": "style",
+      "selector": ".notice",
+      "property": "max-width",
+      "equals": "100%",
+      "message": "让 notice 的 inline size 受 containing block 约束"
+    },
+    {
+      "id": "notice-wraps-long-content",
+      "type": "style",
+      "selector": ".notice",
+      "property": "overflow-wrap",
+      "equals": "anywhere",
+      "message": "为过长内容提供可观察的 wrapping strategy"
+    }
+  ]
+}
