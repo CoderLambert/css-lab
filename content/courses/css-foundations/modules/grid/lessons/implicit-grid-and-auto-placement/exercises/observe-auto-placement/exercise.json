@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.implicit-grid-and-auto-placement.observe-auto-placement.001",
+  "revision": 1,
+  "slug": "observe-auto-placement",
+  "title": "观察 auto-placement",
+  "prompt": "让 .board 明确使用 grid-auto-flow: row，保留未指定位置的 items，并观察 auto-placement algorithm 的结果。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "未写 grid-column/grid-row 的 items 会进入 auto-placement algorithm。",
+    "本题的 flow direction 是 row；不要把它理解成随机坐标。",
+    "对 .board 设置 grid-auto-flow: row，然后在 Preview 中观察 implicit rows。"
+  ],
+  "checks": [
+    {
+      "id": "board-auto-flow-row",
+      "type": "style",
+      "selector": ".board",
+      "property": "grid-auto-flow",
+      "equals": "row",
+      "message": "让 board 使用 row 方向的 auto-placement"
+    }
+  ]
+}

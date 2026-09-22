@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.implicit-grid-and-auto-placement.control-auto-flow.001",
+  "revision": 1,
+  "slug": "control-auto-flow",
+  "title": "控制 auto-flow 方向",
+  "prompt": "让 .board 使用 grid-auto-flow: column，让未指定项目按 column flow 尝试放置。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "auto-flow 的方向决定算法优先填充哪一组 tracks。",
+    "本题要求 column flow；它不是给每个 item 手写 grid-column。",
+    "对 .board 设置 grid-auto-flow: column，再在 Preview 中观察排列方向。"
+  ],
+  "checks": [
+    {
+      "id": "board-auto-flow-column",
+      "type": "style",
+      "selector": ".board",
+      "property": "grid-auto-flow",
+      "equals": "column",
+      "message": "让 board 使用 column 方向的 auto-placement"
+    }
+  ]
+}
