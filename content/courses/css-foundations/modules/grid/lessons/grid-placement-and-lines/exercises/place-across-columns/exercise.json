@@ -14,16 +14,20 @@
   ],
   "checks": [
     {
+      "id": "feature-column-start",
       "type": "style",
       "selector": ".feature",
       "property": "grid-column-start",
-      "equals": "1"
+      "equals": "1",
+      "message": "让 feature 从第 1 条 column line 开始"
     },
     {
+      "id": "feature-column-end",
       "type": "style",
       "selector": ".feature",
       "property": "grid-column-end",
-      "equals": "3"
+      "equals": "3",
+      "message": "让 feature 延伸到第 3 条 column line"
     }
   ]
 }

@@ -14,16 +14,20 @@
   ],
   "checks": [
     {
+      "id": "banner-column-start",
       "type": "style",
       "selector": ".banner",
       "property": "grid-column-start",
-      "equals": "1"
+      "equals": "1",
+      "message": "让 banner 从第 1 条 column line 开始"
     },
     {
+      "id": "banner-column-span",
       "type": "style",
       "selector": ".banner",
       "property": "grid-column-end",
-      "equals": "span 2"
+      "equals": "span 2",
+      "message": "让 banner 使用 span 2 占据两条 columns"
     }
   ]
 }

@@ -14,16 +14,20 @@
   ],
   "checks": [
     {
+      "id": "summary-column-start",
       "type": "style",
       "selector": ".summary",
       "property": "grid-column-start",
-      "equals": "2"
+      "equals": "2",
+      "message": "让 summary 从第 2 条 column line 开始"
     },
     {
+      "id": "summary-row-start",
       "type": "style",
       "selector": ".summary",
       "property": "grid-row-start",
-      "equals": "2"
+      "equals": "2",
+      "message": "让 summary 从第 2 条 row line 开始"
     }
   ]
 }
