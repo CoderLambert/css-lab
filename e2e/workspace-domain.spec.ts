@@ -4,7 +4,7 @@ import { createInitialDraft, resetDraftFile, updateDraftFile } from "../src/lib/
 import { createExecutionSnapshot } from "../src/lib/workspace/execution-snapshot";
 import { isWorkspacePath } from "../src/lib/workspace/path";
 import { WorkspaceDefinitionSchema } from "../src/lib/workspace/schemas";
-import { ExerciseRecordV2Schema } from "../src/lib/content/schemas/exercise";
+import { ExerciseRecordSchema } from "../src/lib/content/schemas/exercise";
 import type { ExerciseWorkspace } from "../src/lib/workspace/types";
 
 const workspace: ExerciseWorkspace = {
@@ -34,9 +34,9 @@ test("workspace schema rejects duplicates, case collisions, and language mismatc
 });
 
 test("Exercise v2 validates Browser entry but permits JS/TS vocabulary", () => {
-  expect(ExerciseRecordV2Schema.safeParse(v2([...workspace.definition.files, { path: "main.js", language: "javascript", editable: true }])).success).toBe(true);
-  expect(ExerciseRecordV2Schema.safeParse(v2(workspace.definition.files, "missing.html")).success).toBe(false);
-  expect(ExerciseRecordV2Schema.safeParse(v2(workspace.definition.files, "style.css")).success).toBe(false);
+  expect(ExerciseRecordSchema.safeParse(v2([...workspace.definition.files, { path: "main.js", language: "javascript", editable: true }])).success).toBe(true);
+  expect(ExerciseRecordSchema.safeParse(v2(workspace.definition.files, "missing.html")).success).toBe(false);
+  expect(ExerciseRecordSchema.safeParse(v2(workspace.definition.files, "style.css")).success).toBe(false);
 });
 
 test("Draft helpers expose editable files only and reject locked or unknown paths", () => {

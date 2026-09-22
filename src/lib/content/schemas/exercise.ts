@@ -61,12 +61,10 @@ export const ExerciseRecordSchema = z.object({
   }
 });
 
-export const ExerciseRecordV2Schema = ExerciseRecordSchema;
 
 export type StyleCheck = z.infer<typeof StyleCheckSchema>;
 export type ExistsCheck = z.infer<typeof ExistsCheckSchema>;
 export type CountCheck = z.infer<typeof CountCheckSchema>;
 export type Check = z.infer<typeof CheckSchema>;
 export type ExerciseRecord = z.infer<typeof ExerciseRecordSchema>;
-export type ExerciseRecordV2 = ExerciseRecord;
 export type BrowserRuntimeDefinition = z.infer<typeof BrowserRuntimeDefinitionSchema>;
