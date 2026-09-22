@@ -5,12 +5,12 @@ export interface ExerciseProgressKey {
   revision: number;
 }
 
-export interface SaveExerciseCodeInput extends ExerciseProgressKey {
-  code: string;
+export interface SaveExerciseDraftInput extends ExerciseProgressKey {
+  files: Record<string, string>;
   updatedAt: number;
 }
 
-export interface MarkExerciseCompletedInput extends SaveExerciseCodeInput {
+export interface MarkExerciseCompletedInput extends SaveExerciseDraftInput {
   completedAt: number;
 }
 
@@ -24,7 +24,7 @@ export interface ProgressStore {
     keys: readonly ExerciseProgressKey[],
   ): Promise<ExerciseProgress[]>;
 
-  saveCode(input: SaveExerciseCodeInput): Promise<void>;
+  saveDraft(input: SaveExerciseDraftInput): Promise<void>;
 
   markCompleted(input: MarkExerciseCompletedInput): Promise<void>;
 }

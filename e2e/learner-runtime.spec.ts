@@ -146,7 +146,9 @@ test("editing updates preview, checking persists completion, and reload restores
 
   expect(storedProgress).toMatchObject({
     status: "completed",
-    code: source,
+    files: {
+      "style.css": source,
+    },
   });
 
   await page.reload();

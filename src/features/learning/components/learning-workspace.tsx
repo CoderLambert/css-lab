@@ -67,16 +67,18 @@ function LearningWorkspaceSession({
     [exercise],
   );
   const {
-    css,
+    draft,
     isHydrated,
-    updateCss,
-    resetCss,
+    updateFile,
+    resetAll,
     markCompleted,
   } = useExerciseProgress({
     exerciseId: exercise.id,
     revision: exercise.revision,
-    starterCss: legacyCss.starterCss,
+    workspace: exercise.workspace,
   });
+  // Transitional Task 03/04 adapter. Task 05 removes the CSS-only Preview path.
+  const css = draft.files["style.css"] ?? legacyCss.starterCss;
   const [progressRefreshToken, setProgressRefreshToken] = useState(0);
   const { isHydrated: isProgressHydrated, progress } = useLearningProgress({
     exercises: navigation.progressExercises,
@@ -91,7 +93,7 @@ function LearningWorkspaceSession({
   const requestCounterRef = useRef(0);
   const activeCheckRef = useRef<{
     requestId: string;
-    code: string;
+    draft: typeof draft;
   } | null>(null);
   const isDesktopWorkspace = useSyncExternalStore(
     subscribeToDesktopWorkspace,
@@ -112,13 +114,13 @@ function LearningWorkspaceSession({
 
   const handleCssChange = (nextCss: string) => {
     activeCheckRef.current = null;
-    updateCss(nextCss);
+    updateFile("style.css", nextCss);
     setCheckState({ status: "idle" });
   };
 
   const handleReset = () => {
     activeCheckRef.current = null;
-    resetCss();
+    resetAll();
     setCheckState({ status: "idle" });
   };
 
@@ -138,7 +140,7 @@ function LearningWorkspaceSession({
 
     activeCheckRef.current = {
       requestId,
-      code: css,
+      draft,
     };
     setCheckState({
       status: "checking",
@@ -162,7 +164,7 @@ function LearningWorkspaceSession({
     });
 
     if (result.passed) {
-      void markCompleted(activeCheck.code)
+      void markCompleted(activeCheck.draft)
         .then(() => {
           setProgressRefreshToken((current) => current + 1);
         })

@@ -1,9 +1,11 @@
 import { z } from "zod";
 
+const ProgressFilesSchema = z.record(z.string(), z.string());
+
 const ProgressBaseSchema = z.strictObject({
   exerciseId: z.string().trim().min(1),
   revision: z.number().int().positive(),
-  code: z.string(),
+  files: ProgressFilesSchema,
   updatedAt: z.number().int().nonnegative(),
 });
 
