@@ -4,30 +4,30 @@
   "revision": 1,
   "slug": "diagnose-visual-order",
   "title": "诊断 visual order",
-  "prompt": "让 .primary 使用 order: 1、.secondary 使用 order: 2，恢复视觉顺序；注意这不会改变 DOM/source order。",
+  "prompt": "HTML/source order 已经是 Primary → Secondary，但 starter 用 `order` 把视觉顺序反转了。修复这个 accessibility 风险：去掉不必要的视觉重排，让两个 item 回到默认 order，使视觉顺序重新跟随 source order。",
   "order": 3,
   "status": "published",
   "hints": [
-    "先查看 HTML source order；order 只改变 flex items 的视觉排列。",
-    "本题目标是 primary 先视觉出现，secondary 后视觉出现。",
-    "分别设置 primary 为 1、secondary 为 2，并保留 source-order/accessibility caution。"
+    "先读 fixture 的 DOM 顺序：Primary 本来就在 Secondary 前面，所以不需要额外 positive order 编号来“重建”这个顺序。",
+    "Flex item 的默认 `order` 是 0；回到默认值能让当前视觉顺序直接跟 source order 对齐，也避免以后新增 order:0 sibling 时跑到两者前面。",
+    "把 `.primary` 和 `.secondary` 都重置为 `order: 0`。"
   ],
   "checks": [
     {
-      "id": "primary-visual-order",
+      "id": "primary-visual-order-reset",
       "type": "style",
       "selector": ".primary",
       "property": "order",
-      "equals": "1",
-      "message": "让 primary 使用 visual order: 1"
+      "equals": "0",
+      "message": "让 primary 回到默认 order，跟随 source order"
     },
     {
-      "id": "secondary-visual-order",
+      "id": "secondary-visual-order-reset",
       "type": "style",
       "selector": ".secondary",
       "property": "order",
-      "equals": "2",
-      "message": "让 secondary 使用 visual order: 2"
+      "equals": "0",
+      "message": "让 secondary 回到默认 order，跟随 source order"
     }
   ]
 }
