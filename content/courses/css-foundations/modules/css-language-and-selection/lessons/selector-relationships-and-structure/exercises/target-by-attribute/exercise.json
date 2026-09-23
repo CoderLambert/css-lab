@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.language-and-selection.selector-relationships-and-structure.target-by-attribute.001",
+  "revision": 1,
+  "slug": "target-by-attribute",
+  "title": "按属性值匹配",
+  "prompt": "使用 attribute selector，只让 data-state=\"ready\" 的两个项目显示为 uppercase；pending 项目保持原样。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "目标条件已经写在 HTML attribute 中，不需要先添加新的 class。",
+    "attribute selector 可以直接检查属性值是否等于某个字符串。",
+    "使用 [data-state=\"ready\"]，并设置 text-transform: uppercase。"
+  ],
+  "checks": [
+    {
+      "id": "ready-a-uppercase",
+      "type": "style",
+      "selector": ".ready-a",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "第一个 ready 项目应显示为 uppercase"
+    },
+    {
+      "id": "ready-b-uppercase",
+      "type": "style",
+      "selector": ".ready-b",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "第二个 ready 项目应显示为 uppercase"
+    },
+    {
+      "id": "pending-stays-none",
+      "type": "style",
+      "selector": ".pending",
+      "property": "text-transform",
+      "equals": "none",
+      "message": "pending 项目不应被一起转换"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

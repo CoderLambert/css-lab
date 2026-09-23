@@ -1,0 +1,18 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px solid #cfdfce;
+  border-radius: 999px;
+}

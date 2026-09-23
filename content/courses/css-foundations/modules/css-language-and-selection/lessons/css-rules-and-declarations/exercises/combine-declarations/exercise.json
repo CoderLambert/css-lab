@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.language-and-selection.rules-and-declarations.combine-declarations.001",
+  "revision": 1,
+  "slug": "combine-declarations",
+  "title": "在一条规则里组合声明",
+  "prompt": "补全 .badge 规则，让标签文字加粗并转换为大写。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "目标元素已经由 .badge selector 确定；这次重点是 declaration block。",
+    "一个 rule 可以包含多条 declaration，每条都由 property 和 value 组成。",
+    "分别设置 font-weight: 700 和 text-transform: uppercase。"
+  ],
+  "checks": [
+    {
+      "id": "badge-font-weight",
+      "type": "style",
+      "selector": ".badge",
+      "property": "font-weight",
+      "equals": "700",
+      "message": "让 .badge 文字加粗"
+    },
+    {
+      "id": "badge-text-transform",
+      "type": "style",
+      "selector": ".badge",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "让 .badge 文字显示为大写"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.language-and-selection.rules-and-declarations",
+  "slug": "css-rules-and-declarations",
+  "title": "规则先匹配，再产生声明",
+  "description": "理解 selector、declaration、property 与 value 的职责，并区分匹配失败和声明错误。",
+  "estimatedMinutes": 15,
+  "order": 1,
+  "status": "draft"
+}

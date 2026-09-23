@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.language-and-selection.selector-matching.target-by-class.001",
+  "revision": 1,
+  "slug": "target-by-class",
+  "title": "按 class 匹配",
+  "prompt": "只让带有 featured class 的两张卡片使用 italic；普通卡片必须保持 normal。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "多个元素可以共享同一个 class，因此它们可以进入同一个匹配集合。",
+    "class selector 以 . 开头，后面写 class 名。",
+    "使用 .featured，并设置 font-style: italic。"
+  ],
+  "checks": [
+    {
+      "id": "featured-a-italic",
+      "type": "style",
+      "selector": ".featured-a",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "第一张 featured 卡片应使用 italic"
+    },
+    {
+      "id": "featured-b-italic",
+      "type": "style",
+      "selector": ".featured-b",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "第二张 featured 卡片应使用 italic"
+    },
+    {
+      "id": "regular-stays-normal",
+      "type": "style",
+      "selector": ".regular",
+      "property": "font-style",
+      "equals": "normal",
+      "message": "普通卡片不应被一起设为 italic"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

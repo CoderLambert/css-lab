@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.language-and-selection.rules-and-declarations.repair-a-missed-selector.001",
+  "revision": 1,
+  "slug": "repair-a-missed-selector",
+  "title": "修复没有命中的规则",
+  "prompt": "starter 中的规则没有命中提醒文本。修正 selector，并让提醒文字使用 italic；普通说明文字必须保持 normal。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先比较 fixture 里的 class 和 starter 里的 selector，确认规则是否真的能匹配目标。",
+    "selector 修正后，再检查 declaration 的 property/value 是否表达了目标样式。",
+    "目标是 .notice 使用 font-style: italic；不要用会同时命中普通段落的宽泛 selector。"
+  ],
+  "checks": [
+    {
+      "id": "notice-is-italic",
+      "type": "style",
+      "selector": ".notice",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "让提醒文本使用 italic"
+    },
+    {
+      "id": "ordinary-copy-stays-normal",
+      "type": "style",
+      "selector": ".ordinary",
+      "property": "font-style",
+      "equals": "normal",
+      "message": "不要让普通说明文字变成 italic"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

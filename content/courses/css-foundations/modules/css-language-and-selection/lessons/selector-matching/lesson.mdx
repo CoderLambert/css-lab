@@ -1,0 +1,53 @@
+## Selector 的结果是一个匹配集合
+
+写 selector 时，先不要问“哪个写法更强”。先问：**这个 selector 会匹配哪些元素？**
+
+<Concept title="Selector 是 matching expression">
+CSS selector 描述匹配条件。type selector 按元素类型匹配；class selector 按 class token 匹配；ID selector 按具体 id 值匹配。
+
+符合条件的元素组成 matched element set。规则里的 declarations 只会提供给这个集合中的元素。
+</Concept>
+
+在符合规范的 HTML 中，一个 `id` 值应当在文档内唯一；class 则可以被多个元素共享。因此 `.featured` 很自然地表示一组元素，而 `#summary` 通常指向一个特定元素。这里讨论的是**匹配集合**，不是 specificity。
+
+<Predict
+  question="页面里有两个 .tag 元素和一个 #summary 元素。selector '.tag, #summary' 会匹配什么？"
+  options={["两个 .tag 和 #summary，一共三个元素", "只匹配 #summary，因为 id 更具体", "只匹配第一个 .tag"]}
+  answer="两个 .tag 和 #summary，一共三个元素"
+  explanation="逗号组成 selector list；元素只要匹配列表中的任意一个 selector，就属于这条规则的匹配集合。"
+/>
+
+## 逗号不是 DOM 层级
+
+<Compare
+  leftTitle="class selector"
+  leftCode=".featured"
+  leftMeaning="匹配 class 列表中包含 featured 的元素。"
+  rightTitle="selector list"
+  rightCode="h3, .featured"
+  rightMeaning="匹配 h3，或匹配 .featured；逗号表达并列匹配，不表达父子关系。"
+/>
+
+selector 越长不代表越正确。真正的问题是：它是否准确描述了你想要的目标集合。
+
+## 用三个目标集合练习
+
+<Exercise
+  slug="target-by-type"
+  label="按元素类型匹配"
+  goal="让同一种元素类型组成匹配集合，同时保持其他元素不受影响。"
+/>
+
+<Exercise
+  slug="target-by-class"
+  label="按 class 匹配"
+  goal="只命中共享指定 class 的元素，并观察一个 class 可以属于多个元素。"
+/>
+
+<Exercise
+  slug="combine-targets"
+  label="组合不同目标集合"
+  goal="用 selector list 同时覆盖一个 ID 目标和一个 class 目标，并排除普通元素。"
+/>
+
+当前 checker 能验证目标与非目标元素的 resolved style，因此可以验证最终匹配结果是否符合要求；但它**不能证明你使用了指定的 selector 源码策略**。某个等价 selector 也可能得到相同结果，本课不会为此新增 source-aware checker。

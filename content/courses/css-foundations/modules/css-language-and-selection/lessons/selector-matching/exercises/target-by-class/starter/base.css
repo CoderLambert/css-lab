@@ -1,0 +1,24 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.cards {
+  display: grid;
+  gap: 10px;
+  max-width: 360px;
+}
+
+.card {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #cfdfce;
+  border-radius: 12px;
+}
