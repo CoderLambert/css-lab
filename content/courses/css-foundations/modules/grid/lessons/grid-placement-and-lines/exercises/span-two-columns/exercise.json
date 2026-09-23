@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "span-two-columns",
   "title": "用 span 表达占据范围",
-  "prompt": "让 .banner 从第 1 条 column line 开始，使用 span 2 表达它占据两条 columns。",
+  "prompt": "starter 已经让 `.banner` 从 column line 1 到 line 2，只占一条 track。保持 start line 不变，把结束方式改成“从起点跨两条 tracks”，不要写死 absolute end line。",
   "order": 3,
   "status": "published",
   "hints": [
-    "span 表示占据多少条 tracks，不是一个要替换成具体 end line 的数字。",
-    "先从第 1 条 column line 开始。",
-    "把结束值写成 span 2，表达从起点起跨两条 tracks。"
+    "先比较 absolute end line 与 span count：一个引用边界，一个表达从起点占据多少 tracks。",
+    "目标仍从 column line 1 开始，但结束值应描述“跨两条 tracks”，这样表达不依赖你直接写出 end line 3。",
+    "把 `grid-column-end` 改成 `span 2`。"
   ],
   "checks": [
     {

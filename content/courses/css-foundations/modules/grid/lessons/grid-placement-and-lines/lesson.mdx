@@ -46,13 +46,13 @@ Grid item 的位置不是一对任意的 x/y 坐标。作者告诉 Grid：这个
 <Exercise
   slug="place-row-and-column"
   label="同时指定行与列"
-  goal="把 .summary 放到第 2 列、第 2 行对应的 grid area；使用 line start 声明，不要改 HTML 顺序。"
+  goal="从 2×2 Grid 的右下目标 area 推导 column/row start lines，不要改 HTML 顺序。"
 />
 
 <Exercise
   slug="span-two-columns"
   label="用 span 表达占据范围"
-  goal="让 .banner 从第 1 条 column line 开始，使用 span 2 表达它占据两条 columns。"
+  goal="把一个 absolute end-line placement 转换成 span 表达，理解 span count 与 line number 的差别。"
 />
 
 这些 Exercise 的 checker 只验证明确的 line start/end/span declarations；它们不从静态声明推断最终像素 geometry，也不把 placement 当作 source-order 改写。
