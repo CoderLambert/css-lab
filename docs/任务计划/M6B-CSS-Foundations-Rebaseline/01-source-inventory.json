@@ -9,19 +9,32 @@
     "migrationSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
     "frozenSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
     "priorObservedSourceHead": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
-    "latestObservedSourceHead": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
-    "latestObservedCommit": "cssf(a): fix checker guidance drift test"
+    "intermediateObservedSourceHead": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+    "priorLatestObservedSourceHead": "2472e7fd4c7b5a7564feb4020f11329329f881a0",
+    "priorGridCorrectedSourceHead": "f3eb60f00a9e832c5097265c3b14b56d3f7e1526",
+    "priorResponsiveCorrectedSourceHead": "7c0b52acd51b4be4708d0fb82f6132e79f0b5d0b",
+    "priorEnvironmentCorrectedSourceHead": "2adc3daecebdcc6162dede5999dac2a457a04511",
+    "priorSelectorTypographyCorrectedSourceHead": "48978b2808f947d8215b161f49caf8942a8258a4",
+    "latestObservedSourceHead": "7ba27cfbedf5c0257c81b7804573c8401d6634a7",
+    "latestObservedCommit": "cssf(b): verify custom property linkage"
   },
   "sourceHeadRoles": {
     "curriculumSourceHead": "historical frozen migration/planning input; not the latest observed source",
     "priorObservedSourceHead": "first post-freeze source evidence, including the checker rollout; not the migration input",
-    "latestObservedSourceHead": "current post-freeze source evidence after source-only authoring guidance/test corrections; not the migration input"
+    "intermediateObservedSourceHead": "post-freeze source evidence after source-only authoring guidance/test corrections; not the migration input",
+    "priorLatestObservedSourceHead": "post-freeze source evidence after selected curriculum corrections; not the migration input",
+    "priorGridCorrectedSourceHead": "post-freeze source evidence after grid/constraint curriculum corrections; not the migration input",
+    "priorResponsiveCorrectedSourceHead": "post-freeze source evidence after responsive fixture corrections; not the migration input",
+    "priorEnvironmentCorrectedSourceHead": "post-freeze source evidence after selective-breakpoint/environment corrections; not the migration input",
+    "priorSelectorTypographyCorrectedSourceHead": "post-freeze source evidence after authored selector/typography corrections; not the migration input",
+    "latestObservedSourceHead": "current post-freeze source evidence after authored value/custom-property corrections; not the migration input"
   },
   "postFreezeSourceDelta": {
     "from": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
-    "to": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
-    "commits": 3,
-    "files": 163,
+    "to": "7ba27cfbedf5c0257c81b7804573c8401d6634a7",
+    "commits": 17,
+    "files": 190,
+    "fileCountNote": "range file counts are unique paths; segment file counts are not additive when later source commits modify a path already changed in an earlier segment",
     "segments": {
       "frozenToPriorObserved": {
         "from": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
@@ -29,7 +42,7 @@
         "commits": 1,
         "files": 160
       },
-      "priorObservedToLatestObserved": {
+      "priorObservedToIntermediateObserved": {
         "from": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
         "to": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
         "commits": 2,
@@ -40,6 +53,56 @@
           ".agents/skills/css-lesson-authoring/scripts/authoring-skill.test.mjs"
         ],
         "disposition": "source-branch authoring guidance/test correction reviewed but not ported into M6B"
+      },
+      "intermediateToPriorLatestObserved": {
+        "from": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+        "to": "2472e7fd4c7b5a7564feb4020f11329329f881a0",
+        "commits": 4,
+        "files": 12,
+        "issuesAddressedInSource": [8, 10, 23, 26],
+        "disposition": "source-branch curriculum corrections reviewed; those findings were subsequently closed on the source branch, but changes are not ported into M6B"
+      },
+      "priorLatestToLatestObserved": {
+        "from": "2472e7fd4c7b5a7564feb4020f11329329f881a0",
+        "to": "f3eb60f00a9e832c5097265c3b14b56d3f7e1526",
+        "commits": 2,
+        "files": 12,
+        "issuesAddressedInSource": [16, 28],
+        "disposition": "source-branch curriculum corrections reviewed; those findings were subsequently closed on the source branch, but changes are not ported into M6B"
+      },
+      "priorGridCorrectedToPriorResponsiveObserved": {
+        "from": "f3eb60f00a9e832c5097265c3b14b56d3f7e1526",
+        "to": "7c0b52acd51b4be4708d0fb82f6132e79f0b5d0b",
+        "commits": 1,
+        "files": 8,
+        "issuesAddressedInSource": [20],
+        "disposition": "source-branch responsive fixture correction reviewed; issue remains open and changes are not ported into M6B"
+      },
+      "priorResponsiveObservedToLatestObserved": {
+        "from": "7c0b52acd51b4be4708d0fb82f6132e79f0b5d0b",
+        "to": "2adc3daecebdcc6162dede5999dac2a457a04511",
+        "commits": 2,
+        "files": 8,
+        "issuesAddressedInSource": [22, 27],
+        "disposition": "source-branch responsive/environment corrections reviewed; source-only checker addition remains deferred and changes are not ported into M6B"
+      },
+      "environmentObservedToLatestObserved": {
+        "from": "2adc3daecebdcc6162dede5999dac2a457a04511",
+        "to": "48978b2808f947d8215b161f49caf8942a8258a4",
+        "commits": 3,
+        "files": 12,
+        "issuesAddressedInSource": [9, 15],
+        "addedUnsupportedCheckerExercises": 9,
+        "disposition": "source-branch selector/typography corrections reviewed; authored-check rollout remains deferred and changes are not ported into M6B"
+      },
+      "selectorTypographyObservedToLatestObserved": {
+        "from": "48978b2808f947d8215b161f49caf8942a8258a4",
+        "to": "7ba27cfbedf5c0257c81b7804573c8401d6634a7",
+        "commits": 2,
+        "files": 9,
+        "issuesAddressedInSource": [14],
+        "addedUnsupportedCheckerExercises": 7,
+        "disposition": "source-branch authored-value/custom-property corrections reviewed; authored-check rollout remains deferred and changes are not ported into M6B"
       }
     },
     "frozenToPriorObservedComposition": {
@@ -50,13 +113,40 @@
       "auditReport": 1,
       "moduleAssetsOther": 12
     },
-    "priorObservedToLatestObservedComposition": {
+    "priorObservedToIntermediateObservedComposition": {
       "files": 3,
       "paths": [
         "AGENTS.md",
         ".agents/skills/css-lesson-authoring/references/checker-guidelines.md",
         ".agents/skills/css-lesson-authoring/scripts/authoring-skill.test.mjs"
       ]
+    },
+    "intermediateToPriorLatestObservedComposition": {
+      "files": 12,
+      "issuesAddressedInSource": [8, 10, 23, 26]
+    },
+    "priorLatestToLatestObservedComposition": {
+      "files": 12,
+      "issuesAddressedInSource": [16, 28]
+    },
+    "priorGridCorrectedToPriorResponsiveObservedComposition": {
+      "files": 8,
+      "issuesAddressedInSource": [20]
+    },
+    "priorResponsiveObservedToLatestObservedComposition": {
+      "files": 8,
+      "issuesAddressedInSource": [22, 27],
+      "sourceOnlyUnsupportedCheckerExercise": "debug-constraints-and-environment"
+    },
+    "environmentObservedToLatestObservedComposition": {
+      "files": 12,
+      "issuesAddressedInSource": [9, 15],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 9
+    },
+    "selectorTypographyObservedToLatestObservedComposition": {
+      "files": 9,
+      "issuesAddressedInSource": [14],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 7
     },
     "publicationSweep": {
       "modules": 8,
@@ -78,19 +168,54 @@
       "sourceOnly": 0,
       "warningOnly": 0
     },
+    "latestObservedUnsupportedCheckerRollout": {
+      "baselineSourceHead": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+      "latestObservedSourceHead": "7ba27cfbedf5c0257c81b7804573c8401d6634a7",
+      "exerciseCount": 29,
+      "types": ["rule-style", "viewport-style"],
+      "m6bWarningCode": "exercise-without-checks",
+      "m6bWarningCount": 13,
+      "sourceOnly": 16,
+      "warningOnly": 0,
+      "sourceOnlyExercises": [
+        "repair-a-missed-selector",
+        "target-by-class",
+        "target-by-type",
+        "direct-vs-descendant",
+        "repair-relationship-selector",
+        "select-by-sibling-position",
+        "target-by-attribute",
+        "debug-constraints-and-environment",
+        "inherit-text-styles",
+        "define-and-use",
+        "fallback-missing-variable",
+        "scoped-override",
+        "calc-constraint",
+        "compare-absolute-relative",
+        "percentage-reference",
+        "rem-em-context"
+      ],
+      "resolution": "latest source-only checker rollout remains deferred; M6B keeps the 13-warning intentional release boundary and does not expand the checker DSL"
+    },
     "legacyRuntimeSchemaDisposition": "denied; do not import legacy preview-document.ts, preview-messages.ts, or v1 exercise schema",
     "resolution": "defer unsupported checker/publication/narrative rollout to the Post-M6B capability roadmap; do not port source-only authoring guidance into the current M6B contract"
   },
   "curriculumAuditCrossCheck": {
-    "sourcePromotedExercisesWithOpenIssuesAtLeast": 30,
-    "issueNumbers": [7, 8, 9, 10, 14, 15, 16, 18, 20, 22, 25, 26, 27, 28, 30],
+    "sourcePromotedExercisesWithOpenIssuesAtLatestRead": 7,
+    "sourcePromotedExercisesWithOpenIssuesAtLatestReadNote": "minimum explicitly named promoted Exercise count across currently open #7, #18, #25, and #30; source corrections closed #9, #14, and #15",
+    "sourcePromotedExercisesWithOpenIssuesAtInitialReconciliationAtLeast": 30,
+    "initialIssueNumbers": [7, 8, 9, 10, 14, 15, 16, 18, 20, 22, 25, 26, 27, 28, 30],
     "reportEvidenceIssue": 31,
     "preExistingDraftDebtNotSourceDelta": 23,
-    "sourceContractDriftIssue": 29
+    "sourceContractDriftIssue": 29,
+    "latestSourceCorrectionIssues": [8, 9, 10, 14, 15, 16, 20, 22, 23, 26, 27, 28],
+    "historicalOpenPromotedExerciseCountAtInitialReconciliation": 30,
+    "currentOpenPromotedExerciseCountAtLatestIssueRead": 7,
+    "currentOpenPromotedExerciseIssueNumbers": [7, 18, 25, 30]
   },
   "compare": {
     "status": "diverged",
-    "aheadBy": 34,
+    "aheadBy": 51,
     "behindBy": 36,
     "mergeBase": "7252b93505427582c6483edb910a5051bdd30fe3"
   },

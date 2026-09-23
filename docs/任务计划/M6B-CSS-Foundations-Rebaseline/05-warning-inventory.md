@@ -20,7 +20,7 @@ These warnings are intentionally preserved. They identify draft Exercises whose 
 
 ### Exact correspondence with the latest curriculum source
 
-The current latest observed source `70266f67319a1cb7ed4400b8f0db64cb725ab0e` retains the `e48ba8781ed78e37ca0af77cea75e324cd4c24e4` checker rollout: it adds `rule-style` and/or `viewport-style` to exactly 13 Exercises. That set is exactly equal to this 13-entry `exercise-without-checks` warning inventory: source-only = 0 and warning-only = 0. The later source-only authoring guidance/test commits do not change the set.
+The `e48ba8781ed78e37ca0af77cea75e324cd4c24e4` rollout still adds `rule-style` and/or `viewport-style` to exactly 13 Exercises, and that baseline set is exactly equal to this 13-entry `exercise-without-checks` warning inventory: source-only = 0 and warning-only = 0. The current latest source `7ba27cfbedf5c0257c81b7804573c8401d6634a7` has 29 such Exercises: it retains the original 13 and adds 16 source-only authored-check Exercises through the later #9/#14/#15 corrections and environment correction. Current latest-source-vs-M6B is therefore 29 vs 13 (source-only = 16, warning-only = 0). M6B intentionally does not add these new warnings or checker contract; the latest source additions are deferred with the unsupported capability rollout.
 
 This is an intentional release boundary, not a migration omission. M6B keeps all 13 Exercises draft and keeps all 13 warnings while the unsupported checker rollout remains deferred to the Post-M6B capability roadmap. Do not delete a warning or copy the source checks without a separately validated current-runtime contract.
 
