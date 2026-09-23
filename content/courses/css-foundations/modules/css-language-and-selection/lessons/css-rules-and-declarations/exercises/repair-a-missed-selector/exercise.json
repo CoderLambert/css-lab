@@ -14,6 +14,14 @@
   ],
   "checks": [
     {
+      "id": "notice-selector-authored",
+      "type": "rule-style",
+      "selector": ".notice",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "修正为 .notice selector，并在该 authored rule 中设置 italic"
+    },
+    {
       "id": "notice-is-italic",
       "type": "style",
       "selector": ".notice",

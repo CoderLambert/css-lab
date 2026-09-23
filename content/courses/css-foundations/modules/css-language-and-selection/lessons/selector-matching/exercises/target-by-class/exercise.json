@@ -13,8 +13,37 @@
     "使用 .featured，并设置 font-style: italic。"
   ],
   "checks": [
-    {"id":"featured-a-italic","type":"style","selector":".featured-a","property":"font-style","equals":"italic","message":"第一张 featured 卡片应使用 italic"},
-    {"id":"featured-b-italic","type":"style","selector":".featured-b","property":"font-style","equals":"italic","message":"第二张 featured 卡片应使用 italic"},
-    {"id":"regular-stays-normal","type":"style","selector":".regular","property":"font-style","equals":"normal","message":"普通卡片不应被一起设为 italic"}
+    {
+      "id": "featured-class-selector-authored",
+      "type": "rule-style",
+      "selector": ".featured",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "使用 .featured class selector authored rule 设置 italic"
+    },
+    {
+      "id": "featured-a-italic",
+      "type": "style",
+      "selector": ".featured-a",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "第一张 featured 卡片应使用 italic"
+    },
+    {
+      "id": "featured-b-italic",
+      "type": "style",
+      "selector": ".featured-b",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "第二张 featured 卡片应使用 italic"
+    },
+    {
+      "id": "regular-stays-normal",
+      "type": "style",
+      "selector": ".regular",
+      "property": "font-style",
+      "equals": "normal",
+      "message": "普通卡片不应被一起设为 italic"
+    }
   ]
 }

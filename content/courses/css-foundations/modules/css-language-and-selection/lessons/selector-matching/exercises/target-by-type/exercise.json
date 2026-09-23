@@ -13,9 +13,45 @@
     "让 li 使用 text-transform: uppercase；不要影响 .note。"
   ],
   "checks": [
-    {"id":"item-a-uppercase","type":"style","selector":".item-a","property":"text-transform","equals":"uppercase","message":"第一个 li 应显示为 uppercase"},
-    {"id":"item-b-uppercase","type":"style","selector":".item-b","property":"text-transform","equals":"uppercase","message":"第二个 li 应显示为 uppercase"},
-    {"id":"item-c-uppercase","type":"style","selector":".item-c","property":"text-transform","equals":"uppercase","message":"第三个 li 应显示为 uppercase"},
-    {"id":"note-stays-none","type":"style","selector":".note","property":"text-transform","equals":"none","message":"说明段落不应被一起转换"}
+    {
+      "id": "li-type-selector-authored",
+      "type": "rule-style",
+      "selector": "li",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "使用 li type selector authored rule 设置 uppercase"
+    },
+    {
+      "id": "item-a-uppercase",
+      "type": "style",
+      "selector": ".item-a",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "第一个 li 应显示为 uppercase"
+    },
+    {
+      "id": "item-b-uppercase",
+      "type": "style",
+      "selector": ".item-b",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "第二个 li 应显示为 uppercase"
+    },
+    {
+      "id": "item-c-uppercase",
+      "type": "style",
+      "selector": ".item-c",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "第三个 li 应显示为 uppercase"
+    },
+    {
+      "id": "note-stays-none",
+      "type": "style",
+      "selector": ".note",
+      "property": "text-transform",
+      "equals": "none",
+      "message": "说明段落不应被一起转换"
+    }
   ]
 }

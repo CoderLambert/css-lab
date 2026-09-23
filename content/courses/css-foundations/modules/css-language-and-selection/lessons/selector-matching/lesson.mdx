@@ -50,4 +50,4 @@ selector 越长不代表越正确。真正的问题是：它是否准确描述�
   goal="用 selector list 同时覆盖一个 ID 目标和一个 class 目标，并排除普通元素。"
 />
 
-当前 checker 能验证目标与非目标元素的 resolved style，因此可以验证最终匹配结果是否符合要求；但它**不能证明你使用了指定的 selector 源码策略**。某个等价 selector 也可能得到相同结果，本课不会为此新增 source-aware checker。
+当前 checker 会在“selector form 本身就是目标”且能公平定义 exact authored form 时，用 `rule-style` 验证 learner stylesheet，再配合 target/non-target 的 computed result 检查匹配边界。selector list 的成员顺序存在语义等价写法，而当前 `rule-style` 不做 selector-list canonical equivalence，所以 `combine-targets` 只验证两个目标与普通元素的最终匹配结果，不把某一个逗号顺序伪装成唯一正确源码。
