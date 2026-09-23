@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.box-model-and-box-sizing",
+  "slug": "box-model-and-box-sizing",
+  "title": "尺寸写在哪个盒子上",
+  "description": "理解 content、padding、border、margin 四层 box model，以及 box-sizing 如何改变 authored size 的含义。",
+  "estimatedMinutes": 18,
+  "order": 1,
+  "status": "draft"
+}

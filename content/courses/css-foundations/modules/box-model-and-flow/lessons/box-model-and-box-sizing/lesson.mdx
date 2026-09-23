@@ -1,0 +1,57 @@
+## 一个元素不是一条 `width`
+
+浏览器进行布局时，元素会生成 box。讨论“这个元素有多宽”之前，先要说清楚你指的是哪一条 box edge。
+
+<Concept title="从 content 向外读 box model">
+标准 box model 可以按从内到外的顺序理解：
+
+`content → padding → border → margin`
+
+`padding` 在内容和边框之间；`border` 包住 content 与 padding；`margin` 位于 border 外部，用来参与 box 与周围 box 的间距关系。
+
+`box-sizing` 决定 authored `width` / `height` 如何映射到这些边界：
+
+- `content-box`：指定尺寸作用于 content box；padding 和 border 会继续增加 border box 的尺寸。
+- `border-box`：指定尺寸作用于 border box；padding 和 border 从指定尺寸内部占用空间。
+- margin 在两种模式下都不属于 `width` / `height` 指定的 box。
+</Concept>
+
+<Predict
+  question="一个元素使用 content-box，width: 200px，左右 padding 各 20px，左右 border 各 5px。它的 border box 宽度是多少？"
+  options={["200px", "240px", "250px"]}
+  answer="250px"
+  explanation="content-box 下 200px 只描述 content box。左右 padding 共 40px、左右 border 共 10px，所以 border box 为 250px。"
+/>
+
+<Compare
+  leftTitle="content-box"
+  leftCode="box-sizing: content-box; width: 200px;"
+  leftMeaning="200px 描述 content box；padding 与 border 会额外增加 border box 尺寸。"
+  rightTitle="border-box"
+  rightCode="box-sizing: border-box; width: 200px;"
+  rightMeaning="200px 描述 border box；padding 与 border 从这 200px 内部占用空间。"
+/>
+
+`border-box` 往往让组件尺寸更容易推理，但它不会让所有 sizing 问题消失。内容本身、min/max constraints、containing context 和 overflow 仍会继续影响最终布局；这些会在本 Module 后面的 Lesson 继续处理。
+
+## 从 box edges 到 sizing 假设
+
+<Exercise
+  slug="build-the-box-layers"
+  label="补全盒模型四层"
+  goal="给 box 添加 padding、border 与 margin，并把每一层放回正确的 box edge。"
+/>
+
+<Exercise
+  slug="switch-to-border-box"
+  label="切换到 border-box"
+  goal="保持 authored width、padding 和 border，改变 width 所对应的 box edge。"
+/>
+
+<Exercise
+  slug="debug-sizing-assumption"
+  label="修复尺寸假设"
+  goal="保留必要 spacing，用 box-sizing 修复把 content width 错当最终可见宽度的 bug。"
+/>
+
+当前 checker 能可靠检查 `box-sizing`、padding、border、margin 等 computed declaration。它不使用固定像素几何结果来冒充对 box model 推理过程的证明。

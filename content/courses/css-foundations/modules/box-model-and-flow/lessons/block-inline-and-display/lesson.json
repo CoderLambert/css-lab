@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.box-model-and-flow.block-inline-and-display",
+  "slug": "block-inline-and-display",
+  "title": "display 决定 box 如何参与布局",
+  "description": "理解 block、inline、inline-block 与 none 的 outer/inner participation，而不把 display 简化成是否换行。",
+  "estimatedMinutes": 18,
+  "order": 2,
+  "status": "draft"
+}

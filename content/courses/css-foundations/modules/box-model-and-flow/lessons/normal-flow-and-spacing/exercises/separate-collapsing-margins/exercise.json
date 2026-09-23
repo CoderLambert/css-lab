@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.box-model-and-flow.normal-flow-and-spacing.separate-collapsing-margins.001",
+  "revision": 1,
+  "slug": "separate-collapsing-margins",
+  "title": "识别并隔离 margin collapse",
+  "prompt": "让 .panel 的内部 padding 成为父子 box 之间的分隔，观察它如何改变 margin collapsing 条件。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先找出父子 block 的 margin 是否直接接触。",
+    "padding 位于父 box 内部，会成为父内容与边缘之间的分隔。",
+    "对 .panel 设置 padding-top: 16px，再在 Preview 中观察 heading 的位置变化。"
+  ],
+  "checks": [
+    {
+      "id": "collapse-separator",
+      "type": "style",
+      "selector": ".panel",
+      "property": "padding-top",
+      "equals": "16px",
+      "message": "用 16px padding-top 让父子 box 有明确分隔"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

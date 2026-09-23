@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.box-model-and-flow.block-inline-and-display.remove-box-with-display-none.001",
+  "revision": 1,
+  "slug": "remove-box-with-display-none",
+  "title": "让说明不生成 box",
+  "prompt": "可选说明当前不应参与布局。不要只让它透明；使用 display 让 .optional 不生成 box。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "opacity 只改变绘制透明度，不等于不生成 box。",
+    "这里的目标是改变 box generation。",
+    "设置 display: none。"
+  ],
+  "checks": [
+    {
+      "id": "display-none",
+      "type": "style",
+      "selector": ".optional",
+      "property": "display",
+      "equals": "none",
+      "message": "让 .optional 不生成 box"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,59 @@
+## `display` 不只是“换不换行”
+
+HTML 元素有常见的默认 display 行为，但 CSS 可以改变它们生成的 box 如何参与布局。只把 `block` 记成“会换行”、把 `inline` 记成“不会换行”，不足以解释很多 sizing 和布局行为。
+
+<Concept title="分开看 outer participation 与 inner formatting">
+`display` 可以用两个层面理解：
+
+- **outer display type**：这个 box 怎样参与周围的 flow。
+- **inner display type**：这个 box 的 children 怎样布局。
+
+在本课范围内：
+
+- `block` 生成 block-level participation 的 box，内部仍是普通 flow。
+- `inline` 生成 inline-level participation 的 box，跟文字和其他 inline-level content 一起参与 inline formatting。
+- `inline-block` 可以理解为 `inline flow-root`：outer 仍是 inline-level，但内部形成独立的 flow-root，并具备更适合明确 sizing 的 box 行为。
+- `none` 让该元素及其 descendants 不生成 box。
+
+Flex/Grid 会改变 inner layout，但会在后续 Module 单独学习。
+</Concept>
+
+<Predict
+  question="一个 badge 需要跟文字留在同一行，同时又需要明确 width。下面哪个基础 display value 更合适？"
+  options={["inline", "inline-block", "none"]}
+  answer="inline-block"
+  explanation="inline-block 保持 inline-level outer participation，同时允许它像独立 box 一样进行明确 sizing。"
+/>
+
+<Compare
+  leftTitle="inline"
+  leftCode="display: inline"
+  leftMeaning="参与 inline formatting；不要把普通 inline box 当成 block box 来推理 width/height。"
+  rightTitle="inline-block"
+  rightCode="display: inline-block"
+  rightMeaning="outer 仍参与 inline flow，但 box sizing 行为更适合 badge、tag 等行内组件。"
+/>
+
+`display: none` 也不是“透明”。透明元素仍可能生成 box；`display: none` 的关键区别是该元素不生成 box。
+
+## 用不同 display value 改变 participation
+
+<Exercise
+  slug="observe-block-participation"
+  label="切换为 block participation"
+  goal="把一个 inline-level 提示改为 block-level box，观察它在 normal flow 中的 participation 变化。"
+/>
+
+<Exercise
+  slug="inline-block-sizing"
+  label="让行内 badge 可 sizing"
+  goal="保持 inline-level participation，同时为 badge 应用明确 width。"
+/>
+
+<Exercise
+  slug="remove-box-with-display-none"
+  label="让说明不生成 box"
+  goal="使用 display:none，而不是透明度，表达“这个说明当前不参与 box layout”。"
+/>
+
+当前 checker 只验证最终 computed `display` 与相关 declaration，不声称它能证明 learner 已掌握完整 formatting-context 算法。

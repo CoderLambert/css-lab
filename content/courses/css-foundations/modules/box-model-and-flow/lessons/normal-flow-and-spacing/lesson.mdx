@@ -1,0 +1,47 @@
+## 没有声明 layout 也有 normal flow
+
+<Concept title="normal flow 是默认的 layout algorithm">
+如果没有应用 Flexbox、Grid、positioning 或 float 等会改变参与方式的 CSS，元素不会“悬空”等待坐标。浏览器会让 block-level box 沿 block direction 依次排布，让 inline-level content 在 line box 中排布并在需要时换行。
+
+`margin` 是 box 外部的 spacing；`padding` 则属于 box 内部。对普通 block flow 来说，水平 `auto` margin 可以把剩余 inline space 分配到两侧；这是一种空间分配规则，不是把元素移动到一个绝对 x 坐标。
+
+相邻 block 的垂直 margin 在特定条件下会 collapse。两个正 margin 接触时，简单情形的结果是较大的那个，而不是机械相加。父子 block 的边缘 margin、空 block 的上下 margin 也可能形成同一个 collapsing set；border、padding、内容、明确的高度或新的 formatting context 等会打断某些 collapse。它不是随机 bug，也只涉及 block-axis 的 margin。
+</Concept>
+
+<Predict
+  question="两个普通 block box 在 normal flow 中，第一个 margin-bottom: 24px，第二个 margin-top: 16px，二者之间没有 border 或 padding。最适合的预测是什么？"
+  options={["间距必然是 40px", "简单正 margin collapse 情形下，间距通常是 24px", "两个 box 会重叠，因为 margin 会被删除"]}
+  answer="简单正 margin collapse 情形下，间距通常是 24px"
+  explanation="相邻 block 的垂直 margin 在满足条件时会 collapse；简单的两个正 margin 取较大者。不要把这个规则推广成所有 margin 或所有 layout context。"
+/>
+
+<Compare
+  leftTitle="margin"
+  leftCode="margin-block: 24px"
+  leftMeaning="box 外部的参与间距；在 block flow 中可能与相邻或父子 margin collapse。"
+  rightTitle="padding"
+  rightCode="padding-block: 24px"
+  rightMeaning="box 内部的空间；它会成为边界，常常打断父子 margin collapse。"
+/>
+
+## 观察浏览器已经在做的布局
+
+<Exercise
+  slug="observe-default-flow"
+  label="观察默认 normal flow"
+  goal="让两个内容块明确以 block box 参与 normal flow，并通过声明观察它们如何依次占据 block direction。"
+/>
+
+<Exercise
+  slug="space-with-margin"
+  label="用 margin 表达外部间距"
+  goal="给相邻的 .section 设置外部垂直间距；不要把 margin 混进组件内部 padding。"
+/>
+
+<Exercise
+  slug="separate-collapsing-margins"
+  label="识别并隔离 margin collapse"
+  goal="让 .panel 的内部 padding 成为父子 box 之间的分隔，观察它如何改变 margin collapsing 条件。"
+/>
+
+当前 checker 可以检查 display、margin、padding 等声明，但不能用固定几何结果诚实证明 normal-flow 算法或 margin collapse 的最终距离。水平 `auto` margin 也会在 computed style 中解析为与布局有关的 used value，因此本课通过 Concept/Compare 和 Preview 观察建立模型，不把一个像素值伪装成 auto-margin 证明。

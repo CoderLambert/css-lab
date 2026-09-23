@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.box-model-and-flow.box-model-and-box-sizing.switch-to-border-box.001",
+  "revision": 1,
+  "slug": "switch-to-border-box",
+  "title": "切换到 border-box",
+  "prompt": "保持 .panel 的 width、padding 与 border 不变，只把 box-sizing 改成 border-box，让 authored width 对应 border box。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "先判断当前 width 描述的是 content box 还是 border box。",
+    "目标不是删除 padding，而是改变 width 的计算边界。",
+    "设置 box-sizing: border-box。"
+  ],
+  "checks": [
+    {
+      "id": "box-sizing",
+      "type": "style",
+      "selector": ".panel",
+      "property": "box-sizing",
+      "equals": "border-box",
+      "message": "让 .panel 使用 border-box sizing"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}
