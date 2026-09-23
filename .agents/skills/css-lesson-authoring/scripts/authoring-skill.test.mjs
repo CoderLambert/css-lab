@@ -238,7 +238,7 @@ test("checker authoring docs include every schema check type", async () => {
   ];
   const checkTypes = [
     ...new Set(
-      [...schemaSource.matchAll(/type:\\s*z\\.literal\\("([^"]+)"\\)/g)].map(
+      [...schemaSource.matchAll(/type:\s*z\.literal\("([^"]+)"\)/g)].map(
         (match) => match[1],
       ),
     ),
