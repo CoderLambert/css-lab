@@ -177,6 +177,10 @@ const SECOND_EXERCISE_URL =
 const FIRST_EXERCISE_ID = "css.flexbox.alignment.center-box.001";
 const SECOND_EXERCISE_ID =
   "css.flexbox.alignment.space-between-items.001";
+const THIRD_EXERCISE_URL =
+  "/learn/css-foundations/flexbox/flexbox-alignment/align-items-end";
+const THIRD_EXERCISE_ID =
+  "css.flexbox.alignment.align-items-end.001";
 const SELECT_ALL =
   process.platform === "darwin" ? "Meta+A" : "Control+A";
 
@@ -193,9 +197,10 @@ async function replaceEditorCss(
 async function readProgressRecord(
   page: import("@playwright/test").Page,
   exerciseId: string,
+  revision = 1,
 ): Promise<unknown> {
   return page.evaluate(
-    ({ exerciseId }) =>
+    ({ exerciseId, revision }) =>
       new Promise<unknown>((resolve, reject) => {
         const request = indexedDB.open("css-lab");
         request.onerror = () => reject(request.error);
@@ -207,7 +212,7 @@ async function readProgressRecord(
           );
           const getRequest = transaction
             .objectStore("exercise-progress")
-            .get([exerciseId, 1]);
+            .get([exerciseId, revision]);
 
           getRequest.onerror = () => reject(getRequest.error);
           getRequest.onsuccess = () => {
@@ -216,7 +221,7 @@ async function readProgressRecord(
           };
         };
       }),
-    { exerciseId },
+    { exerciseId, revision },
   );
 }
 
@@ -526,5 +531,113 @@ test("blocked legacy upgrade hydrates in memory and discards the late open", asy
     files: {
       "style.css": localSource,
     },
+  });
+});
+
+
+test("align-items-end revision 2 does not restore or inherit revision 1 progress", async ({
+  page,
+}) => {
+  await page.goto("/studio");
+  const revisionOneCompletedAt = 1_725_000_001_000;
+  const revisionOneSource =
+    ".container { display: flex; align-items: flex-end; gap: 41px; }";
+
+  await page.evaluate(
+    ({ exerciseId, completedAt, source }) =>
+      new Promise<void>((resolve, reject) => {
+        const deleteRequest = indexedDB.deleteDatabase("css-lab");
+        deleteRequest.onerror = () => reject(deleteRequest.error);
+        deleteRequest.onblocked = () => reject(new Error("delete blocked"));
+        deleteRequest.onsuccess = () => {
+          const openRequest = indexedDB.open("css-lab", 2);
+          openRequest.onupgradeneeded = () => {
+            openRequest.result.createObjectStore("exercise-progress", {
+              keyPath: ["exerciseId", "revision"],
+            });
+          };
+          openRequest.onerror = () => reject(openRequest.error);
+          openRequest.onsuccess = () => {
+            const db = openRequest.result;
+            const transaction = db.transaction(
+              "exercise-progress",
+              "readwrite",
+            );
+            transaction.objectStore("exercise-progress").put({
+              exerciseId,
+              revision: 1,
+              files: { "style.css": source },
+              status: "completed",
+              completedAt,
+              updatedAt: completedAt,
+            });
+            transaction.onerror = () => reject(transaction.error);
+            transaction.oncomplete = () => {
+              db.close();
+              resolve();
+            };
+          };
+        };
+      }),
+    {
+      exerciseId: THIRD_EXERCISE_ID,
+      completedAt: revisionOneCompletedAt,
+      source: revisionOneSource,
+    },
+  );
+
+  await page.goto(THIRD_EXERCISE_URL);
+  await expect(
+    page.getByRole("button", { name: "检查答案" }),
+  ).toBeEnabled();
+
+  await expect
+    .poll(() =>
+      page
+        .locator(".cm-content")
+        .evaluate((element) =>
+          (element as HTMLElement).innerText
+            .replace(/\u00a0/g, " ")
+            .trim(),
+        ),
+    )
+    .toContain("flex-direction: column");
+  await expect
+    .poll(() =>
+      page
+        .locator(".cm-content")
+        .evaluate((element) =>
+          (element as HTMLElement).innerText
+            .replace(/\u00a0/g, " ")
+            .trim(),
+        ),
+    )
+    .not.toContain("gap: 41px");
+
+  expect(await readProgressRecord(page, THIRD_EXERCISE_ID, 2)).toBeNull();
+
+  const revisionTwoSource = `.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}`;
+  await replaceEditorCss(page, revisionTwoSource);
+  await page.getByRole("button", { name: "检查答案" }).click();
+  await expect(page.getByText("全部检查通过")).toBeVisible();
+
+  const revisionOne = await readProgressRecord(page, THIRD_EXERCISE_ID, 1);
+  const revisionTwo = await readProgressRecord(page, THIRD_EXERCISE_ID, 2);
+
+  expect(revisionOne).toMatchObject({
+    status: "completed",
+    completedAt: revisionOneCompletedAt,
+    files: { "style.css": revisionOneSource },
+  });
+  expect(revisionTwo).toMatchObject({
+    status: "completed",
+    files: { "style.css": revisionTwoSource },
+  });
+  expect(revisionTwo).not.toMatchObject({
+    completedAt: revisionOneCompletedAt,
   });
 });

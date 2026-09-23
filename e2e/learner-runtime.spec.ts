@@ -78,7 +78,7 @@ test("learner navigation follows the published exercise sequence", async ({
     page.getByRole("heading", { level: 2, name: "水平与垂直居中" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { level: 2, name: "先判断轴，再选择属性" }),
+    page.getByRole("heading", { level: 2, name: "先读轴，再选择 alignment property" }),
   ).toBeVisible();
   await expect(
     page.locator("code").filter({ hasText: "justify-content" }).first(),
@@ -117,7 +117,7 @@ test("learner navigation follows the published exercise sequence", async ({
   await page.locator("a").filter({ hasText: "下一题" }).click();
   await expect(page).toHaveURL(new RegExp(`${THIRD_EXERCISE_URL}$`));
   await expect(
-    page.getByRole("heading", { level: 2, name: "沿交叉轴底部对齐" }),
+    page.getByRole("heading", { level: 2, name: "沿交叉轴末端对齐" }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "下一题" })).toBeDisabled();
 });
@@ -256,6 +256,7 @@ test("failed checks explain actual values, hints reveal progressively, and equiv
     page,
     `.container {
   display: flex;
+  flex-direction: column;
   align-items: stretch;
 }`,
   );
@@ -281,11 +282,11 @@ test("failed checks explain actual values, hints reveal progressively, and equiv
   ).toBeVisible();
 
   const firstHint =
-    "先确认 .container 已经是 flex container；这道题不需要改变三个项目自身的高度。";
+    "先确认 .container 使用 column；这道题不要求改变项目自身的尺寸。";
   const secondHint =
-    "默认 row 方向下，交叉轴是垂直方向，因此“交叉轴末端”就是容器的底部。";
+    "column 的 main axis 是纵向，cross axis 是水平方向，因此 cross-axis end 在常见书写模式中是右侧。";
   const thirdHint =
-    "用 align-items 控制整组项目的交叉轴对齐。经典 Flexbox 写法是 flex-end；现代 Box Alignment 的 end 在本题中也视为正确。";
+    "用 align-items 控制整组项目的 cross axis。经典 Flexbox 写法是 flex-end；现代 Box Alignment 的 end 在本题中也视为正确。";
 
   await expect(page.getByText(firstHint)).toHaveCount(0);
   await page.getByRole("button", { name: "提示" }).click();
@@ -303,6 +304,7 @@ test("failed checks explain actual values, hints reveal progressively, and equiv
     page,
     `.container {
   display: flex;
+  flex-direction: column;
   align-items: end;
 }`,
   );
