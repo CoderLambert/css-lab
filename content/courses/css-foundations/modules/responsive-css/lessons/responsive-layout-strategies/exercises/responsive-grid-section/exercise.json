@@ -4,15 +4,23 @@
   "revision": 1,
   "slug": "responsive-grid-section",
   "title": "responsive Grid section",
-  "prompt": "建立一个受可用空间约束的 Grid section，并在 Preview 中观察 track/item adaptation。",
+  "prompt": "starter 已经建立 Grid、gutter 与外层宽度约束，但两条固定 160px tracks 在窄空间会产生压力。先预测 390px 与宽空间下固定 tracks 的表现，再把 column strategy 改成 `auto-fit + minmax()`，让可用列数随空间变化。",
   "order": 2,
   "status": "published",
   "hints": [
-    "先让 gallery 建立 Grid formatting context，再表达 gutter 与可用空间上限。",
-    "可以用 auto-fit/minmax 或其他等价 track 策略；rule-style 只在题目明确声明目标时读取 authored value，等价 track strategy 与最终 geometry 仍在 Preview 中比较。",
-    "设置 display: grid、gap: 12px 与 max-width: 100%，然后在 Preview 的不同宽度观察 items 如何适应。"
+    "先区分“Grid context 已建立”和“track strategy 是否能适应空间”：本题只需要改变 columns 的定义。",
+    "需要让浏览器根据可用宽度决定能放下多少列，同时保证单列不要小于 120px，并让剩余空间由 fr track 吸收。",
+    "把 `grid-template-columns` 改成 `repeat(auto-fit, minmax(120px, 1fr))`，再比较 390、768、1280 的 Preview。"
   ],
   "checks": [
+    {
+      "id": "gallery-responsive-tracks",
+      "type": "rule-style",
+      "selector": ".gallery",
+      "property": "grid-template-columns",
+      "equals": "repeat(auto-fit, minmax(120px, 1fr))",
+      "message": "把固定 columns 改成 auto-fit + minmax 的 responsive track strategy"
+    },
     {
       "id": "gallery-grid-context",
       "type": "style",

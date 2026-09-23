@@ -47,12 +47,22 @@
       "message": "允许 dashboard actions 在窄空间换行"
     },
     {
+      "id": "dashboard-grid-display-grid",
+      "type": "rule-style",
+      "selector": ".dashboard-grid",
+      "property": "display",
+      "equals": "grid",
+      "message": "先让 dashboard body 建立 Grid formatting context"
+    },
+    {
       "id": "dashboard-grid-columns-wide",
       "type": "rule-style",
       "selector": ".dashboard-grid",
       "property": "grid-template-columns",
       "equals": "minmax(0, 2fr) minmax(160px, 1fr)",
-      "alsoAccepts": ["minmax(0px, 2fr) minmax(160px, 1fr)"],
+      "alsoAccepts": [
+        "minmax(0px, 2fr) minmax(160px, 1fr)"
+      ],
       "media": "(min-width: 640px)",
       "message": "在宽空间为 dashboard grid 定义两列"
     },

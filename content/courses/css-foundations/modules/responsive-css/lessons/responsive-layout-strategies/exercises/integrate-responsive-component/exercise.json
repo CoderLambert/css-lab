@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "integrate-responsive-component",
   "title": "综合 responsive component",
-  "prompt": "综合 surface、typography、constraints、internal layout 与 selective adaptation，最后结合固定 viewport 检查与 Preview review。",
+  "prompt": "base.css 已提供 surface 与 typography scaffolding。本题聚焦你需要真正决策的部分：外层 constraint、header/actions 的 Flex layout、body 的 Grid context，以及 selective responsive adaptation；最后结合固定 viewport 检查与 Preview review。",
   "order": 4,
   "status": "published",
   "hints": [
-    "按 surface/typography → constraints → internal layout → selective adaptation 的顺序工作，不要从截图像素反推。",
-    "先让窄空间 baseline 可用，再让 Flexbox 或 Grid 承担自然变化；只有真实 content/layout break 才加入 query。",
-    "checker 会验证明确的 declaration 与固定 viewport outcome；完整 geometry、wrapping 或等价实现仍要使用 Preview 比较 390、768、1280。"
+    "把 surface/typography 当作已提供 scaffolding；先确认 profile 在窄空间不超过 containing block。",
+    "建立 header/actions 的 Flex context 与 body 的 Grid context，再观察哪些变化可以靠自然 layout 完成。",
+    "最后只在给定宽空间条件中定义 body tracks/alignment；checker 证明 authored context/rules，完整 geometry 与 wrapping 仍在 Preview 比较。"
   ],
   "checks": [
     {
@@ -46,12 +46,22 @@
       "message": "允许 profile actions 在窄空间换行"
     },
     {
+      "id": "profile-body-display-grid",
+      "type": "rule-style",
+      "selector": ".profile-body",
+      "property": "display",
+      "equals": "grid",
+      "message": "先让 profile body 建立 Grid formatting context"
+    },
+    {
       "id": "profile-body-columns-wide",
       "type": "rule-style",
       "selector": ".profile-body",
       "property": "grid-template-columns",
       "equals": "minmax(0, 1fr) auto",
-      "alsoAccepts": ["minmax(0px, 1fr) auto"],
+      "alsoAccepts": [
+        "minmax(0px, 1fr) auto"
+      ],
       "media": "(min-width: 640px)",
       "message": "在宽空间为 profile body 定义两列"
     },

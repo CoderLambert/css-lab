@@ -1,5 +1,6 @@
 .gallery {
-  display: block;
-  gap: 0;
-  max-width: none;
+  display: grid;
+  grid-template-columns: 160px 160px;
+  gap: 12px;
+  max-width: 100%;
 }
