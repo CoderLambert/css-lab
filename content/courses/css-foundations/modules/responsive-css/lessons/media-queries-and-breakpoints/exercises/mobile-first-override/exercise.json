@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "mobile-first-override",
   "title": "建立 mobile-first override",
-  "prompt": "先写窄空间 baseline，再在较宽条件下选择性覆盖布局规则；用 Preview 观察同一份 CSS。",
+  "prompt": "本题不再让你重新选择 breakpoint：640px 是已经给定的练习条件。先写对所有窄空间成立的 block baseline，再在这个较宽条件中只覆盖需要变化的布局 declarations，并用 Preview 比较同一份 CSS。",
   "order": 2,
   "status": "published",
   "hints": [
-    "baseline 应在窄空间也成立，不要把 390px 写成唯一的 device rule。",
-    "在真正发生 layout need 的 min-width 条件中覆盖 display/gap。",
-    "rule-style 会验证 baseline 与 media declaration，viewport checks 会覆盖 390、768、1280；完整 geometry 仍需 Preview review。"
+    "先把 mobile-first 理解成 source structure：无条件 baseline 应在窄空间成立，query 只增加较宽空间真正需要的变化。",
+    "本题的 640px 是提供给你的 threshold，不声称由这一题再次推导；重点是条件命中后 rules 仍要进入正常 cascade。",
+    "在 `@media (min-width: 640px)` 中把 layout 改为 flex、gap 16px，并让 sidebar 使用 120px basis、content 参与 grow。"
   ],
   "checks": [
     {
