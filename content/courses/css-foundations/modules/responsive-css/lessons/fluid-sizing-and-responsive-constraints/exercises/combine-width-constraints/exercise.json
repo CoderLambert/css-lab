@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "combine-width-constraints",
   "title": "组合 width 与 max-width",
-  "prompt": "保留 width: 100%，再用 max-width: 480px 表达组件的内容上限。",
+  "prompt": "让 .panel 同时使用 width:100% 与 max-width:480px。先预测：390px Preview 中外层 frame 会跟随可用空间，panel 应保持小于 480px；到 768px 时 frame 有更多空间，panel 应停止增长在 480px cap。用同一份 CSS 比较 fluid region 与 capped region。",
   "order": 2,
   "status": "published",
   "hints": [
-    "width: 100% 跟随 containing block；max-width 再给它一个上限。",
-    "这两个 constraint 可以同时存在，不需要复制不同 viewport 的 width。",
-    "设置 width: 100% 与 max-width: 480px。"
+    "外层 frame 自己是 fluid 的：390px 时它比 480px 窄，768px 时它可以增长到 600px cap。",
+    "width:100% 让 panel 跟随 frame；只有当这个结果超过 480px 时，max-width 才成为 controlling upper bound。",
+    "设置 width:100% 与 max-width:480px，并分别在 390 / 768 Preview 观察哪条 constraint 正在控制 used width。"
   ],
   "checks": [
     {

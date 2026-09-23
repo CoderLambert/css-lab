@@ -44,13 +44,13 @@ Flexbox 的 wrap、Grid 的 flexible tracks、`minmax()` 或一个合理的 max 
 <Exercise
   slug="combine-width-constraints"
   label="组合 width 与 max-width"
-  goal="保留 width: 100%，再用 max-width: 480px 表达组件的内容上限。"
+  goal="让同一个 panel 在 390px 时跟随 containing block，在更宽空间达到 480px cap，直接比较 width:100% 与 max-width 的两个 controlling region。"
 />
 
 <Exercise
   slug="flexible-layout-without-breakpoint"
   label="不用 breakpoint 的 flexible layout"
-  goal="让 .cards 使用 Flexbox wrap 与 gap，先依赖自然 flexibility 适应 available space。"
+  goal="让 .cards 使用 Flexbox wrap 与 gap，并在 390px 与 768px Preview 中观察同一份 CSS 从多行到单行的自然适应。"
 />
 
 Preview 的 `390 / 768 / 1280` presets 适合观察同一份 CSS 如何变化。`viewport-style` 可以用于题目明确指定的固定视口 outcome；本课这些 exercises 主要检查 fluid constraint 与自然适应的 authored declaration，因此不把 declaration subset 宣称成任意连续 viewport 的 automated responsive mastery。

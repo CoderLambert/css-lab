@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "responsive-flex-component",
   "title": "responsive Flex component",
-  "prompt": "让 toolbar 使用可换行的 Flex layout 与 max-width constraint，先观察自然适应。",
+  "prompt": "让 toolbar 使用可换行的 Flex layout 与 max-width:100%。先预测：390px Preview 中可用宽度约只够三个 96px item 加 gaps，第四个应换到下一行；768px 时 520px preferred width 足以让四个 item 同行。实现后比较这两个状态。",
   "order": 1,
   "status": "published",
   "hints": [
-    "先让 toolbar 成为 Flex formatting context，再允许 items 在 available space 不足时换行。",
-    "max-width: 100% 表达组件不能超过 containing block 的 inline size；它不负责决定每个 item 的宽度。",
-    "设置 display: flex、flex-wrap: wrap、gap: 12px 与 max-width: 100%；最后用 Preview 观察窄空间下的 wrapping。"
+    "toolbar 的 preferred width 是 520px；max-width:100% 只会在 containing block 更窄时限制它。",
+    "390px 下可用 content width 约 316px，三项加两段 12px gap 可以放下；768px 下 toolbar 回到 520px preferred width，四项可同行。",
+    "设置 display:flex、flex-wrap:wrap、gap:12px 与 max-width:100%，然后比较 390 与 768 Preview。"
   ],
   "checks": [
     {

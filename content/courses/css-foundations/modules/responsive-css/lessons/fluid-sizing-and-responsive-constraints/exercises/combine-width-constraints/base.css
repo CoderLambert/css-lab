@@ -11,7 +11,8 @@ body {
 }
 
 .frame {
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   padding: 12px;
   border: 1px solid;
 }
