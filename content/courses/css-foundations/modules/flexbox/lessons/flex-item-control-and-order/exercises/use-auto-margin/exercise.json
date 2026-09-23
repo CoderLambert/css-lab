@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "use-auto-margin",
   "title": "用 auto margin 推开 item",
-  "prompt": "让 .actions 使用 margin-inline-start: auto，把它推向 flex context 的 main-axis 末端；最终空间分配需要在 Preview 中观察。",
+  "prompt": "当前 toolbar 使用默认 flex-direction: row，因此 main axis 与 logical inline axis 重合。让 .actions 选择能吸收 inline-start 一侧剩余空间的 auto margin，把它推向 main-end；先判断 axis 映射，再在 Preview 中观察空间分配。",
   "order": 2,
   "status": "published",
   "hints": [
-    "auto margin 吸收对应 axis 上的剩余空间，不是固定像素 offset。",
-    "actions 在 inline-start 一侧设置 auto margin，可以把它推向 main-axis 末端。",
-    "设置 margin-inline-start: auto；本题 checker 不把 computed pixel value 当成 authored auto 证明。"
+    "先读取 container 的 flex-direction：默认 row 让 main axis 沿 inline axis；logical margin 自己不会自动变成 main-axis property。",
+    "要把 actions 推向 row 的 main-end，需要让它 inline-start 一侧的 margin 吸收剩余 inline/main-axis 空间。",
+    "设置 margin-inline-start: auto；如果 container 改成 column，这条 inline margin 就不再表示 main-axis 推开。"
   ],
   "checks": [
     {
@@ -19,7 +19,7 @@
       "selector": ".actions",
       "property": "margin-inline-start",
       "equals": "auto",
-      "message": "让 .actions 用 auto margin 吸收主轴剩余空间"
+      "message": "在默认 row 中，让 .actions 用 inline-start auto margin 吸收 inline/main-axis 剩余空间"
     }
   ]
 }

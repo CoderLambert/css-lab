@@ -5,7 +5,7 @@ Flex container 已经决定了 main/cross axis 和基本的 line layout；item-l
 <Concept title="align-self、auto margin 与 order 的边界">
 `align-self` 可以覆盖单个 item 的 `align-items` 默认值，但它仍然沿同一条 cross axis 工作。它不是另一套坐标系统。
 
-Flex context 中的 auto margin 会吸收对应 axis 上的剩余空间，因此 `margin-inline-start: auto` 常用来把一组 actions 推向 main-axis 末端。它描述的是空间分配，不是一个固定像素位置。
+Flex context 中的 auto margin 会吸收这个 margin 所在维度的剩余空间；它不是天然的 main-axis 属性。`margin-inline-start` 始终属于 logical inline axis。只有当 Flex main axis 与 inline axis 重合时，例如本课默认的 `flex-direction: row`，`margin-inline-start: auto` 才会吸收 main-axis/inline-axis 的剩余空间，把一组 actions 推向 main-end。若 container 改成 `column`，main axis 转到 block axis，这条 inline margin 就不再承担 main-axis 推开作用。
 
 `order` 影响 flex items 的视觉排列顺序，但不会重写 DOM/source order，也不会自动重排键盘焦点、屏幕阅读器阅读顺序或其他 accessibility 顺序。视觉顺序与交互顺序不一致时应当谨慎使用。
 </Concept>
@@ -27,12 +27,19 @@ Flex context 中的 auto margin 会吸收对应 axis 上的剩余空间，因此
 />
 
 <Compare
-  leftTitle="auto margin"
-  leftCode="margin-inline-start: auto"
-  leftMeaning="吸收 main-axis 剩余空间；是空间分配规则，不是固定坐标。"
+  leftTitle="row 中的 auto margin"
+  leftCode="flex-direction: row + margin-inline-start: auto"
+  leftMeaning="row 让 main axis 与 inline axis 重合，所以这条 logical inline margin 会吸收 main-axis/inline-axis 剩余空间。"
   rightTitle="order"
   rightCode="order: -1"
   rightMeaning="改变视觉排列，不改变 DOM/source/keyboard order。"
+/>
+
+<Predict
+  question="如果同一个 toolbar 改成 `flex-direction: column`，`margin-inline-start: auto` 还会把 actions 推向 main-axis 末端吗？"
+  options={["不会；main axis 已转到 block axis，而 margin-inline-start 仍属于 inline axis", "会；margin-inline-start 永远表示 Flex main-start", "会；auto margin 会自动跟随 flex-direction 改写逻辑轴"]}
+  answer="不会；main axis 已转到 block axis，而 margin-inline-start 仍属于 inline axis"
+  explanation="Flex main axis 由 flex-direction 决定；logical margin 的 inline/block axis 来自 writing mode。row 时两者重合，column 时不重合。先映射两套 axis，再判断 auto margin 会吸收哪个方向的 free space。"
 />
 
 ## 在 item-level control 中保留 source-order 意识
@@ -46,7 +53,7 @@ Flex context 中的 auto margin 会吸收对应 axis 上的剩余空间，因此
 <Exercise
   slug="use-auto-margin"
   label="用 auto margin 推开 item"
-  goal="在 flex context 中用 margin-inline-start: auto 把 .actions 推向 main-axis 末端，并在 Preview 中观察空间分配。"
+  goal="先确认默认 row 让 main axis 与 inline axis 重合，再用 margin-inline-start: auto 把 .actions 推向 main-end，并在 Preview 中观察空间分配。"
 />
 
 <Exercise
