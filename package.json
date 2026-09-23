@@ -14,7 +14,8 @@
     "content:authoring:inspect": "node .agents/skills/css-lesson-authoring/scripts/inspect-context.mjs",
     "content:authoring:scaffold": "node .agents/skills/css-lesson-authoring/scripts/scaffold.mjs",
     "content:source:inspect": "node .agents/skills/css-lesson-authoring/scripts/inspect-source-pack.mjs",
-    "test:authoring-skill": "node --test .agents/skills/css-lesson-authoring/scripts/*.test.mjs"
+    "test:authoring-skill": "node --test .agents/skills/css-lesson-authoring/scripts/*.test.mjs",
+    "content:authoring:reorder": "node .agents/skills/css-lesson-authoring/scripts/reorder.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

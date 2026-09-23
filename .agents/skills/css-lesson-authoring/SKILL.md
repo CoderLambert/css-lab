@@ -86,6 +86,21 @@ node .agents/skills/css-lesson-authoring/scripts/inspect-context.mjs \
 
 Use the returned order/status/context instead of inferring it manually.
 
+## Scaffold a Module
+
+Use when adding a new curriculum Module:
+
+```bash
+node .agents/skills/css-lesson-authoring/scripts/scaffold.mjs module \
+  --course <course-slug> \
+  --slug <module-slug> \
+  --id <stable-id> \
+  --title "<title>" \
+  --description "<description>"
+```
+
+The script validates the parent Course, stable-ID uniqueness, order collisions and overwrite protection, then creates a draft Module with an empty `lessons/` directory.
+
 ## Scaffold a Lesson
 
 After the teaching plan is coherent, use:
@@ -130,6 +145,24 @@ node .agents/skills/css-lesson-authoring/scripts/scaffold.mjs exercise \
 The script creates a draft Exercise with the current Exercise v2 `starter/` + `solution/` Workspace layout and refuses overwrite.
 
 Do not manually renumber existing exercises to make a new Exercise fit. Use explicit `--order` only when the teaching sequence requires it and no collision exists.
+
+## Reorder Modules or Lessons
+
+Use explicit deterministic mappings instead of hand-editing sibling order fields:
+
+```bash
+node .agents/skills/css-lesson-authoring/scripts/reorder.mjs module \
+  --course <course-slug> \
+  --orders '{"first-module":1,"second-module":2}' \
+  --dry-run
+
+node .agents/skills/css-lesson-authoring/scripts/reorder.mjs lesson \
+  --course <course-slug> \
+  --module <module-slug> \
+  --orders '{"first-lesson":1,"second-lesson":2}'
+```
+
+The reorder helper rejects unknown siblings, duplicate existing orders and target collisions. `--dry-run` never writes.
 
 ## Inspect a reusable source pack
 
@@ -192,7 +225,7 @@ If the checker DSL cannot validate the real objective reliably, stop and report 
 
 Use `scaffold.mjs`.
 
-Do not manually create `lesson.json`, exercise directory skeletons, orders, or draft statuses when the script covers the operation.
+Do not manually create Module/Lesson/Exercise structural skeletons, sibling orders, or draft statuses when the scripts cover the operation.
 
 ## 5. Author the Lesson
 
