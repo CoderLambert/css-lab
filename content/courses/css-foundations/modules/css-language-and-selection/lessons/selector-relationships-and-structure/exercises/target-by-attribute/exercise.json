@@ -13,8 +13,37 @@
     "使用 [data-state=\"ready\"]，并设置 text-transform: uppercase。"
   ],
   "checks": [
-    {"id":"ready-a-uppercase","type":"style","selector":".ready-a","property":"text-transform","equals":"uppercase","message":"第一个 ready 项目应显示为 uppercase"},
-    {"id":"ready-b-uppercase","type":"style","selector":".ready-b","property":"text-transform","equals":"uppercase","message":"第二个 ready 项目应显示为 uppercase"},
-    {"id":"pending-stays-none","type":"style","selector":".pending","property":"text-transform","equals":"none","message":"pending 项目不应被一起转换"}
+    {
+      "id": "ready-attribute-selector-authored",
+      "type": "rule-style",
+      "selector": "[data-state=\"ready\"]",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "使用 data-state=ready attribute selector authored rule"
+    },
+    {
+      "id": "ready-a-uppercase",
+      "type": "style",
+      "selector": ".ready-a",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "第一个 ready 项目应显示为 uppercase"
+    },
+    {
+      "id": "ready-b-uppercase",
+      "type": "style",
+      "selector": ".ready-b",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "第二个 ready 项目应显示为 uppercase"
+    },
+    {
+      "id": "pending-stays-none",
+      "type": "style",
+      "selector": ".pending",
+      "property": "text-transform",
+      "equals": "none",
+      "message": "pending 项目不应被一起转换"
+    }
   ]
 }

@@ -61,4 +61,4 @@
   goal="根据 fixture 的实际 DOM 层级，把错误的 direct-child 假设改成正确的关系 selector。"
 />
 
-当前 checker 可以验证最终哪些元素得到指定 resolved style，也可以检查明确的非目标元素没有被影响；但它**不能证明 learner 写出的源码一定使用了要求的 combinator、attribute selector 或 pseudo-class**。因此本课不会把最终样式结果伪装成 source-aware validation。
+本课的 bounded selector forms 会组合两层证据：`rule-style` 验证要求的 combinator / attribute selector / structural pseudo-class 确实出现在 learner stylesheet，computed `style` 再验证目标与非目标的匹配边界。这个组合仍只证明当前 fixture 上的 authored rule 与结果，不代表 checker 能判断所有语义等价 selector 的优劣。

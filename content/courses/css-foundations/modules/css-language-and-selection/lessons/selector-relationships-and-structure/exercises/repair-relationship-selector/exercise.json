@@ -13,7 +13,29 @@
     "把 .card > .label 改为 .card .label，并设置 font-weight: 700。"
   ],
   "checks": [
-    {"id":"inside-label-bold","type":"style","selector":".inside-label","property":"font-weight","equals":"700","message":"card 内的 label 应加粗"},
-    {"id":"outside-label-normal","type":"style","selector":".outside-label","property":"font-weight","equals":"400","message":"card 外的 label 不应被一起加粗"}
+    {
+      "id": "descendant-selector-authored",
+      "type": "rule-style",
+      "selector": ".card .label",
+      "property": "font-weight",
+      "equals": "700",
+      "message": "把 direct-child 假设修正为 .card .label descendant selector"
+    },
+    {
+      "id": "inside-label-bold",
+      "type": "style",
+      "selector": ".inside-label",
+      "property": "font-weight",
+      "equals": "700",
+      "message": "card 内的 label 应加粗"
+    },
+    {
+      "id": "outside-label-normal",
+      "type": "style",
+      "selector": ".outside-label",
+      "property": "font-weight",
+      "equals": "400",
+      "message": "card 外的 label 不应被一起加粗"
+    }
   ]
 }
