@@ -11,7 +11,7 @@
 - `Concept / Predict / Compare / Exercise` 四类 Activity 如何组合。
 - learner 在一节课中的完整体验应该是什么。
 - 哪些能力属于 v1，哪些能力明确延期。
-- 后续 M6A 重构必须保留哪些已经确认的产品行为。
+- 当前 M6A 平台必须持续保留哪些已经确认的产品行为。
 
 本文档是 **产品行为与教学体验的基线**。
 
@@ -729,7 +729,7 @@ Editor 是 learner 的主要操作区域。
 
 MDX Learning Flow v1 不改变 Editor Domain。
 
-后续 M6A 会扩展 Workspace 到 HTML + CSS，但不得改变当前产品关系：
+M6A 已将 Workspace 扩展到 HTML + CSS，但不得改变当前产品关系：
 
 ```text
 Lesson
@@ -1034,7 +1034,7 @@ position sticky 不工作
 
 # 22. 与 M6A 的关系
 
-MDX Learning Flow v1 合入 main 后，M6A 继续解决：
+MDX Learning Flow v1 合入 main 后，M6A 已完成以下平台能力：
 
 - Workspace Domain。
 - HTML + CSS editing。
