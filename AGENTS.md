@@ -243,11 +243,22 @@ Do not put answer properties into `base.css`.
 
 # Exercise Check DSL
 
-The current check protocol is intentionally small:
+The shared checker supports:
 
-- `style`
-- `exists`
-- `count`
+- `style`: computed/resolved style on the live fixture.
+- `rule-style`: an authored rule in learner CSS, optionally scoped to an exact normalized media condition.
+- `viewport-style`: computed style sampled at one supported deterministic viewport width.
+- `exists`: selector existence.
+- `count`: selector match count.
+
+Use the check type that proves the learning objective rather than a convenient proxy. When the objective spans source semantics and resolved behavior, combine checks; for example, use `rule-style` to prove an authored `2rem`, selector, pseudo-class, custom-property use, Grid track expression, or media-scoped declaration, and pair it with `style` or `viewport-style` when the resolved outcome also matters.
+
+Current evidence boundaries are important:
+
+- `style` does not prove which authored selector, unit, function, shorthand, or custom-property linkage produced the result.
+- `rule-style` compares CSSOM-authored selector text, property value, and (when present) normalized media-condition text. It does not prove geometry, actual interaction modality, declaration priority such as `!important`, or arbitrary semantic equivalence between different selector/media spellings.
+- `viewport-style` samples a fixed viewport outcome; it does not prove behavior at every intermediate width, line wrapping/geometry, or that a breakpoint was chosen for the right content reason.
+- `exists` / `count` prove structure only.
 
 Checks are declarative content data. Do not create per-exercise custom JavaScript check functions when the shared DSL can express the requirement.
 

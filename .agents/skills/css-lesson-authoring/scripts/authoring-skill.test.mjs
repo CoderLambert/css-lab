@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { inspectContext } from "./inspect-context.mjs";
@@ -212,4 +213,42 @@ test("reorderSiblings rejects unknown entities and collisions without partial wr
 
   assert.equal(await readFile(flexboxPath, "utf8"), beforeFlexbox);
   assert.equal(await readFile(gridPath, "utf8"), beforeGrid);
+});
+
+
+test("checker authoring docs include every schema check type", async () => {
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
+  const schemaSource = await readFile(
+    join(repoRoot, "src", "lib", "content", "schemas", "exercise.ts"),
+    "utf8",
+  );
+  const docs = [
+    await readFile(join(repoRoot, "AGENTS.md"), "utf8"),
+    await readFile(
+      join(
+        repoRoot,
+        ".agents",
+        "skills",
+        "css-lesson-authoring",
+        "references",
+        "checker-guidelines.md",
+      ),
+      "utf8",
+    ),
+  ];
+  const checkTypes = [
+    ...new Set(
+      [...schemaSource.matchAll(/type:\\s*z\\.literal\\("([^"]+)"\\)/g)].map(
+        (match) => match[1],
+      ),
+    ),
+  ];
+
+  assert.ok(checkTypes.length > 0);
+
+  for (const type of checkTypes) {
+    for (const doc of docs) {
+      assert.match(doc, new RegExp("\\`" + type.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&") + "\\`"));
+    }
+  }
 });
