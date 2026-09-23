@@ -4,9 +4,30 @@
   "revision": 1,
   "slug": "calc-constraint",
   "title": "用 calc 组合 relative 与 absolute value",
-  "prompt": ".frame 宽 400px。让 .content 使用 calc(100% - 48px)，最终宽度为 352px。",
+  "prompt": ".frame 宽 400px。让 .content 始终比 containing block 少 48px，而不是直接写这次碰巧得到的 352px。用一个 expression 把 relative available size 与 fixed subtraction 组合起来。",
   "order": 4,
   "status": "published",
-  "hints": ["calc() 可以在兼容的 length-percentage context 中组合 % 与 px。", "100% 在这里对应 frame 的 400px。", "使用 width: calc(100% - 48px)。"],
-  "checks": [{"id":"content-width","type":"style","selector":".content","property":"width","equals":"352px","message":"content 最终宽度应为 352px"}]
+  "hints": [
+    "需要同时表达“全部 available width”和“固定减去 48px”。",
+    "calc() 可以在 length-percentage context 中组合 % 与 px。",
+    "使用 width:calc(100% - 48px)。"
+  ],
+  "checks": [
+    {
+      "id": "content-authored-calc",
+      "type": "rule-style",
+      "selector": ".content",
+      "property": "width",
+      "equals": "calc(100% - 48px)",
+      "message": "让 content authored width 使用 calc(100% - 48px)"
+    },
+    {
+      "id": "content-width",
+      "type": "style",
+      "selector": ".content",
+      "property": "width",
+      "equals": "352px",
+      "message": "content 最终宽度应为 352px"
+    }
+  ]
 }

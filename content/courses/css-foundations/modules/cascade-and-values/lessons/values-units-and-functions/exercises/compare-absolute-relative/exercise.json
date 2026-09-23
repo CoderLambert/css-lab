@@ -4,12 +4,46 @@
   "revision": 1,
   "slug": "compare-absolute-relative",
   "title": "对比 absolute 与 relative length",
-  "prompt": "root font-size 已固定为 16px。让 .absolute 用 32px，让 .relative 用 2rem；两者最终宽度都应为 32px。",
+  "prompt": "root font-size 已固定为 16px。.absolute 使用 32px；.relative 必须使用一个 root-relative length，在不硬编码第二个 32px 的前提下得到相同最终宽度。先算出 relative value，再观察两种 authored unit 如何解析到同一个 result。",
   "order": 1,
   "status": "published",
-  "hints": ["px 是 absolute length。", "rem 参考 root element 的 font-size。", "设置 width: 32px 与 width: 2rem。"],
+  "hints": [
+    "先区分 absolute length 与 root-relative length。",
+    "root 是 16px；要得到 32px，需要 root size 的 2 倍。",
+    "让 .absolute 使用 width:32px，让 .relative 使用 width:2rem。"
+  ],
   "checks": [
-    {"id":"absolute-width","type":"style","selector":".absolute","property":"width","equals":"32px","message":"absolute box 最终宽度应为 32px"},
-    {"id":"relative-width","type":"style","selector":".relative","property":"width","equals":"32px","message":"relative box 最终宽度应为 32px"}
+    {
+      "id": "absolute-authored-width",
+      "type": "rule-style",
+      "selector": ".absolute",
+      "property": "width",
+      "equals": "32px",
+      "message": "让 absolute box authored width 使用 32px"
+    },
+    {
+      "id": "relative-authored-width",
+      "type": "rule-style",
+      "selector": ".relative",
+      "property": "width",
+      "equals": "2rem",
+      "message": "让 relative box authored width 使用 2rem"
+    },
+    {
+      "id": "absolute-width",
+      "type": "style",
+      "selector": ".absolute",
+      "property": "width",
+      "equals": "32px",
+      "message": "absolute box 最终宽度应为 32px"
+    },
+    {
+      "id": "relative-width",
+      "type": "style",
+      "selector": ".relative",
+      "property": "width",
+      "equals": "32px",
+      "message": "relative box 最终宽度应为 32px"
+    }
   ]
 }

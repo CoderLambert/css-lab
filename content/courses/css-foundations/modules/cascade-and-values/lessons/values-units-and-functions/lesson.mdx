@@ -40,4 +40,4 @@ Percentage 更不能统一解释成“viewport 的百分比”。它的 referenc
 
 <Exercise slug="calc-constraint" label="用 calc 组合 reference" goal="从 containing block 的 100% 中减去固定空间得到目标宽度。" />
 
-本课 checker 只验证最终 resolved style。它不能证明 authored unit 或 `calc()` strategy，因此 prompt 明确约束练习意图；机器结果不能被宣传为 source-level 证明。
+本课 checker 会组合两层证据：`rule-style` 验证 bounded authored unit / percentage / `calc()` expression，computed `style` 再验证当前 fixture 的 resolved result。两层都通过，才能说明“source mechanism 与 resolved outcome”同时满足本题；这仍不代表 checker 能证明任意等价表达或所有 sizing geometry。
