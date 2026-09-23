@@ -190,6 +190,8 @@ Rules:
 
 Exercises additionally have a positive integer `revision`, a declared Workspace file list and a Runtime definition. Course/Module/Lesson remain schemaVersion 1; Exercise is schemaVersion 2.
 
+Current CSS Foundations v1 source inventory is 9 Modules / 32 Lessons / 100 Exercises. Only the existing Flexbox alignment Lesson and its 3 Exercises are published; all other curriculum remains draft until capability and publication review.
+
 Lesson content rules:
 
 - `lesson.json` is lesson runtime metadata; `lesson.mdx` is teaching content.

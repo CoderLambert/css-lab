@@ -1,6 +1,6 @@
 # Front-end Lab Platform
 
-这是一个面向前端学习实验的交互式平台。当前正式课程仍是 **CSS Lab**，M6A 已把底层能力从单一 CSS 字符串编辑升级为 content-defined Workspace：
+这是一个面向前端学习实验的交互式平台。当前正式课程仍是 **CSS Lab**。M6B source tree 已 rebaseline 为 **9 Modules / 32 Lessons / 100 Exercises**，其中稳定核心仍只有 **1 published Lesson / 3 published Exercises**；其余课程保持 draft。底层继续使用 M6A 的 content-defined Workspace：
 
 ```text
 学习概念
@@ -125,11 +125,13 @@ solution/
 
 `solution/` 只供 Studio / server-side authoring inspection 使用，永不进入 learner Exercise、Draft、ExecutionSnapshot 或 Browser Runtime。
 
-当前 CSS curriculum 的三个 Exercise 保持：
+当前 CSS Foundations v1 的 100 个 Exercise 都使用 Exercise v2 Workspace contract，并保持课程选择的 fixed HTML + CSS-only authoring：
 
 - `index.html` locked
 - `base.css` locked
 - `style.css` editable
+
+只有既有 Flexbox alignment 的 3 个 Exercise 进入 published learner chain；其余 draft 内容即使已进入 generated MDX registry，也不能通过 learner route 打开。capability-gap draft Exercise 可能没有 checks，这会作为 Studio warning 保留，不会用弱 checker 伪造覆盖。
 
 平台本身已支持 content 把 HTML 标记为 editable；首个真实 HTML-editable curriculum PR 必须补正式 learner-route E2E。
 
