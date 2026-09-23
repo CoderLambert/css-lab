@@ -43,6 +43,9 @@ jobs:
           pnpm content:generate
           git diff --exit-code -- src/features/learning/generated/lesson-content-registry.tsx
 
+      - name: Verify diff integrity
+        run: git diff --check
+
       - name: Lint
         run: pnpm lint
 
