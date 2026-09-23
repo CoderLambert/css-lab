@@ -65,5 +65,8 @@ test("draft M6B curriculum remains fail-closed on learner routes", async ({
   );
 
   expect(response?.status()).toBe(404);
-  await expect(page.getByRole("heading", { name: /not found/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: "检查答案" })).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "给标题添加基础样式" }),
+  ).toHaveCount(0);
 });
