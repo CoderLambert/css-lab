@@ -12,7 +12,7 @@ body {
 
 .board {
   display: grid;
-  width: 360px;
+  width: 460px;
   gap: 12px;
   padding: 12px;
   border: 1px solid;
