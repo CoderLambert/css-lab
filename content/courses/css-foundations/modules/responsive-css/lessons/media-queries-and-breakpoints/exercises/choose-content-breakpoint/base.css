@@ -18,7 +18,7 @@ body {
 }
 
 .nav a {
-  min-width: 128px;
+  min-width: 120px;
   padding: 8px;
   text-decoration: none;
 }

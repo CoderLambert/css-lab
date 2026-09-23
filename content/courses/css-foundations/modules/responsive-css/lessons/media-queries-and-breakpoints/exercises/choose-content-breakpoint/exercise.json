@@ -4,12 +4,12 @@
   "revision": 1,
   "slug": "choose-content-breakpoint",
   "title": "实现内容驱动的 breakpoint",
-  "prompt": "先根据 fixture 的空间预算判断为什么横向 nav 需要接近 600px 的 viewport：4 个 links 各至少 128px，再加 3 个 12px gaps，需要约 548px 的 content width；body 的左右 padding 会继续占用 viewport。基于这个已解释的 break，写 600px 的 mobile-first min-width rule，并在 390/768/1280 对照结果。",
+  "prompt": "先根据 fixture 的空间预算判断为什么横向 nav 需要接近 600px 的 viewport：4 个 links 各至少 120px，加 3 个 12px gaps 需要 516px 的 nav content width；再加 nav 自身左右 padding/border 与 body 左右 padding，约需要 590px viewport，因此本题用 600px 留出少量余量。基于这个已解释的 break，写 600px 的 mobile-first min-width rule，并在 390/768/1280 对照结果。",
   "order": 1,
   "status": "published",
   "hints": [
-    "先做空间预算，不要按设备名称选数字：4×128px + 3×12px = 548px，viewport 还要扣除 body 的左右 padding。",
-    "因此本题把 600px 作为经过 fixture 内容约束解释后的练习阈值；重点是把这个 content break 表达成 mobile-first min-width condition。",
+    "先做完整空间预算，不要按设备名称选数字：4×120px + 3×12px = 516px；还要把 nav 自身的 horizontal padding/border 和 body 的左右 padding 算进 viewport 需求。",
+    "这些固定 fixture 数值合计约需要 590px viewport，所以本题用 600px 作为有少量余量的 content-driven 练习阈值。",
     "保留 block baseline，并在 `@media (min-width: 600px)` 中让 nav 变为 flex、gap 12px，links 变为 inline-block。"
   ],
   "checks": [
