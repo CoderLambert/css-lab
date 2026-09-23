@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "add-selective-breakpoint",
   "title": "添加 selective breakpoint",
-  "prompt": "只有当 content/layout 真正断裂时，才为 component 添加一个 selective media query。",
+  "prompt": "先确认窄屏 baseline：nav 会跟随 containing block，不应在 390px 横向溢出。每个 link 有约 132px 的最小 inline size，四个 link 横排时在 640px 附近才有足够空间。本题把 640px 作为给定的 reference condition，用它练习 mobile-first baseline → selective structural switch；不要把这个数字理解成通用设备 breakpoint。",
   "order": 3,
   "status": "published",
   "hints": [
-    "先让窄空间 baseline 保持可读，再找出 links 何时因内容宽度而需要另一种布局。",
-    "只为真实的 layout break 添加一个 min-width 条件，不要按设备品牌复制多套规则。",
-    "rule-style 会验证指定 media declaration，viewport checks 会在 390、768、1280 对照同一份 CSS 的结果。"
+    "先检查 baseline constraint：nav 本身是 fluid 的，390px 时 links 逐行显示，组件不需要靠 media query 才能避免横向溢出。",
+    "四个 link 的最小 inline size 加上 gaps 会在大约 640px 的 viewport region 形成横排 content pressure；本题给定 640px 作为 reference condition，而不是要求你猜一个设备分类。",
+    "保留窄空间的 block baseline，并在 @media (min-width: 640px) 中把 nav 切成 flex、gap:12px，同时让 links 变成 inline-block。"
   ],
   "checks": [
     {
