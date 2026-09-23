@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "constrain-with-min-max",
   "title": "用 min/max 表达约束",
-  "prompt": "保留卡片的内容驱动行为，同时为 .card 设置 160px 的最小宽度与 280px 的最大宽度约束。",
+  "prompt": "三个 frame 分别提供 120px、220px、360px 的可用宽度。先预测同一个 width:auto card 在加入 160px min-width 与 280px max-width 后，哪个 frame 会由 minimum 接管、哪个保持在区间内、哪个会由 maximum 接管；再实现这组上下限并比较三个结果。",
   "order": 2,
   "status": "published",
   "hints": [
-    "preferred width、min-width 与 max-width 可以同时参与尺寸决定。",
-    "下限和上限分别表达两种不同的约束，不要只改 width。",
-    "对 .card 设置 min-width: 160px 和 max-width: 280px。"
+    "把 min/max 当成 width:auto 结果外侧的下限和上限：先分别比较 120、220、360 与 160/280 的关系。",
+    "120px 小于 minimum，所以 card 会被 160px 下限撑开；220px 位于区间内；360px 超过 maximum，所以会被 280px 上限截住。",
+    "对 .card 设置 min-width: 160px 和 max-width: 280px。checker 只验证约束 declaration，三种 controlling state 请在 Preview 中比较。"
   ],
   "checks": [
     {

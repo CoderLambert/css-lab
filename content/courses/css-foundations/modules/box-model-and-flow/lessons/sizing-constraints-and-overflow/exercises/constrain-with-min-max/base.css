@@ -10,9 +10,26 @@ body {
   font-family: ui-sans-serif, system-ui, sans-serif;
 }
 
-body {
-  margin: 0;
-  padding: 24px;
+.examples {
+  display: grid;
+  gap: 16px;
+}
+
+.frame {
+  border: 1px dashed;
+  padding: 8px;
+}
+
+.frame-narrow {
+  width: 120px;
+}
+
+.frame-middle {
+  width: 220px;
+}
+
+.frame-wide {
+  width: 360px;
 }
 
 .card {
