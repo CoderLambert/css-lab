@@ -4,15 +4,31 @@
   "revision": 1,
   "slug": "debug-cascade-winner",
   "title": "诊断 cascade winner",
-  "prompt": "在保持 selector 不变的前提下，修复 source order/specificity 冲突，让状态 rule 成为 winner。",
+  "prompt": "两条 selector 和两个语义 color 都已经正确；问题是 equal-specificity declarations 的 source order。保留 baseline 与 ready-state 的 selector/value，不要用 `!important` 或改值绕过 diagnosis；通过调整顺序让 ready-state rule 成为 winner。",
   "order": 2,
   "status": "published",
   "hints": [
-    "selector 已经命中；比较两条等 specificity 的 `.card .status` 与 `.status.is-ready`，再看 source order。",
-    "cascade 会在 specificity 相同的候选中使用后出现的 declaration；不要用 `!important` 跳过 diagnosis。",
-    "把 baseline 放在前面，把 `.status.is-ready` 的 `color: rgb(35, 116, 76)` 放在后面。"
+    "先确认两条 selector 都命中 ready status，而且 specificity 相同；baseline 仍应是 rgb(32, 42, 36)，ready state 仍应是 rgb(35, 116, 76)。",
+    "当 importance 与 specificity 相同，后出现的 declaration 赢；目标是修 source order，而不是把两个值改成相同或提高 selector specificity。",
+    "把 `.card .status` baseline 放前面，把 `.status.is-ready` 的状态 rule 放后面；不要使用 `!important`。"
   ],
   "checks": [
+    {
+      "id": "baseline-status-rule",
+      "type": "rule-style",
+      "selector": ".card .status",
+      "property": "color",
+      "equals": "rgb(32, 42, 36)",
+      "message": "保留 baseline status 的 authored color"
+    },
+    {
+      "id": "ready-status-rule",
+      "type": "rule-style",
+      "selector": ".status.is-ready",
+      "property": "color",
+      "equals": "rgb(35, 116, 76)",
+      "message": "保留 ready-state authored color"
+    },
     {
       "id": "ready-status-color",
       "type": "style",

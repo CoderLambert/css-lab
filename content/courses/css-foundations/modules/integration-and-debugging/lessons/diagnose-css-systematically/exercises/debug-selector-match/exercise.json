@@ -4,7 +4,7 @@
   "revision": 1,
   "slug": "debug-selector-match",
   "title": "定位 selector match",
-  "prompt": "修复 selector 选择范围，让目标 notice 获得预期的 color declaration。",
+  "prompt": "starter 的 color declaration 本身没问题，问题在 selector match。修复现有 relationship selector，让目标 notice 真正命中；不要另加一个方便的 helper selector 来绕过 diagnosis。",
   "order": 1,
   "status": "published",
   "hints": [
@@ -13,6 +13,14 @@
     "让 `.notice-card > .notice` 的 color 成为 `rgb(151, 62, 48)`。"
   ],
   "checks": [
+    {
+      "id": "notice-repaired-selector",
+      "type": "rule-style",
+      "selector": ".notice-card > .notice",
+      "property": "color",
+      "equals": "rgb(151, 62, 48)",
+      "message": "修复现有 relationship selector，让 authored rule 直接命中 notice"
+    },
     {
       "id": "notice-color",
       "type": "style",
