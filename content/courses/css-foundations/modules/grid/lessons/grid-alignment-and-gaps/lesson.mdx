@@ -1,0 +1,56 @@
+## Grid alignment 也要先问作用层级
+
+Grid 与 Flexbox 共享 Box Alignment 的许多 property 名称，但 alignment 的对象不同。先判断是在 grid area 内对齐 item、在 container 中分布整个 grid content，还是在 tracks/items 之间放置 gutter。
+
+<Concept title="item alignment、content alignment 与 gap">
+`align-items` / `justify-items` 控制 grid items 在各自 grid areas 中的默认对齐；`align-self` / `justify-self` 可以为单个 item 覆盖它。`align-content` / `justify-content` 则在 tracks 没有填满 container 时分布整个 grid content。
+
+`gap` 为相邻 rows/columns 之间建立固定 gutter。它不是 item alignment，也不是把剩余空间按 `space-between` 分配；它可以和 content alignment 同时存在。Grid 与 Flexbox 不是两套完全无关的 alignment 体系，但需要把 property 的作用对象读清楚。
+</Concept>
+
+<Predict
+  question="一个 Grid container 的 tracks 没有填满它的高度。想让每个 item 在自己的 area 中垂直居中，同时让整个 grid content 沿 container 高度分布，应该区分哪些属性？"
+  options={["align-items 与 align-content", "gap 与 grid-template-rows", "只设置 justify-content，因为所有 alignment 都在 inline axis"]}
+  answer="align-items 与 align-content"
+  explanation="align-items 作用于 grid areas 内的 items，align-content 作用于整个 grid content；gap 只表达 tracks 间 gutter。"
+/>
+
+<Compare
+  leftTitle="item alignment"
+  leftCode="align-items: center"
+  leftMeaning="把 items 在各自 grid areas 内沿 block/cross 方向对齐。"
+  rightTitle="content alignment"
+  rightCode="align-content: space-between"
+  rightMeaning="在 container 中分布整个 grid content；需要有可分配的额外空间。"
+/>
+
+<Compare
+  leftTitle="gap"
+  leftCode="column-gap: 16px"
+  leftMeaning="明确表达相邻 column tracks 之间的 gutter。"
+  rightTitle="justify-content"
+  rightCode="justify-content: space-between"
+  rightMeaning="分布整个 grid content 的 inline 方向空间；不是固定 gap 的同义词。"
+/>
+
+## 把 alignment 对象说清楚
+
+<Exercise
+  slug="set-track-gaps"
+  label="设置 track gaps"
+  goal="用 gap: 16px 为 Grid tracks 建立统一 gutter，不把它误认为 item alignment。"
+/>
+
+<Exercise
+  slug="align-items-in-grid"
+  label="对齐 grid items"
+  goal="分别使用 align-items: center 与 justify-items: end，控制 items 在各自 grid areas 内的两个方向对齐。"
+/>
+
+<Exercise
+  slug="distribute-grid-content"
+  label="分布 grid content"
+  goal="当 tracks 没填满 container 时，使用 align-content 与 justify-content 分布整个 Grid content。"
+/>
+
+当前 checker 可以检查 alignment 与 gap declarations，但不能用固定 geometry 证明 item 最终位置、content distribution 的像素结果或所有等价写法。本课复用 Box Alignment mental model，并把 Preview 观察与 declaration validation 分开。

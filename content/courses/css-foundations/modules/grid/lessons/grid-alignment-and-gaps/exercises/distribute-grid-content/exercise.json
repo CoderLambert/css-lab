@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.grid.grid-alignment-and-gaps.distribute-grid-content.001",
+  "revision": 1,
+  "slug": "distribute-grid-content",
+  "title": "分布 grid content",
+  "prompt": "让 .board 使用 align-content: space-between 与 justify-content: center，分布未填满 container 的整个 Grid content。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "本题控制的是整个 grid content，不是单个 item 在 area 内的位置。",
+    "container 要有额外空间，content alignment 才有可分配的空间。",
+    "分别设置 align-content: space-between 与 justify-content: center。"
+  ],
+  "checks": [
+    {
+      "id": "board-align-content",
+      "type": "style",
+      "selector": ".board",
+      "property": "align-content",
+      "equals": "space-between",
+      "message": "让整个 grid content 沿 block 方向 space-between"
+    },
+    {
+      "id": "board-justify-content",
+      "type": "style",
+      "selector": ".board",
+      "property": "justify-content",
+      "equals": "center",
+      "message": "让整个 grid content 沿 inline 方向居中"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

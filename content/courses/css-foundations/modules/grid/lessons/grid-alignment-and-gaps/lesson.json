@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.grid-alignment-and-gaps",
+  "slug": "grid-alignment-and-gaps",
+  "title": "Grid alignment 与 gaps",
+  "description": "区分 Grid item alignment、content alignment 与 gap，并把它们放回 Box Alignment 的共同模型。",
+  "estimatedMinutes": 18,
+  "order": 4,
+  "status": "draft"
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.grid.grid-placement-and-lines.place-across-columns.001",
+  "revision": 1,
+  "slug": "place-across-columns",
+  "title": "跨列放置项目",
+  "prompt": "让 .feature 从第 1 条 column line 延伸到第 3 条 column line，覆盖两条 tracks。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "这是三条 column lines 之间的范围，不是三个 tracks。",
+    "从第 1 条 line 开始，到第 3 条 line 结束，正好覆盖两条 tracks。",
+    "分别设置 grid-column-start: 1 和 grid-column-end: 3。"
+  ],
+  "checks": [
+    {
+      "id": "feature-column-start",
+      "type": "style",
+      "selector": ".feature",
+      "property": "grid-column-start",
+      "equals": "1",
+      "message": "让 feature 从第 1 条 column line 开始"
+    },
+    {
+      "id": "feature-column-end",
+      "type": "style",
+      "selector": ".feature",
+      "property": "grid-column-end",
+      "equals": "3",
+      "message": "让 feature 延伸到第 3 条 column line"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

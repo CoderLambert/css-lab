@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.implicit-grid-and-auto-placement",
+  "slug": "implicit-grid-and-auto-placement",
+  "title": "implicit grid 与 auto-placement",
+  "description": "理解未指定项目如何进入 auto-placement algorithm，以及 implicit tracks 如何在 explicit grid 之外生成。",
+  "estimatedMinutes": 20,
+  "order": 3,
+  "status": "draft"
+}
