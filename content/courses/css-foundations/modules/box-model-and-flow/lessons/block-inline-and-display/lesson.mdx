@@ -34,7 +34,14 @@ Flex/Grid 会改变 inner layout，但会在后续 Module 单独学习。
   rightMeaning="outer 仍参与 inline flow，但 box sizing 行为更适合 badge、tag 等行内组件。"
 />
 
-`display: none` 也不是“透明”。透明元素仍可能生成 box；`display: none` 的关键区别是该元素不生成 box。
+`display: none` 也不是“透明”。透明元素仍可能生成 box；`display: none` 的关键区别是该元素不生成 box。这个选择还有 accessibility 边界：`display: none` 通常也会让该元素及其 descendants 从 accessibility tree 中消失，所以它适合“当前内容对所有用户都不应出现”的场景，不适合“只在视觉上隐藏、但仍要让辅助技术读取”的内容。后者需要专门的 visually-hidden strategy，而不是把 `display: none` 当成通用隐藏工具。
+
+<Predict
+  question="一段帮助文字需要在视觉上隐藏，但仍要让屏幕阅读器读取。最准确的判断是什么？"
+  options={["直接使用 display: none", "不要用 display: none；需要保留 accessibility exposure 的 visually-hidden strategy", "把 opacity 设为 0 就一定同时解决可访问性和交互问题"]}
+  answer="不要用 display: none；需要保留 accessibility exposure 的 visually-hidden strategy"
+  explanation="display:none 不只是不生成视觉 box，它通常也会把内容从 accessibility tree 移除。opacity:0 又可能保留 box、focus 或 pointer interaction，因此两者都不是“视觉隐藏但辅助技术可读”的通用答案。"
+/>
 
 ## 用不同 display value 改变 participation
 

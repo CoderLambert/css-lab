@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "remove-box-with-display-none",
   "title": "让说明不生成 box",
-  "prompt": "可选说明当前不应参与布局。不要只让它透明；使用 display 让 .optional 不生成 box。",
+  "prompt": "这段 optional details 当前应对所有用户都不可见，并且不再参与 box layout。starter 只把它透明化；改用合适的 display value 让它不生成 box。注意：如果内容仍需要让辅助技术读取，就不应该使用本题这种 display:none 策略。",
   "order": 3,
   "status": "published",
   "hints": [
-    "opacity 只改变绘制透明度，不等于不生成 box。",
-    "这里的目标是改变 box generation。",
-    "设置 display: none。"
+    "opacity 只改变绘制透明度，元素仍可能生成 box，交互元素也可能继续保留 focus/pointer 行为。",
+    "本题的产品意图是“对所有用户都隐藏并移出 box layout”；这与“仅视觉隐藏但保留 accessibility exposure”不同。",
+    "设置 `display: none`；它让 `.optional` 不生成 box，并通常也让该内容从 accessibility tree 移除。"
   ],
   "checks": [
     {
