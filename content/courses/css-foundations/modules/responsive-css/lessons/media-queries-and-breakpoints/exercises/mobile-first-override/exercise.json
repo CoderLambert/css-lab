@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "css.responsive-css.media-queries-and-breakpoints.mobile-first-override.001",
+  "revision": 1,
+  "slug": "mobile-first-override",
+  "title": "建立 mobile-first override",
+  "prompt": "先写窄空间 baseline，再在较宽条件下选择性覆盖布局规则；用 Preview 观察同一份 CSS。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "baseline 应在窄空间也成立，不要把 390px 写成唯一的 device rule。",
+    "在真正发生 layout need 的 min-width 条件中覆盖 display/gap。",
+    "当前 checker 不验证 @media source 或所有 viewport outcome，完成后手动切换 presets。"
+  ],
+  "checks": [],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

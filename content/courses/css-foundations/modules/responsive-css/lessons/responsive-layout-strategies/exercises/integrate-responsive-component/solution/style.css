@@ -1,0 +1,28 @@
+.profile {
+  max-width: 100%;
+}
+
+.profile-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.profile-body {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .profile-body {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}

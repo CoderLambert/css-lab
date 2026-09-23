@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css.fluid-sizing-and-responsive-constraints",
+  "slug": "fluid-sizing-and-responsive-constraints",
+  "title": "fluid sizing 与 responsive constraints",
+  "description": "先用 available space、intrinsic behavior、min/max constraints 和 Flex/Grid flexibility 建立 responsive mental model。",
+  "estimatedMinutes": 22,
+  "order": 1,
+  "status": "draft"
+}

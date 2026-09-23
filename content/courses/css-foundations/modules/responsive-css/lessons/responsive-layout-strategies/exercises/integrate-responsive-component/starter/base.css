@@ -1,0 +1,49 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.profile {
+  width: 640px;
+  padding: 20px;
+  border: 1px solid;
+}
+
+.profile-header,
+.profile-body {
+  padding: 12px;
+  border: 1px solid;
+}
+
+.eyebrow,
+.profile-header h2,
+.summary {
+  margin: 0;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.profile-header h2 {
+  font-size: 1.35rem;
+}
+
+.status {
+  padding: 4px 8px;
+  border: 1px solid;
+}
+
+.profile-actions a {
+  padding: 8px 10px;
+  border: 1px solid;
+  text-decoration: none;
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.responsive-css.media-queries-and-breakpoints",
+  "slug": "media-queries-and-breakpoints",
+  "title": "media queries 与 breakpoints",
+  "description": "理解 media query 是 conditional rule selection，并从内容/布局断裂而不是设备品牌推导 breakpoint。",
+  "estimatedMinutes": 22,
+  "order": 2,
+  "status": "draft"
+}

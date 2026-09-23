@@ -1,0 +1,28 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.layout {
+  width: 340px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.sidebar,
+.content {
+  padding: 12px;
+  border: 1px solid;
+}
+
+.content h2,
+.content p {
+  margin: 0 0 12px;
+}

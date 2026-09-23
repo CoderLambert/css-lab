@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "css.responsive-css.media-queries-and-breakpoints.choose-content-breakpoint.001",
+  "revision": 1,
+  "slug": "choose-content-breakpoint",
+  "title": "按内容选择 breakpoint",
+  "prompt": "为 nav 设计一个由内容断裂驱动的 min-width 条件，并在 Preview 的 viewport presets 中观察；不要按设备品牌选择数字。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先问 nav 何时因为 links 互相挤压而需要另一种排列。",
+    "用一个 content-driven min-width 条件选择宽空间规则。",
+    "当前 checker 不读取 @media source；完成后用 390、768、1280 presets 手动观察。"
+  ],
+  "checks": [],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

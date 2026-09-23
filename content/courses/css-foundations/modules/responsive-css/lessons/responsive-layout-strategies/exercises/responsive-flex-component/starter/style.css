@@ -1,0 +1,6 @@
+.toolbar {
+  display: block;
+  flex-wrap: nowrap;
+  gap: 0;
+  max-width: none;
+}
