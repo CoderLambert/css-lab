@@ -4,14 +4,13 @@
   "revision": 1,
   "slug": "build-responsive-profile",
   "title": "构建 responsive profile",
-  "prompt": "在固定 HTML fixture 上完成一个综合 CSS component，并用 Preview 检查多个 viewport。",
+  "prompt": "base.css 已提供 surface/typography scaffolding。请综合完成外层 max-width、header/actions Flex、body Grid、窄空间长 token wrapping，以及 640px 宽空间两列 adaptation；最后用 Preview 在 390/768/1280 回查 constraint、content pressure 与 layout context。",
   "order": 1,
   "status": "published",
   "hints": [
-    "阶段 1：先处理 surface、typography 与 readable measure；确认固定 HTML 中的 heading、summary 和 action 都可读。",
-    "阶段 2–3：再用 max-width 处理外层 constraint，用 Flexbox/Grid 或 normal flow 组织 header、body、actions。",
-    "阶段 4：让窄空间 baseline 先成立，只在真实 layout break 时加入 selective media query；最后沿 diagnosis pipeline 回查。",
-    "checker 会验证明确的 authored declaration 与 390、768、1280 的指定 outcome；完整 geometry 和等价实现仍要用 Preview review，并说明你的选择。"
+    "先区分 scaffolding 与 learner work：surface/typography 已给定；你要先让 dashboard 不超过 containing block，并处理 feature 中长 token 的 overflow pressure。",
+    "建立 header/actions 的 Flex context 与 dashboard body 的 Grid context；窄空间先保持单列，并让长 token 能安全换行。",
+    "最后在 640px 条件中为 Grid body 定义 `minmax(0, 2fr) minmax(160px, 1fr)`，并沿 diagnosis pipeline 检查 390/768/1280。"
   ],
   "checks": [
     {
@@ -53,6 +52,14 @@
       "property": "display",
       "equals": "grid",
       "message": "先让 dashboard body 建立 Grid formatting context"
+    },
+    {
+      "id": "feature-overflow-wrap",
+      "type": "rule-style",
+      "selector": ".feature",
+      "property": "overflow-wrap",
+      "equals": "anywhere",
+      "message": "让 feature 中的长 token 在窄空间可安全换行"
     },
     {
       "id": "dashboard-grid-columns-wide",

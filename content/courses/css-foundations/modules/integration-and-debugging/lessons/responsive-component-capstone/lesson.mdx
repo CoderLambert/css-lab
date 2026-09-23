@@ -1,16 +1,16 @@
 ## 综合练习的边界先于具体 property
 
-Capstone 的 HTML 是固定 fixture；你只编辑 CSS。目标不是复制 screenshot 的像素，而是把前面学过的 mental models 组合成一个能解释的实现：先把 surface 和 typography 做成可读的组件，再安排内部 layout，接着处理更宽的 section 约束，最后用 selective responsive rule 和 debugging pass 检查它在 available space 改变时是否仍然合理。
+Capstone 的 HTML 是固定 fixture；你只编辑 CSS。base.css 已经提供 surface、基础 typography 与局部边框/padding scaffolding，本题不会把这些固定作者样式冒充成 learner 练习。你真正要综合的是：外层 constraint、Flex header/actions、指定的 Grid body、长内容带来的 intrinsic/overflow pressure、selective responsive adaptation，以及最后的 debugging pass。
 
 <Concept title="固定 HTML，分阶段建立可解释的 CSS system">
 先把问题拆成几个能回看的阶段：
 
-1. surface / typography：确认 color、background、border、font 与 line metrics 不会让内容失去可读性。
-2. box / constraints：使用 `box-sizing`、`max-width`、padding 和可接受的 intrinsic measure，避免 rigid width 成为 overflow 根源。
-3. internal layout：根据 DOM 关系选择 normal flow、Flexbox 或 Grid；区分 container context、items、tracks 与 alignment。
-4. broader layout：让 header、body、actions 之间形成清楚的 spacing 和 source-order 结构。
-5. responsive adaptation：先让 constraints 与 flexible layout 自然承担变化，只在真实 content/layout break 时加入一个 selective media query。
-6. debugging pass：若结果不对，沿 selector → cascade → resolved value → context → constraint → environment pipeline 回查，而不是继续堆叠规则。
+1. provided scaffolding：先识别 base.css 已经固定的 surface / typography，不重复把它们算成自己的实现成果。
+2. box / constraints：用 `max-width` 让外层 dashboard 不超过 available space，并检查长 token 是否制造 intrinsic/overflow pressure。
+3. internal layout：本 capstone 明确练习 Flex header/actions + Grid body；先建立 formatting context，再谈 tracks 与 alignment。
+4. content-pressure diagnosis：让 feature 中的长 build token 在窄空间可安全换行，区分 layout context 与内容本身的 overflow 原因。
+5. responsive adaptation：先让窄空间 baseline 成立，再在给定宽空间条件中为 Grid body 增加两列 tracks。
+6. debugging pass：若结果不对，沿 selector → cascade → defaulting → value → context → constraint → environment pipeline 回查，而不是继续堆叠规则。
 
 HTML 不可编辑是边界的一部分：它迫使你用已经存在的 DOM 关系解释布局，同时避免 capstone 变成另一个 HTML editor 或 generic IDE。
 </Concept>
@@ -23,10 +23,10 @@ HTML 不可编辑是边界的一部分：它迫使你用已经存在的 DOM 关�
 />
 
 <Predict
-  question="一个可用的 capstone solution 使用 Grid，另一个使用 Flexbox；两者都满足固定 HTML 的内容和布局目标。课程 checker 应该怎样描述结果？"
-  options={["把能诚实验证的 declaration subset 作为检查，并说明 geometry/等价实现需要 Preview review", "只接受其中一个 property 字符串并宣称另一种实现错误", "用 screenshot 的每个 pixel 作为唯一验收标准"]}
-  answer="把能诚实验证的 declaration subset 作为检查，并说明 geometry/等价实现需要 Preview review"
-  explanation="checker 可以验证明确的 declaration subset 与固定 viewport outcome；完整 geometry、paint/occlusion 与多解等价判断仍需要 Preview review，诚实的 subset 不应伪装成完整 acceptance。"
+  question="本 capstone 明确把 dashboard body 的 Grid track reasoning 作为综合目标。一个只用 Flexbox 重做 body、视觉上暂时相似的实现应该怎样处理？"
+  options={["不能把它当成本题等价解，因为本题明确要求练习 Grid formatting context 与 tracks", "只要截图相似就应自动通过所有 Grid checks", "把 Grid/Flex 差别交给随机判断"]}
+  answer="不能把它当成本题等价解，因为本题明确要求练习 Grid formatting context 与 tracks"
+  explanation="等价实现是否接受取决于 learning objective。本题把 Grid body 作为明确综合目标，因此 checker 可以诚实要求 display:grid 与 track declarations；它仍不声称像素 geometry 已被完整证明。"
 />
 
 <Compare
@@ -43,7 +43,7 @@ HTML 不可编辑是边界的一部分：它迫使你用已经存在的 DOM 关�
 <Exercise
   slug="build-responsive-profile"
   label="构建 responsive profile"
-  goal="在固定 HTML 上分阶段完成 surface、typography、box constraints、internal/broader layout 与 responsive adaptation，并进行最终 debugging pass。"
+  goal="在已有 surface/typography scaffolding 上，综合 box constraint、Flex header/actions、Grid body、长内容 overflow diagnosis 与 responsive adaptation，并进行最终 debugging pass。"
 />
 
-本练习的 checker 会用 `rule-style` 验证明确的 authored declaration，并用 `viewport-style` 验证 390、768、1280 的指定 computed outcome。它仍不能可靠判断任意 viewport 的完整 geometry、wrapping、paint/occlusion、scroll 状态或多个等价 CSS solution，因此请在 Preview 的固定 presets 中观察同一份 CSS，并记录你选择 breakpoint 的 content/layout 理由。
+本练习的 checker 会用 `rule-style` 验证明确的 authored declaration（包括 Grid context、tracks 与长内容 wrapping strategy），并用 `viewport-style` 验证 390、768、1280 的指定 computed outcome。它仍不能可靠判断任意 viewport 的完整 geometry、paint/occlusion 或所有视觉等价实现，因此请在 Preview 的固定 presets 中观察同一份 CSS，并沿 debugging pipeline 解释你看到的结果。

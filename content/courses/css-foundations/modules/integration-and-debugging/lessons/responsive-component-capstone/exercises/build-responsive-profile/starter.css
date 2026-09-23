@@ -7,3 +7,7 @@
 .dashboard-actions {
   display: block;
 }
+
+.feature {
+  overflow-wrap: normal;
+}
