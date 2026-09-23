@@ -1,10 +1,10 @@
-.mouse-action:focus {
+.focus-demo:focus {
   outline-width: 3px;
   outline-style: solid;
   outline-color: rgb(71, 114, 92);
 }
 
-.keyboard-action:focus-visible {
+.focus-visible-demo:focus-visible {
   outline-width: 3px;
   outline-style: dashed;
   outline-color: rgb(71, 114, 92);

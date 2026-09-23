@@ -4,54 +4,54 @@
   "revision": 1,
   "slug": "compare-focus-input",
   "title": "比较 focus 与 focus-visible",
-  "prompt": "为两个按钮分别提供 :focus 与 :focus-visible 规则，观察指针与键盘输入可能触发的差异。",
+  "prompt": "为两个中性示例分别提供 :focus 与 :focus-visible 规则；用指针点击和 Tab 键分别操作两个按钮，比较“获得焦点”与“用户代理决定显示明显焦点提示”的差异。",
   "order": 3,
   "status": "published",
   "hints": [
-    "focus 说明元素拥有焦点；focus-visible 进一步考虑是否需要把焦点显著提示给用户。",
-    "把两种 pseudo-class 分开写，避免把 pointer hover 当成 keyboard focus。",
-    "分别写 .mouse-action:focus 与 .keyboard-action:focus-visible，再用鼠标和 Tab 操作比较。"
+    "先把 pseudo-class 与输入设备分开：`:focus` 表示元素当前拥有焦点；`:focus-visible` 还取决于用户代理是否认为需要明显的焦点指示。",
+    "给 `.focus-demo:focus` 与 `.focus-visible-demo:focus-visible` 分别写规则，再对两个按钮都尝试指针点击和 Tab。",
+    "为 `.focus-demo:focus` 使用 3px solid outline；为 `.focus-visible-demo:focus-visible` 使用 3px dashed outline 和 3px outline-offset。"
   ],
   "checks": [
     {
-      "id": "mouse-action-focus-outline-width",
+      "id": "focus-demo-focus-outline-width",
       "type": "rule-style",
-      "selector": ".mouse-action:focus",
+      "selector": ".focus-demo:focus",
       "property": "outline-width",
       "equals": "3px",
-      "message": "为鼠标按钮的 focus 状态设置 3px outline"
+      "message": "为focus 示例的 :focus 状态设置 3px outline"
     },
     {
-      "id": "mouse-action-focus-outline-style",
+      "id": "focus-demo-focus-outline-style",
       "type": "rule-style",
-      "selector": ".mouse-action:focus",
+      "selector": ".focus-demo:focus",
       "property": "outline-style",
       "equals": "solid",
-      "message": "为鼠标按钮的 focus 状态使用 solid outline"
+      "message": "为focus 示例的 :focus 状态使用 solid outline"
     },
     {
-      "id": "keyboard-action-focus-visible-outline-width",
+      "id": "focus-visible-demo-focus-visible-outline-width",
       "type": "rule-style",
-      "selector": ".keyboard-action:focus-visible",
+      "selector": ".focus-visible-demo:focus-visible",
       "property": "outline-width",
       "equals": "3px",
-      "message": "为键盘按钮的 focus-visible 设置 3px outline"
+      "message": "为focus-visible 示例的 :focus-visible 设置 3px outline"
     },
     {
-      "id": "keyboard-action-focus-visible-outline-style",
+      "id": "focus-visible-demo-focus-visible-outline-style",
       "type": "rule-style",
-      "selector": ".keyboard-action:focus-visible",
+      "selector": ".focus-visible-demo:focus-visible",
       "property": "outline-style",
       "equals": "dashed",
-      "message": "为键盘按钮的 focus-visible 使用 dashed outline"
+      "message": "为focus-visible 示例的 :focus-visible 使用 dashed outline"
     },
     {
-      "id": "keyboard-action-focus-visible-outline-offset",
+      "id": "focus-visible-demo-focus-visible-outline-offset",
       "type": "rule-style",
-      "selector": ".keyboard-action:focus-visible",
+      "selector": ".focus-visible-demo:focus-visible",
       "property": "outline-offset",
       "equals": "3px",
-      "message": "为键盘按钮的 focus-visible 增加 3px 间距"
+      "message": "为focus-visible 示例的 :focus-visible 增加 3px 间距"
     }
   ]
 }
