@@ -26,14 +26,10 @@ test("studio audits the full M6B content tree and exposes only published learner
     await expect(card.getByText(value, { exact: true })).toBeVisible();
   }
 
-  const warningBadge = page.getByText(/^[0-9]+ warnings$/);
+  const warningBadge = page.getByText("13 warnings", { exact: true });
   await expect(warningBadge).toBeVisible();
-  const warningText = await warningBadge.textContent();
-  const warningCount = Number.parseInt(warningText ?? "", 10);
-  expect(warningCount).toBeGreaterThan(0);
-
   const warningCodes = page.locator("li").filter({ hasText: "warning" }).locator("code");
-  await expect(warningCodes).toHaveCount(warningCount);
+  await expect(warningCodes).toHaveCount(13);
   const codes = await warningCodes.allTextContents();
   expect(new Set(codes)).toEqual(new Set(["exercise-without-checks"]));
 

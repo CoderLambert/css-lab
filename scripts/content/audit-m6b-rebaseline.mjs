@@ -312,14 +312,14 @@ export async function auditM6BRebaseline() {
   for (const moduleSlug of moduleSlugs) {
     counts.modules += 1;
     const moduleRoot = join(modulesRoot, moduleSlug);
-    const module = await readJson(
+    const moduleRecord = await readJson(
       join(moduleRoot, "module.json"),
       errors,
       "invalid-module-json",
     );
-    if (module) {
-      registerId(errors, stableIds, module.id, `css-foundations/${moduleSlug}`);
-      if (module.slug !== moduleSlug) {
+    if (moduleRecord) {
+      registerId(errors, stableIds, moduleRecord.id, `css-foundations/${moduleSlug}`);
+      if (moduleRecord.slug !== moduleSlug) {
         fail(errors, "module-slug-mismatch", moduleSlug, "Module slug must match directory.");
       }
     }
