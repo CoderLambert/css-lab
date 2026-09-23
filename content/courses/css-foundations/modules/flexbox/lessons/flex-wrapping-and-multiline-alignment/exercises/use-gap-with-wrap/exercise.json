@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flexbox.flex-wrapping-and-multiline-alignment.use-gap-with-wrap.001",
+  "revision": 1,
+  "slug": "use-gap-with-wrap",
+  "title": "用 gap 表达 line spacing",
+  "prompt": "让 .tray 使用 flex-wrap: wrap 与 gap: 12px，表达 item 与 line 之间的统一 gutter。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "gap 是 gutter，不是把剩余空间交给 justify-content。",
+    "本题的 container 已允许多行；设置统一的 gap 值。",
+    "对 .tray 设置 gap: 12px，并在 Preview 中观察行列间距。"
+  ],
+  "checks": [
+    {
+      "id": "tray-gap",
+      "type": "style",
+      "selector": ".tray",
+      "property": "gap",
+      "equals": "12px",
+      "message": "让 tray 使用 gap: 12px 表达 item/line gutter"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

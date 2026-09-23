@@ -1,0 +1,27 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.tray {
+  display: flex;
+  align-items: start;
+  width: 320px;
+  height: 160px;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.item,
+.featured {
+  padding: 12px;
+  border: 1px solid;
+}

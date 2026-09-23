@@ -1,0 +1,56 @@
+## `display: flex` 先建立一种新的上下文
+
+Flexbox 不是一个“水平居中按钮”。它先改变容器的 formatting context，再让后续的 sizing、alignment 和 free-space 算法有一个明确的工作空间。
+
+<Concept title="从 formatting context 读出两条轴">
+当容器使用 `display: flex` 时，它建立 flex formatting context；它的 direct children 成为 flex items。后代更深层的元素不会因为祖先是 flex container 就自动变成同一层的 flex item。
+
+`flex-direction` 定义 main axis：`row` 沿 inline direction 排列，`column` 沿 block direction 排列（在常见的水平书写模式中，分别看起来像横向和纵向）。cross axis 永远与 main axis 垂直。之后的 `justify-content` 处理 main axis，`align-items` 处理 cross axis；不要把它们背成固定的水平/垂直属性。
+</Concept>
+
+<Predict
+  question="`.stack` 使用 display: flex; flex-direction: column。要让项目在视觉水平方向居中，应该优先考虑哪个属性？"
+  options={["justify-content", "align-items", "margin-top"]}
+  answer="align-items"
+  explanation="column 把 main axis 转到 block direction，因此视觉水平方向成为 cross axis；align-items 负责 cross-axis alignment。"
+/>
+
+<Compare
+  leftTitle="row"
+  leftCode="flex-direction: row"
+  leftMeaning="main axis 沿 inline direction；在默认水平书写模式中通常看起来是水平方向。"
+  rightTitle="column"
+  rightCode="flex-direction: column"
+  rightMeaning="main axis 沿 block direction；在默认水平书写模式中通常看起来是垂直方向。"
+/>
+
+<Compare
+  leftTitle="main axis"
+  leftCode="justify-content"
+  leftMeaning="由 flex-direction 定义的排列轴；不是永远的水平轴。"
+  rightTitle="cross axis"
+  rightCode="align-items"
+  rightMeaning="与 main axis 垂直；column 时它通常对应视觉水平方向。"
+/>
+
+## 先建立上下文，再练习轴迁移
+
+<Exercise
+  slug="establish-flex-context"
+  label="建立 Flex formatting context"
+  goal="让 .toolbar 建立 flex formatting context，使 direct children 成为 flex items；先观察默认 row 的排列。"
+/>
+
+<Exercise
+  slug="transfer-row-to-column"
+  label="把主轴转到 column"
+  goal="把 .stack 的 main axis 从默认 row 改为 column，并根据轴模型预测项目排列方向。"
+/>
+
+<Exercise
+  slug="diagnose-alignment-axis"
+  label="诊断方向不对的对齐"
+  goal="修复一个把 justify-content 当成“水平属性”的 bug：先确认 flex-direction，再选择控制目标轴的属性。"
+/>
+
+下一课会在这个 formatting context 和 axis model 上继续学习 `justify-content` 与 `align-items`；它不需要重新记一套“水平/垂直口诀”。

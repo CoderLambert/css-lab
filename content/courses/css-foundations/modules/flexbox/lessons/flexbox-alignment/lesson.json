@@ -5,6 +5,6 @@
   "title": "让元素稳定地对齐",
   "description": "通过 Flexbox 的主轴与交叉轴对齐能力，练习居中、间距分布与底部对齐。",
   "estimatedMinutes": 12,
-  "order": 1,
+  "order": 2,
   "status": "published"
 }

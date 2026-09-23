@@ -1,0 +1,62 @@
+## free space 是 Flex sizing 的问题
+
+Flex item 的最终 main-axis size 不是简单读取 `width`。Flexbox 先根据 `flex-basis` 等信息得到每个 item 的起始尺寸，再比较这些 basis 与 container 可用空间：多出来的是 positive free space，不够用的是 negative free space。
+
+<Concept title="basis → free space → grow/shrink">
+`flex-basis` 是参与 Flex sizing 的起点；当有 positive free space 时，`flex-grow` 因子参与分配；当 basis 总和超过可用空间时，`flex-shrink` 因子参与压缩。grow/shrink 是算法中的权重，不是百分比宽度，也不只在“问题已经溢出后”才存在。
+
+`flex` shorthand 组合了 grow、shrink 和 basis。常见的 `flex: 1` 表达的是一种可增长、可收缩的 flex item 配置，不等价于 `width: 100%`；它仍会和同一 container 中的其他 items、basis、min-size 与可用空间一起参与 sizing。
+</Concept>
+
+<Predict
+  question="两个 items 的 flex-basis 总和小于 container 的可用 main-axis space，且第一个 item 的 `flex-grow` 是第二个的两倍。最合理的预测是什么？"
+  options={["多出的 positive free space 会按 grow 因子分配，第一个获得更大的份额", "第一个固定变成 container 的 200%", "只有发生 overflow 后 shrink 才会运行"]}
+  answer="多出的 positive free space 会按 grow 因子分配，第一个获得更大的份额"
+  explanation="grow 是 positive free space 的分配权重，不是百分比 width；算法先从 basis 与可用空间的差异判断 free space。"
+/>
+
+<Compare
+  leftTitle="flex-basis"
+  leftCode="flex-basis: 120px"
+  leftMeaning="参与 Flex sizing 的起始 main-axis 尺寸；不是最终尺寸保证。"
+  rightTitle="width"
+  rightCode="width: 120px"
+  rightMeaning="是普通尺寸约束之一；在 flex formatting context 中不应单独代替 basis/free-space reasoning。"
+/>
+
+<Compare
+  leftTitle="flex-grow"
+  leftCode="flex-grow: 2"
+  leftMeaning="positive free space 的相对分配因子；不是 200% 宽度。"
+  rightTitle="flex-shrink"
+  rightCode="flex-shrink: 1"
+  rightMeaning="negative free space 下的压缩因子；不是等 overflow 后再修补的开关。"
+/>
+
+## 逐步读懂 item sizing
+
+<Exercise
+  slug="set-flex-basis"
+  label="设置 flex basis"
+  goal="为 .item 设置 flex-basis: 120px，先辨认参与 free-space 分配的起始尺寸。"
+/>
+
+<Exercise
+  slug="grow-remaining-space"
+  label="分配 positive free space"
+  goal="让 .primary 与 .secondary 使用不同 grow 因子分配剩余空间；不要把 grow 数值当成百分比。"
+/>
+
+<Exercise
+  slug="shrink-overflow-pressure"
+  label="应对 negative free space"
+  goal="让 basis 总和超过 container 时由 shrink 因子参与 sizing，而不是把 overflow 当成唯一修复路径。"
+/>
+
+<Exercise
+  slug="reason-about-flex-shorthand"
+  label="拆解 flex shorthand"
+  goal="使用 flex: 1 这个 shorthand 配置 item，并从 computed longhand 结果理解 grow/shrink/basis 的角色。"
+/>
+
+当前 checker 只检查明确的 flex declaration，不能可靠证明 free-space 算法最终分配的像素宽度、min-size 约束或多种等价 shorthand 写法。因此 Exercises 用 declaration subset 配合 Preview 观察，不把 `flex-grow` 数字伪装成最终 geometry proof。

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flexbox.flexible-items-and-free-space.reason-about-flex-shorthand.001",
+  "revision": 1,
+  "slug": "reason-about-flex-shorthand",
+  "title": "拆解 flex shorthand",
+  "prompt": "让 .first 与 .second 使用 flex: 1，并从 computed longhand 结果理解 grow/shrink/basis；不要把 flex: 1 当成 width: 100%。",
+  "order": 4,
+  "status": "draft",
+  "hints": [
+    "flex shorthand 组合 grow、shrink 和 basis；先看它展开后的 longhand。",
+    "flex: 1 描述的是可参与 free-space 的 item 配置，不是 width: 100%。",
+    "对 first 与 second 都设置 flex: 1；checker 只检查可稳定读取的 grow/shrink subset。"
+  ],
+  "checks": [
+    {
+      "id": "first-shorthand-grow",
+      "type": "style",
+      "selector": ".first",
+      "property": "flex-grow",
+      "equals": "1",
+      "message": "让 first 的 shorthand 展开为 flex-grow: 1"
+    },
+    {
+      "id": "first-shorthand-shrink",
+      "type": "style",
+      "selector": ".first",
+      "property": "flex-shrink",
+      "equals": "1",
+      "message": "让 first 的 shorthand 展开为 flex-shrink: 1"
+    },
+    {
+      "id": "second-shorthand-grow",
+      "type": "style",
+      "selector": ".second",
+      "property": "flex-grow",
+      "equals": "1",
+      "message": "让 second 的 shorthand 展开为 flex-grow: 1"
+    },
+    {
+      "id": "second-shorthand-shrink",
+      "type": "style",
+      "selector": ".second",
+      "property": "flex-shrink",
+      "equals": "1",
+      "message": "让 second 的 shorthand 展开为 flex-shrink: 1"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

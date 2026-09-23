@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flexbox.flexible-items-and-free-space.grow-remaining-space.001",
+  "revision": 1,
+  "slug": "grow-remaining-space",
+  "title": "分配 positive free space",
+  "prompt": "让 .primary 使用 flex-grow: 2、.secondary 使用 flex-grow: 1，按因子分配 positive free space。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "先确认 basis 总和小于 container 可用空间，剩余部分才是 positive free space。",
+    "grow 数值是相对分配因子，不是百分比 width。",
+    "分别设置 primary 为 2、secondary 为 1。"
+  ],
+  "checks": [
+    {
+      "id": "primary-grow",
+      "type": "style",
+      "selector": ".primary",
+      "property": "flex-grow",
+      "equals": "2",
+      "message": "让 primary 使用 flex-grow: 2"
+    },
+    {
+      "id": "secondary-grow",
+      "type": "style",
+      "selector": ".secondary",
+      "property": "flex-grow",
+      "equals": "1",
+      "message": "让 secondary 使用 flex-grow: 1"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}
