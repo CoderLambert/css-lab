@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "create-implicit-tracks",
   "title": "定义 implicit tracks 的尺寸",
-  "prompt": "为自动生成的 rows 设置 grid-auto-rows: 72px，区分 explicit template 与 implicit track。",
+  "prompt": "第一行已经由 grid-template-rows 明确成 96px；五个 items 会迫使 auto-placement 再创建 implicit rows。先预测哪些 rows 属于 explicit template，再把自动生成 rows 的 sizing rule 改成 72px，确认第一行保持 96px、后续 rows 才使用 72px。",
   "order": 3,
   "status": "published",
   "hints": [
-    "template 中没有写出的 rows 可能由 auto-placement 需要而生成。",
-    "grid-auto-rows 为 implicit rows 提供 sizing rule，不会改写 explicit template。",
-    "对 .board 设置 grid-auto-rows: 72px。"
+    "grid-template-rows 定义 explicit rows；超出这个 template 后由 placement 需要创建的 rows 才是 implicit。",
+    "本题第一行固定为 96px。你要修改的是后续自动生成 rows 的 sizing rule，而不是改写 template。",
+    "对 .board 设置 grid-auto-rows: 72px；Preview 中比较第一行 96px 与后续 implicit rows 72px。"
   ],
   "checks": [
     {

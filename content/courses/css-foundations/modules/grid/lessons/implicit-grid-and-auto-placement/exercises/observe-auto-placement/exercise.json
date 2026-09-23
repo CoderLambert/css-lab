@@ -3,23 +3,23 @@
   "id": "css.grid.implicit-grid-and-auto-placement.observe-auto-placement.001",
   "revision": 1,
   "slug": "observe-auto-placement",
-  "title": "观察 auto-placement",
-  "prompt": "让 .board 明确使用 grid-auto-flow: row，保留未指定位置的 items，并观察 auto-placement algorithm 的结果。",
+  "title": "比较 sparse 与 dense auto-placement",
+  "prompt": "board 有三条 explicit columns，A/B 都跨两列，因此 row sparse placement 会留下 earlier hole。先预测 C 在 sparse 状态会落到哪里，再把 packing 改成 dense，观察 later item 如何回填 earlier hole；注意 dense 可能改变视觉位置，但不会改写 DOM/source order。",
   "order": 1,
   "status": "published",
   "hints": [
-    "未写 grid-column/grid-row 的 items 会进入 auto-placement algorithm。",
-    "本题的 flow direction 是 row；不要把它理解成随机坐标。",
-    "对 .board 设置 grid-auto-flow: row，然后在 Preview 中观察 implicit rows。"
+    "row 与 dense 不是同一个维度：dense 没有写 column 时仍采用 row direction，它改变的是是否回头填 earlier holes。",
+    "A/B 都需要两列；当当前 row 剩一列时，下一张两列 item 会前进并留下 hole。想让较小的 later item 回填这个 hole，需要 dense packing。",
+    "把 .board 的 grid-auto-flow 从 row 改成 dense；dense 单独使用时 row direction 仍被假定。"
   ],
   "checks": [
     {
-      "id": "board-auto-flow-row",
+      "id": "board-auto-flow-dense",
       "type": "style",
       "selector": ".board",
       "property": "grid-auto-flow",
-      "equals": "row",
-      "message": "让 board 使用 row 方向的 auto-placement"
+      "equals": "dense",
+      "message": "让 row auto-placement 使用 dense packing 回填 earlier holes"
     }
   ]
 }

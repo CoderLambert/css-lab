@@ -12,9 +12,9 @@ body {
 
 .board {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  width: 320px;
+  width: 420px;
   padding: 12px;
   border: 1px solid;
 }
@@ -23,4 +23,9 @@ body {
   min-height: 56px;
   padding: 12px;
   border: 1px solid;
+}
+
+.item-a,
+.item-b {
+  grid-column: span 2;
 }

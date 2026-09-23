@@ -5,7 +5,7 @@ Explicit grid 是由 `grid-template-columns` / `grid-template-rows` 明确声明
 <Concept title="auto-placement 会扩展 implicit grid">
 当 auto-placement 需要的空间超出 explicit grid 时，Grid 可以创建 implicit tracks。它不是“随机自动布局”：auto-flow direction、已有 placement、dense 选项以及 `grid-auto-rows` / `grid-auto-columns` 等都参与这个过程。
 
-`grid-auto-flow: row` 与 `column` 改变算法优先填充的方向；`grid-auto-rows` 和 `grid-auto-columns` 为自动生成的 tracks 提供 sizing rule。不要把 implicit track 当成作者已经在 template 中写出的 explicit track，也不要从一次静态 declaration check 推断最终 item geometry 或 visual order。
+`grid-auto-flow: row` 与 `column` 改变算法优先填充的方向；`dense` 不改变默认 row 方向，而是允许算法回头填补 earlier holes，因此 later item 可能在视觉上出现在更早的位置。`grid-auto-rows` 和 `grid-auto-columns` 为自动生成的 tracks 提供 sizing rule。不要把 implicit track 当成作者已经在 template 中写出的 explicit track，也不要从一次静态 declaration check 推断最终 item geometry 或 visual order。
 </Concept>
 
 <Predict
@@ -37,8 +37,8 @@ Explicit grid 是由 `grid-template-columns` / `grid-template-rows` 明确声明
 
 <Exercise
   slug="observe-auto-placement"
-  label="观察 auto-placement"
-  goal="让 .board 明确使用 grid-auto-flow: row，保留未指定 placement 的 items，并在 Preview 中观察算法结果。"
+  label="比较 sparse 与 dense placement"
+  goal="先观察 row sparse placement 留下 earlier hole，再启用 dense packing，比较 later item 如何回填 hole，并保留 source-order 与 visual-order 的区别。"
 />
 
 <Exercise
@@ -50,7 +50,7 @@ Explicit grid 是由 `grid-template-columns` / `grid-template-rows` 明确声明
 <Exercise
   slug="create-implicit-tracks"
   label="定义 implicit tracks 的尺寸"
-  goal="为自动生成的 rows 设置 grid-auto-rows: 72px，区分 implicit track sizing 与 explicit template。"
+  goal="让第一行保持 96px explicit track，再用 grid-auto-rows: 72px 只控制后续 implicit rows，直接比较 explicit 与 implicit sizing。"
 />
 
 当前 checker 可以检查 `grid-auto-flow`、`grid-auto-*` 等声明，但不能完整验证 auto-placement 的最终 item geometry、implicit track 数量或视觉顺序。因此本课只把 declaration subset 交给 checker，最终布局仍需 Preview 观察，不把静态声明说成算法行为证明。

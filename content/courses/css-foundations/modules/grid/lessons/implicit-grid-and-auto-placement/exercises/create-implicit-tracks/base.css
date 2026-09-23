@@ -13,6 +13,7 @@ body {
 .board {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 96px;
   gap: 12px;
   width: 320px;
   padding: 12px;
