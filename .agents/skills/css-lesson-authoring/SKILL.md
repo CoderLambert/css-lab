@@ -189,6 +189,23 @@ It does not decide what the sources mean. That remains an authoring/reasoning ta
 
 ---
 
+## Offline v1 → v2 migration
+
+Historical CSS Foundations source branches may contain the pre-M6A Exercise layout. Migrate those assets only in a development checkout:
+
+```bash
+node scripts/content/migrate-css-foundations-v1-to-v2.mjs \
+  --source-root <legacy-css-foundations-root> \
+  --target-root <current-css-foundations-root> \
+  --dry-run
+```
+
+The migrator is one-way and offline. It emits a machine-readable inventory, preserves stable metadata/checks (including `alsoAccepts`), maps legacy assets into the current `starter/` + `solution/` tree, and defaults to rejecting existing target overlaps. Use `--overlap-policy skip` only when the caller has already frozen the exact overlap set for separate semantic reconciliation.
+
+Never import this migration tool from application, learner, ContentReader, Workspace, Runtime, or client code. Production remains Exercise v2-only.
+
+---
+
 # Create workflow
 
 ## 1. Inspect context
@@ -334,5 +351,7 @@ This Skill must not:
 - silently overwrite existing curriculum files
 
 New content is scaffolded as `draft`.
+
+Historical Exercise v1 assets are migration input only; the Skill must never scaffold them.
 
 Promotion to `published` is a deliberate authoring/review decision after validation.

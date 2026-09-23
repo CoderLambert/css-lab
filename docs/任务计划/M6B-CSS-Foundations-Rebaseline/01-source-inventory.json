@@ -126,5 +126,5 @@
     "old M6A docs replacement",
     "runtime fixtureHtml/baseCss/starterCss aliases"
   ],
-  "repeatability": "Task 02 offline migrator/dry-run will emit full stable-id/slug/order/status/revision/check inventory from source-root and target-root; this snapshot records the remote freeze used to build it."
+  "repeatability": "Run `pnpm content:migrate:v1-to-v2 -- --source-root <legacy-css-foundations-root> --target-root <current-css-foundations-root> --dry-run` to emit stable-id/slug/order/status/revision/check-count/source-hash inventory. Default overlap policy is reject; Task 03 may explicitly skip the frozen Task 04 overlap set."
 }
