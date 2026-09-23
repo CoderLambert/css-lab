@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "purpose": "M6B Task 01 remote source freeze and forward-port inventory",
+  "sourceOfTruth": "GitHub remote",
+  "mainHead": "9762a9ed06aeeec296591f06d43ea517b79e77ad",
+  "curriculumSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+  "featureStartHead": "9762a9ed06aeeec296591f06d43ea517b79e77ad",
+  "compare": {
+    "status": "diverged",
+    "aheadBy": 34,
+    "behindBy": 36,
+    "mergeBase": "7252b93505427582c6483edb910a5051bdd30fe3"
+  },
+  "treeInventory": {
+    "main": {
+      "modules": 1,
+      "lessons": 1,
+      "exercises": 3,
+      "legacyExerciseAssets": {
+        "fixtureHtml": 0,
+        "baseCss": 0,
+        "starterCss": 0,
+        "solutionCss": 0
+      },
+      "v2ExerciseAssets": {
+        "starterIndexHtml": 3,
+        "starterBaseCss": 3,
+        "starterStyleCss": 3,
+        "solutionStyleCss": 3
+      }
+    },
+    "curriculumSource": {
+      "modules": 9,
+      "lessons": 32,
+      "exercises": 100,
+      "legacyExerciseAssets": {
+        "fixtureHtml": 100,
+        "baseCss": 100,
+        "starterCss": 100,
+        "solutionCss": 100
+      },
+      "v2ExerciseAssets": {
+        "starterIndexHtml": 0,
+        "starterBaseCss": 0,
+        "starterStyleCss": 0,
+        "solutionStyleCss": 0
+      }
+    }
+  },
+  "sourceAuditReport": {
+    "lessons": {
+      "published": 1,
+      "draft": 31
+    },
+    "exercises": {
+      "published": 3,
+      "draft": 97
+    },
+    "implementationFit": {
+      "READY": 14,
+      "TEACHABLE_BUT_CHECKER_LIMITED": 10,
+      "NEEDS_CHECKER_CAPABILITY": 8
+    },
+    "fullE2E": "NOT_PASS — source Task 13 records environment failure and explicitly withholds publication-ready"
+  },
+  "overlap": [
+    {
+      "kind": "course",
+      "id": "css-foundations",
+      "slug": "css-foundations"
+    },
+    {
+      "kind": "module",
+      "id": "css.flexbox",
+      "slug": "flexbox",
+      "mainOrder": 1,
+      "sourceOrder": 5
+    },
+    {
+      "kind": "lesson",
+      "id": "css.flexbox.alignment",
+      "slug": "flexbox-alignment",
+      "mainOrder": 1,
+      "sourceOrder": 2
+    },
+    {
+      "kind": "exercise",
+      "id": "css.flexbox.alignment.center-box.001",
+      "slug": "center-box",
+      "mainRevision": 1,
+      "sourceRevision": 1,
+      "reconciliation": "Task 04"
+    },
+    {
+      "kind": "exercise",
+      "id": "css.flexbox.alignment.space-between-items.001",
+      "slug": "space-between-items",
+      "mainRevision": 1,
+      "sourceRevision": 1,
+      "reconciliation": "Task 04"
+    },
+    {
+      "kind": "exercise",
+      "id": "css.flexbox.alignment.align-items-end.001",
+      "slug": "align-items-end",
+      "mainRevision": 1,
+      "sourceRevision": 2,
+      "reconciliation": "Task 04"
+    }
+  ],
+  "allowlist": [
+    "new module metadata",
+    "new lesson metadata and lesson.mdx",
+    "new exercise teaching metadata",
+    "legacy authored assets mapped offline to v2 starter/solution paths",
+    "CSS Foundations v1 planning/final-audit docs",
+    "module scaffold and module/lesson reorder logic after v2 review"
+  ],
+  "denylist": [
+    "production legacy Exercise schema",
+    "production v1/v2 dual reader or writer",
+    "legacy ContentReader/learner runtime",
+    "legacy v1 exercise templates",
+    "legacy generated registry",
+    "old AGENTS.md full-file replacement",
+    "old M6A docs replacement",
+    "runtime fixtureHtml/baseCss/starterCss aliases"
+  ],
+  "repeatability": "Task 02 offline migrator/dry-run will emit full stable-id/slug/order/status/revision/check inventory from source-root and target-root; this snapshot records the remote freeze used to build it."
+}
