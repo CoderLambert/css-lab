@@ -18,6 +18,12 @@ Target state:
 
 These warnings are intentionally preserved. They identify draft Exercises whose real learning outcome cannot be truthfully covered by the current `style / exists / count` checker DSL. M6B does not add weak proxy checks and does not lower Studio severity.
 
+### Exact correspondence with the latest curriculum source
+
+The current latest observed source `70266f67319a1cb7ed4400b8f0db64cb725ab0e` retains the `e48ba8781ed78e37ca0af77cea75e324cd4c24e4` checker rollout: it adds `rule-style` and/or `viewport-style` to exactly 13 Exercises. That set is exactly equal to this 13-entry `exercise-without-checks` warning inventory: source-only = 0 and warning-only = 0. The later source-only authoring guidance/test commits do not change the set.
+
+This is an intentional release boundary, not a migration omission. M6B keeps all 13 Exercises draft and keeps all 13 warnings while the unsupported checker rollout remains deferred to the Post-M6B capability roadmap. Do not delete a warning or copy the source checks without a separately validated current-runtime contract.
+
 | Location | Stable ID | Capability gap |
 | --- | --- | --- |
 | `box-model-and-flow/sizing-constraints-and-overflow/observe-intrinsic-content` | `css.box-model-and-flow.sizing-constraints-and-overflow.observe-intrinsic-content.001` | geometry/layout observation |

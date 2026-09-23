@@ -61,6 +61,23 @@ curriculum tree：
 
 实现时必须重新计算并确认 inventory；如果 source branch 又前进，先重做差异审计。
 
+## 3.1 Post-freeze source reconciliation（2026-09-24 remote read）
+
+重新读取到的 remote HEAD：
+
+~~~text
+main                                      9762a9ed06aeeec296591f06d43ea517b79e77ad
+feat/m6b-css-foundations-rebaseline       b63c72c5cd2a54872d1159ea9d9b07337a665ba4
+feat/css-foundations-v1-curriculum-plan  70266f67319a1cb7ed4400b8f0db64cb725ab0e
+feat/m6a-workspace-domain-v6              573f630b4d77a34824cb1f746eca914a0960e8af
+~~~
+
+`70cb8dcfcbda6456b35f64826a7a634c071f6a8f` 仍表示实际 frozen migration/planning source；`e48ba8781ed78e37ca0af77cea75e324cd4c24e4` 是 migration freeze 之后新增、必须审计的 latest observed source。两者不能相互替换。
+
+`70cb..e48` 的可重复分类为：1 commit、160 files；100 Exercise JSON、42 Lesson files、3 legacy/runtime/schema files、2 E2E files、1 audit report、12 module/assets/other。其中 116 files 只有 `draft → published`（77 Exercise、31 Lesson、8 Module）。随后 `e48..702` 增加 2 个 source-only commits、3 个文件（`AGENTS.md`、checker-guidelines、authoring-skill drift test），用于修正 source branch 自己的 checker guidance drift；这不改变 M6B 当前 checker contract。其余 source checker/publication/narrative/asset 变化见 `06-source-reconciliation-evidence.md`。
+
+M6B 不 bulk-forward-port 这次 publication sweep，也不把 `rule-style` / `viewport-style` 偶然带入当前 `style | exists | count` contract。当前 9/32/100 inventory、1/31 published Lesson、3/97 published Exercise 和 13 个 warning 保持不变；source branch 仍为 read-only evidence。
+
 ## 4. 重叠区域
 
 以下路径不能整树覆盖：

@@ -5,6 +5,89 @@
   "mainHead": "9762a9ed06aeeec296591f06d43ea517b79e77ad",
   "curriculumSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
   "featureStartHead": "9762a9ed06aeeec296591f06d43ea517b79e77ad",
+  "sourceHeads": {
+    "migrationSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+    "frozenSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+    "priorObservedSourceHead": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+    "latestObservedSourceHead": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+    "latestObservedCommit": "cssf(a): fix checker guidance drift test"
+  },
+  "sourceHeadRoles": {
+    "curriculumSourceHead": "historical frozen migration/planning input; not the latest observed source",
+    "priorObservedSourceHead": "first post-freeze source evidence, including the checker rollout; not the migration input",
+    "latestObservedSourceHead": "current post-freeze source evidence after source-only authoring guidance/test corrections; not the migration input"
+  },
+  "postFreezeSourceDelta": {
+    "from": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+    "to": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+    "commits": 3,
+    "files": 163,
+    "segments": {
+      "frozenToPriorObserved": {
+        "from": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+        "to": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+        "commits": 1,
+        "files": 160
+      },
+      "priorObservedToLatestObserved": {
+        "from": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+        "to": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+        "commits": 2,
+        "files": 3,
+        "paths": [
+          "AGENTS.md",
+          ".agents/skills/css-lesson-authoring/references/checker-guidelines.md",
+          ".agents/skills/css-lesson-authoring/scripts/authoring-skill.test.mjs"
+        ],
+        "disposition": "source-branch authoring guidance/test correction reviewed but not ported into M6B"
+      }
+    },
+    "frozenToPriorObservedComposition": {
+      "exerciseJson": 100,
+      "lessonFiles": 42,
+      "legacyRuntimeSchema": 3,
+      "e2e": 2,
+      "auditReport": 1,
+      "moduleAssetsOther": 12
+    },
+    "priorObservedToLatestObservedComposition": {
+      "files": 3,
+      "paths": [
+        "AGENTS.md",
+        ".agents/skills/css-lesson-authoring/references/checker-guidelines.md",
+        ".agents/skills/css-lesson-authoring/scripts/authoring-skill.test.mjs"
+      ]
+    },
+    "publicationSweep": {
+      "modules": 8,
+      "lessons": 31,
+      "exercises": 97,
+      "publicationOnlyFiles": 116,
+      "publicationOnlyBreakdown": {
+        "exerciseJson": 77,
+        "lessonJson": 31,
+        "moduleJson": 8
+      }
+    },
+    "unsupportedCheckerRollout": {
+      "exerciseCount": 13,
+      "types": ["rule-style", "viewport-style"],
+      "m6bWarningCode": "exercise-without-checks",
+      "m6bWarningCount": 13,
+      "setEquality": "exact",
+      "sourceOnly": 0,
+      "warningOnly": 0
+    },
+    "legacyRuntimeSchemaDisposition": "denied; do not import legacy preview-document.ts, preview-messages.ts, or v1 exercise schema",
+    "resolution": "defer unsupported checker/publication/narrative rollout to the Post-M6B capability roadmap; do not port source-only authoring guidance into the current M6B contract"
+  },
+  "curriculumAuditCrossCheck": {
+    "sourcePromotedExercisesWithOpenIssuesAtLeast": 30,
+    "issueNumbers": [7, 8, 9, 10, 14, 15, 16, 18, 20, 22, 25, 26, 27, 28, 30],
+    "reportEvidenceIssue": 31,
+    "preExistingDraftDebtNotSourceDelta": 23,
+    "sourceContractDriftIssue": 29
+  },
   "compare": {
     "status": "diverged",
     "aheadBy": 34,
