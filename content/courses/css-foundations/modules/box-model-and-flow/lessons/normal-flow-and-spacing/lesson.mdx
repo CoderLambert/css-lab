@@ -41,7 +41,7 @@
 <Exercise
   slug="separate-collapsing-margins"
   label="识别并隔离 margin collapse"
-  goal="让 .panel 的内部 padding 成为父子 box 之间的分隔，观察它如何改变 margin collapsing 条件。"
+  goal="先预测 heading 的 top margin 在无 border/padding 的 parent 中是否会与 parent edge collapse，再用 padding 建立分隔并比较前后状态。"
 />
 
 当前 checker 可以检查 display、margin、padding 等声明，但不能用固定几何结果诚实证明 normal-flow 算法或 margin collapse 的最终距离。水平 `auto` margin 也会在 computed style 中解析为与布局有关的 used value，因此本课通过 Concept/Compare 和 Preview 观察建立模型，不把一个像素值伪装成 auto-margin 证明。

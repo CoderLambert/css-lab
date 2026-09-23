@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "separate-collapsing-margins",
   "title": "识别并隔离 margin collapse",
-  "prompt": "让 .panel 的内部 padding 成为父子 box 之间的分隔，观察它如何改变 margin collapsing 条件。",
+  "prompt": "先观察并预测 starter：.panel 顶部没有 border 或 padding，.heading 的 margin-block-start 会不会形成 parent/first-child margin collapse？然后给 .panel 增加内部 padding，比较 margin 从 parent edge 外侧参与 collapse 到被 padding 分隔后的变化。",
   "order": 3,
   "status": "published",
   "hints": [
-    "先找出父子 block 的 margin 是否直接接触。",
-    "padding 位于父 box 内部，会成为父内容与边缘之间的分隔。",
-    "对 .panel 设置 padding-top: 16px，再在 Preview 中观察 heading 的位置变化。"
+    "先确认 collapse 前提：parent top edge 与第一个 in-flow child 的 top margin 之间不能有 border、padding、inline content 等分隔。",
+    "本题用 background/outline 标出 panel，但 outline 不占据 box-model space；starter 的 parent top edge 仍没有 border/padding 分隔。",
+    "给 .panel 设置 padding-top: 16px；padding 会把 parent edge 与 child margin 分开。checker 只证明这条 declaration，collapse 现象请在 Preview 中比较。"
   ],
   "checks": [
     {

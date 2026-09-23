@@ -12,7 +12,8 @@ body {
 
 .panel {
   width: 280px;
-  border: 1px solid;
+  background: rgb(238, 244, 240);
+  outline: 1px solid rgb(98, 116, 105);
 }
 
 .heading {
