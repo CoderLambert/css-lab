@@ -2,7 +2,7 @@ name: Quality Gate
 
 on:
   push:
-    branches: [main, feat/m6a-workspace-domain-v6]
+    branches: [main]
   pull_request:
     branches: [main]
 
