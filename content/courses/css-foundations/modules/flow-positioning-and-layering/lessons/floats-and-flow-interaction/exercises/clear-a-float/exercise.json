@@ -4,22 +4,22 @@
   "revision": 1,
   "slug": "clear-a-float",
   "title": "清除 float 影响",
-  "prompt": "让 .chapter-title 使用 clear: both，避免它与前方 float 在同一侧开始。",
+  "prompt": "先检查前方 `.photo` 实际浮向哪一侧，再让 `.chapter-title` 只清除造成当前阻挡的那一侧，使标题从该 float 下方开始。不要为了“更保险”无条件使用更宽泛的 clear 值。",
   "order": 2,
   "status": "published",
   "hints": [
-    "clear 作用在需要避开 float 的后续 box 上，不是把 float 变成 absolute。",
-    "题目要求避开左右两侧的 float，所以选择 both。",
-    "对 .chapter-title 设置 clear: both，再在 Preview 中观察它的位置。"
+    "clear 作用在需要避开 float 的后续 box 上；先从 fixture/base CSS 判断前方 float 的方向。",
+    "当前只有 `.photo { float: left; }`，所以只需要清除 left side，而不是假设右侧也存在 float。",
+    "对 `.chapter-title` 设置 `clear: left`，再在 Preview 中确认标题从左浮动图片下方开始。"
   ],
   "checks": [
     {
-      "id": "title-clear",
+      "id": "title-clear-left",
       "type": "style",
       "selector": ".chapter-title",
       "property": "clear",
-      "equals": "both",
-      "message": "让 .chapter-title 清除两侧的 float 影响"
+      "equals": "left",
+      "message": "根据实际 left float，让 .chapter-title 只清除左侧 float 影响"
     }
   ]
 }
