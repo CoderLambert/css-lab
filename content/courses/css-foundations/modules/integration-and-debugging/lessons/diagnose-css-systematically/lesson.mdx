@@ -1,17 +1,18 @@
 ## “没有生效”是 pipeline 中的某一阶段出了问题
 
-CSS 的结果不是由某一条 declaration 单独决定的。先确认 selector 是否命中，再确认 cascade winner；即使 rule 成为 winner，浏览器还会把 source value 解析为 computed/used value，并把它交给当前 formatting context、sizing constraints、positioning context 或 viewport condition。调试时应沿着因果链缩小范围，而不是不断添加更大的 selector 或更大的 `z-index`。
+CSS 的结果不是由某一条 declaration 单独决定的。先确认 selector 是否命中，再确认 cascade winner；如果某个 property 没有 cascaded value，还要进入 defaulting，判断它是继承 parent 的 computed value 还是使用 initial value。得到 specified value 后，浏览器再继续解析 computed/used value，并把结果交给当前 formatting context、sizing constraints、positioning context 或 viewport condition。调试时应沿着因果链缩小范围，而不是不断添加更大的 selector 或更大的 `z-index`。
 
 <Concept title="从 selector 到 environment 的 debugging pipeline">
-把“CSS 没生效”拆成七个可检查的阶段：
+把“CSS 没生效”拆成八个可检查的阶段：
 
 1. selector 是否匹配了目标元素？
-2. 匹配的 declarations 中，哪条在 cascade 中胜出？要一起看 specificity、source order、inheritance 与重要性。
-3. 浏览器最终解析出了什么 value？`width: 100%`、`max-width`、字体度量或 shorthand 的结果不能只靠 source text 猜。
-4. 需要的 formatting context 是否真的建立？例如 Flex/Grid 规则要求对应的 container context；normal flow 也始终在工作。
-5. sizing、intrinsic size 或 overflow constraint 是否改变了可见结果？固定 width 可能超过 containing block，min/max 也可能限制它。
-6. 是否有 containing block、stacking context、scroll context 或 positioned ancestor 参与？声明存在不等于最终 paint/scroll outcome 已被证明。
-7. 是否有 media query 或其他 viewport/environment condition 控制这条规则？先确认条件，再判断命中的 cascade。
+2. 匹配的 declarations 中，哪条在 cascade 中胜出？在本课程范围内重点看 importance、specificity 与 source order；inheritance 不是用来给两条 competing declarations 排名的 cascade 因子。
+3. 如果这个 property 没有 cascaded value，defaulting 如何得到 specified value？默认继承的 property 会取 parent 的 computed value，默认不继承的 property 会使用 initial value；`inherit`、`initial`、`unset`、`revert` 等 CSS-wide keyword 会显式改变 defaulting 行为。
+4. 浏览器最终解析出了什么 computed/used value？`width: 100%`、`max-width`、字体度量或 shorthand 的结果不能只靠 source text 猜。
+5. 需要的 formatting context 是否真的建立？例如 Flex/Grid 规则要求对应的 container context；normal flow 也始终在工作。
+6. sizing、intrinsic size 或 overflow constraint 是否改变了可见结果？固定 width 可能超过 containing block，min/max 也可能限制它。
+7. 是否有 containing block、stacking context、scroll context 或 positioned ancestor 参与？声明存在不等于最终 paint/scroll outcome 已被证明。
+8. 是否有 media query 或其他 viewport/environment condition 控制这条规则？先确认条件，再判断命中的 cascade。
 
 这条顺序来自前面各 Module 的 mental model，也符合 MDN 的 CSS debugging guidance：先观察实际命中的规则和浏览器结果，再回到对应的 CSS 机制。它是迁移用的思考框架，不要求每次都机械打开同一组 DevTools 面板。
 </Concept>
@@ -21,6 +22,13 @@ CSS 的结果不是由某一条 declaration 单独决定的。先确认 selector
   options={["selector 是否真的匹配 `.notice`", "先把 declaration 的 specificity 提高到最高", "先给元素加一个固定 position"]}
   answer="selector 是否真的匹配 `.notice`"
   explanation="如果 selector 没有命中，后续 cascade、resolved value 和 layout 分析都还没有目标。先确认匹配集合，再进入下一阶段。"
+/>
+
+<Predict
+  question="parent 设置了 `color: green`，child 没有任何匹配自己的 `color` declaration。child 得到绿色发生在哪个阶段？"
+  options={["cascade winner 排序", "defaulting / inheritance", "formatting context"]}
+  answer="defaulting / inheritance"
+  explanation="child 自己没有 `color` 的 cascaded value，所以 cascade 没有 winner 可提供；随后 defaulting 对这个默认继承的 property 使用 parent 的 computed color。若 child 自己有 winning `color: blue`，普通 inheritance 就不会再与它竞争。"
 />
 
 <Predict
@@ -39,7 +47,7 @@ CSS 的结果不是由某一条 declaration 单独决定的。先确认 selector
 
 <Compare
   leftTitle="按 pipeline 缩小范围"
-  leftCode="match → cascade → value → context → constraint → environment"
+  leftCode="match → cascade → defaulting → value → context → constraint → environment"
   leftMeaning="每一步都用可观察的证据排除一个原因类别，再修改最小必要规则。"
   rightTitle="反复堆叠 CSS"
   rightCode=".card .thing { ... } !important"
