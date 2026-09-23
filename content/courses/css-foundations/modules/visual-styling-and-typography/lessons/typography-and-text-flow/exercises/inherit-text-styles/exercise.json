@@ -4,30 +4,46 @@
   "revision": 1,
   "slug": "inherit-text-styles",
   "title": "让文字继承父级类型",
-  "prompt": "在 .profile 上设置 18px 字号与 600 字重，并观察其中的文字如何继承这些非布局属性。",
+  "prompt": "先预测 .summary：如果它自己没有 font-size/font-weight declaration，只在 .profile 上建立 18px 字号与 600 字重，它最终会得到什么？然后只修改 parent baseline，并用 checker/Preview 对照 parent authored rule 与 child inherited result。",
   "order": 1,
   "status": "published",
   "hints": [
-    "把共同的类型设置放在父级，先让后代有可继承的基线。",
-    "font-size 和 font-weight 都是 typography properties，不需要逐个给 p 和 em 重复声明。",
-    "对 .profile 设置 font-size: 18px 和 font-weight: 600。"
+    "先区分 selector match 与 inheritance：.summary 不需要被 .profile selector 直接匹配，也能从 parent 获得默认继承的 typography values。",
+    "font-size 和 font-weight 都会影响文字度量/呈现；把共同基线放在 parent，避免给每个 child 重复声明。",
+    "对 .profile 设置 font-size:18px 与 font-weight:600；不要为了过 checker 再给 .summary 复制同样声明。"
   ],
   "checks": [
     {
-      "id": "profile-font-size",
-      "type": "style",
+      "id": "profile-authored-font-size",
+      "type": "rule-style",
       "selector": ".profile",
       "property": "font-size",
       "equals": "18px",
-      "message": "为 .profile 设置 18px 字号"
+      "message": "在 .profile authored rule 中建立 18px typography baseline"
     },
     {
-      "id": "profile-font-weight",
-      "type": "style",
+      "id": "profile-authored-font-weight",
+      "type": "rule-style",
       "selector": ".profile",
       "property": "font-weight",
       "equals": "600",
-      "message": "为 .profile 设置 600 字重"
+      "message": "在 .profile authored rule 中建立 600 字重 baseline"
+    },
+    {
+      "id": "summary-inherited-font-size",
+      "type": "style",
+      "selector": ".summary",
+      "property": "font-size",
+      "equals": "18px",
+      "message": "让 .summary 从 parent 得到 18px inherited font-size"
+    },
+    {
+      "id": "summary-inherited-font-weight",
+      "type": "style",
+      "selector": ".summary",
+      "property": "font-weight",
+      "equals": "600",
+      "message": "让 .summary 从 parent 得到 600 inherited font-weight"
     }
   ]
 }

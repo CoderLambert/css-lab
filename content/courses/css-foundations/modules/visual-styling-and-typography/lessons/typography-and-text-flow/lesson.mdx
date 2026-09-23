@@ -17,6 +17,13 @@
   explanation="font-size 和 line-height 参与不同的决定：前者影响 glyph 尺度，后者影响 line box 的垂直度量。"
 />
 
+<Predict
+  question="如果只在 .profile 上设置 font-size: 18px 和 font-weight: 600，而 .summary 没有自己的这两个 declaration，最合理的预测是什么？"
+  options={[".summary 会通过 inheritance 得到 18px 和 600", ".summary 会保持浏览器固定的 16px/400", "只有 h2 能继承 typography property"]}
+  answer=".summary 会通过 inheritance 得到 18px 和 600"
+  explanation="font-size 与 font-weight 默认会继承；父级提供共同基线时，普通后代会得到这些 inherited computed values，除非后代自己有 cascaded value 覆盖它们。"
+/>
+
 <Compare
   leftTitle="inherited text style"
   leftCode=".profile { font-size: 18px; }"
@@ -40,7 +47,7 @@
 <Exercise
   slug="inherit-text-styles"
   label="让文字继承父级类型"
-  goal="在 .profile 上设置 18px 字号与 600 字重，并观察其中的文字如何继承这些非布局属性。"
+  goal="在 .profile 上建立 18px / 600 的 typography 基线，并验证普通后代通过 inheritance 得到这些会影响 text metrics 与 layout 的值。"
 />
 
 <Exercise
