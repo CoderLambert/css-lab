@@ -313,13 +313,13 @@ async function discoverLegacyExerciseDirectories(root) {
 
   async function walk(directory) {
     const entries = await readdir(directory, { withFileTypes: true });
-    if (entries.some((entry) => entry.isSymbolicLink())) {
-      throw new Error(`Source tree contains a symlink: ${directory}`);
-    }
     const names = new Set(entries.map((entry) => entry.name));
     if (names.has("exercise.json")) {
       output.push(directory);
       return;
+    }
+    if (entries.some((entry) => entry.isSymbolicLink())) {
+      throw new Error(`Source tree contains a symlink outside an Exercise directory: ${directory}`);
     }
     for (const entry of entries) {
       if (entry.isDirectory()) {
