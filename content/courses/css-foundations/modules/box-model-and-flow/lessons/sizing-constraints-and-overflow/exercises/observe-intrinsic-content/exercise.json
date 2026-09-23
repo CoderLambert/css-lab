@@ -4,22 +4,22 @@
   "revision": 1,
   "slug": "observe-intrinsic-content",
   "title": "让内容参与尺寸决定",
-  "prompt": "让 .label 依据内容形成 intrinsic inline size，并观察长内容与 containing context 的关系。不要把固定像素宽度当成 intrinsic sizing 的替代品。",
+  "prompt": "先观察 starter：作为 block box，.label 的 width:auto 会使用 containing block 提供的可用 inline space，文本因此在 frame 内换行。然后把 sizing strategy 改成最大 intrinsic inline size，比较 box 本身如何从 available-space sizing 转为 content-derived sizing。",
   "order": 1,
   "status": "published",
   "hints": [
-    "先区分 preferred size 与 content-derived intrinsic size。",
-    "这次要让 box 的 inline size 贴近不换行内容，而不是给它一个任意固定宽度。",
-    "对 .label 设置 width: max-content；Preview 中再把 containing context 改窄观察结果。"
+    "先预测 starter：block-level .label 的 width:auto 更接近使用 containing block 的可用 inline space，而不是 shrink-to-content。",
+    "目标不是硬编码一个和文本差不多宽的 px 值，而是选择表示“最大 intrinsic inline size”的 sizing keyword。",
+    "保持 display:block，并把 .label 的 width 改成 max-content；观察背景/outline 的 box 是否从 frame 内宽度变为跟随内容的 intrinsic measure。"
   ],
   "checks": [
     {
-      "id": "label-display-inline-block",
+      "id": "label-display-block",
       "type": "rule-style",
       "selector": ".label",
       "property": "display",
-      "equals": "inline-block",
-      "message": "让 .label 以 inline-block 参与布局"
+      "equals": "block",
+      "message": "保持 .label 以 block box 参与 available-space 对比"
     },
     {
       "id": "label-width-max-content",
@@ -27,15 +27,7 @@
       "selector": ".label",
       "property": "width",
       "equals": "max-content",
-      "message": "用 max-content 让宽度依据内容决定"
-    },
-    {
-      "id": "label-white-space-nowrap",
-      "type": "rule-style",
-      "selector": ".label",
-      "property": "white-space",
-      "equals": "nowrap",
-      "message": "保持标签内容不换行"
+      "message": "用 max-content 选择最大 intrinsic inline size"
     }
   ]
 }

@@ -1,5 +1,4 @@
 .label {
-  display: inline-block;
+  display: block;
   width: auto;
-  white-space: nowrap;
 }
