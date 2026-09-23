@@ -79,5 +79,5 @@ CSS 的结果不是由某一条 declaration 单独决定的。先确认 selector
 <Exercise
   slug="debug-constraints-and-environment"
   label="追踪 constraints 与 environment"
-  goal="修复 fixed sizing 造成的 overflow，并在 Preview 中观察 environment 条件仍需人工判断的部分。"
+  goal="区分一个所有 viewport 都存在的 sizing/overflow failure 与一个只在错误 media condition 下出现的 environment failure，并分别修复两条 diagnosis branch。"
 />

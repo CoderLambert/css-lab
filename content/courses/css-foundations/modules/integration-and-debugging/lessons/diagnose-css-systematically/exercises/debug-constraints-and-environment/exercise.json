@@ -3,14 +3,14 @@
   "id": "css.integration-and-debugging.diagnose-css-systematically.debug-constraints-and-environment.001",
   "revision": 1,
   "slug": "debug-constraints-and-environment",
-  "title": "追踪 constraints 与 environment",
-  "prompt": "从 sizing/overflow 与 viewport condition 中找出 realistic responsive failure 的控制阶段。",
+  "title": "区分 constraints 与 environment failure",
+  "prompt": "这个 notice 有两个独立 bug：rigid width + long token 会在窄 container 中持续产生 constraint/overflow 问题；另一个 wide-mode border indicator 却因为 media direction 写反而出现在窄视口。先比较 390px 与 768px：找出哪个症状在所有 viewport 都存在、哪个症状随 condition 改变，再分别修 sizing 与 environment。",
   "order": 4,
   "status": "published",
   "hints": [
-    "先定位到 sizing/overflow branch：比较 fixed width、containing block 与 available space。",
-    "`max-width` 可以约束 authored width；长文本还需要一个适合内容的 wrapping strategy。",
-    "设置 `.notice` 的 `max-width: 100%` 与 `overflow-wrap: anywhere`。viewport/media condition 的最终 outcome 仍需 Preview 观察。"
+    "先按“是否随 viewport 变化”分流：notice 的 rigid width/long token 是 containing-block constraint 问题；虚线 indicator 出现在错误 viewport 则属于 media condition。",
+    "constraint branch：让 560px preferred width 不能超过 containing block，并允许长 token 安全换行。environment branch：wide-mode indicator 应只在 min-width:640px 命中。",
+    "设置 max-width:100% 与 overflow-wrap:anywhere；把 media rule 改成 @media (min-width: 640px)，其中 .notice 使用 border-style:dashed。"
   ],
   "checks": [
     {
@@ -19,7 +19,7 @@
       "selector": ".notice",
       "property": "max-width",
       "equals": "100%",
-      "message": "让 notice 的 inline size 受 containing block 约束"
+      "message": "让 notice 的 preferred width 受 containing block 约束"
     },
     {
       "id": "notice-wraps-long-content",
@@ -27,7 +27,34 @@
       "selector": ".notice",
       "property": "overflow-wrap",
       "equals": "anywhere",
-      "message": "为过长内容提供可观察的 wrapping strategy"
+      "message": "为过长 token 提供安全 wrapping strategy"
+    },
+    {
+      "id": "notice-wide-indicator-rule",
+      "type": "rule-style",
+      "selector": ".notice",
+      "property": "border-style",
+      "equals": "dashed",
+      "media": "(min-width: 640px)",
+      "message": "让 wide-mode indicator 使用正确的 min-width media condition"
+    },
+    {
+      "id": "notice-narrow-indicator-off",
+      "type": "viewport-style",
+      "viewportWidth": 390,
+      "selector": ".notice",
+      "property": "border-style",
+      "equals": "solid",
+      "message": "390px 时不要启用 wide-mode indicator"
+    },
+    {
+      "id": "notice-wide-indicator-on",
+      "type": "viewport-style",
+      "viewportWidth": 768,
+      "selector": ".notice",
+      "property": "border-style",
+      "equals": "dashed",
+      "message": "768px 时启用 wide-mode indicator"
     }
   ]
 }

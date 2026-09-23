@@ -1,4 +1,11 @@
 .notice {
   max-width: none;
   overflow-wrap: normal;
+  border-style: solid;
+}
+
+@media (max-width: 640px) {
+  .notice {
+    border-style: dashed;
+  }
 }
