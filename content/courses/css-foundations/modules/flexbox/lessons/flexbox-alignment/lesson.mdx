@@ -9,10 +9,10 @@
 </Concept>
 
 <Predict
-  question="`.container` 使用 `flex-direction: column`。要让项目在视觉水平方向居中，应该修改哪个属性？"
-  options={["justify-content", "align-items"]}
-  answer="align-items"
-  explanation="column 把 main axis 转到纵向，水平方向成为 cross axis；align-items 控制 cross-axis alignment。"
+  question="一个默认 row 的 flex container 比 items 总宽度更宽，cross-axis 对齐已经正确；现在要把第一个 item 留在 main-start、最后一个 item 推到 main-end，并分配中间剩余空间。应该优先检查哪个属性？"
+  options={["justify-content", "align-items", "flex-direction"]}
+  answer="justify-content"
+  explanation="轴模型已经确定：默认 row 的 main axis 沿 inline direction。当前问题是如何分配 main-axis 剩余空间，而不是改变 cross-axis item alignment，所以应从 justify-content 入手。"
 />
 
 <Compare
