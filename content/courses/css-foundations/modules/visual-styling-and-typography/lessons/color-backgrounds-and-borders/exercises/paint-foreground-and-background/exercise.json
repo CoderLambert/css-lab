@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.visual-styling-and-typography.color-backgrounds-and-borders.paint-foreground-and-background.001",
+  "revision": 1,
+  "slug": "paint-foreground-and-background",
+  "title": "分开设置前景与背景",
+  "prompt": "为 .card 设置指定的文字颜色与背景颜色，观察两种 paint layer 各自负责什么。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先区分前景文字和 box 背后的背景，它们不是同一个 property。",
+    "文字颜色看 color，box 的铺色看 background-color。",
+    "对 .card 设置 color: rgb(26, 61, 47) 和 background-color: rgb(240, 246, 241)。"
+  ],
+  "checks": [
+    {
+      "id": "foreground-color",
+      "type": "style",
+      "selector": ".card",
+      "property": "color",
+      "equals": "rgb(26, 61, 47)",
+      "message": "设置 .card 的前景文字颜色"
+    },
+    {
+      "id": "background-color",
+      "type": "style",
+      "selector": ".card",
+      "property": "background-color",
+      "equals": "rgb(240, 246, 241)",
+      "message": "设置 .card 的背景颜色"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

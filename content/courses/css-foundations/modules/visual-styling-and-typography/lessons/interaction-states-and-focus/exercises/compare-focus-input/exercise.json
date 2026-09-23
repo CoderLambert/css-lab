@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "css.visual-styling-and-typography.interaction-states-and-focus.compare-focus-input.001",
+  "revision": 1,
+  "slug": "compare-focus-input",
+  "title": "比较 focus 与 focus-visible",
+  "prompt": "为两个按钮分别提供 :focus 与 :focus-visible 规则，观察指针与键盘输入可能触发的差异。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "focus 说明元素拥有焦点；focus-visible 进一步考虑是否需要把焦点显著提示给用户。",
+    "把两种 pseudo-class 分开写，避免把 pointer hover 当成 keyboard focus。",
+    "分别写 .mouse-action:focus 与 .keyboard-action:focus-visible，再用鼠标和 Tab 操作比较。"
+  ],
+  "checks": [],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.visual-styling-and-typography.typography-and-text-flow",
+  "slug": "typography-and-text-flow",
+  "title": "文字样式也是布局输入",
+  "description": "理解字体、字号、字重、行高、对齐与继承如何共同影响文字的视觉表现和可用空间。",
+  "estimatedMinutes": 20,
+  "order": 2,
+  "status": "draft"
+}
