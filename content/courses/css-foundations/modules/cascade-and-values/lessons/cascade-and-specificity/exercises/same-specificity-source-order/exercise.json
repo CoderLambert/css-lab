@@ -4,22 +4,30 @@
   "revision": 1,
   "slug": "same-specificity-source-order",
   "title": "同等 specificity 时看 source order",
-  "prompt": "两个 .status rules 的 specificity 相同。保留两个 rules，不使用 !important；修改较后的 declaration，让最终 .status 显示为 uppercase。",
+  "prompt": "base.css 中已有较早的 `.status { text-transform: none }`。在 learner CSS 中写同 specificity、但 source order 更后的 `.status` declaration，让最终文字变成 uppercase；不要使用 `!important` 或提高 selector specificity。",
   "order": 1,
   "status": "published",
   "hints": [
-    "先确认两个 selector 完全相同，因此 specificity 是平局。",
-    "当本课的 origin / importance / specificity 都相同时，后出现的 declaration 决胜。",
-    "修改第二个 .status rule，让它设置 text-transform: uppercase。"
+    "先确认 base 与 learner rule 都使用完全相同的 `.status` selector，因此 specificity 平局。",
+    "同一 author origin/importance 且 specificity 相同时，后进入 cascade 的 learner rule 会覆盖更早的 base rule。",
+    "在 learner CSS 中让 `.status` 设置 `text-transform: uppercase`。"
   ],
   "checks": [
+    {
+      "id": "status-authored-uppercase",
+      "type": "rule-style",
+      "selector": ".status",
+      "property": "text-transform",
+      "equals": "uppercase",
+      "message": "写出较后的同 specificity .status rule"
+    },
     {
       "id": "status-uppercase",
       "type": "style",
       "selector": ".status",
       "property": "text-transform",
       "equals": "uppercase",
-      "message": "让最终 .status 显示为 uppercase"
+      "message": "让较后的 learner rule 成为最终 winner"
     }
   ]
 }

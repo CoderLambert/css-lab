@@ -9,3 +9,7 @@ body {
   padding: 24px;
   font-family: ui-sans-serif, system-ui, sans-serif;
 }
+
+.status {
+  text-transform: none;
+}
