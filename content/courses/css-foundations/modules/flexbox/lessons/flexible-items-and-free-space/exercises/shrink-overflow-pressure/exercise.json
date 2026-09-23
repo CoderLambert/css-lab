@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "shrink-overflow-pressure",
   "title": "应对 negative free space",
-  "prompt": "让 .first 与 .second 使用 flex-shrink: 1，应对 basis 总和超过容器空间的 negative free space。",
+  "prompt": "两个 items 的 basis 总和已经超过 container，产生 negative free space。让它们都参与压缩以缓解当前空间压力；先判断应该使用 grow 还是 shrink，而不是从属性名抄答案。",
   "order": 3,
   "status": "published",
   "hints": [
-    "basis 总和超过 container 时，Flexbox 面对的是 negative free space。",
-    "shrink 是 sizing algorithm 的参与因子，不是等 overflow 后才添加的视觉补丁。",
-    "分别为 first 与 second 设置 flex-shrink: 1。"
+    "先比较 basis 总和与 container：当前没有 positive free space，而是需要处理 negative free space。",
+    "选择控制 item 在负空间下参与压缩的 Flex sizing 因子；本题让两个 items 使用相同权重。",
+    "使用 `flex-shrink`，把 `.first` 与 `.second` 都设为 1。"
   ],
   "checks": [
     {

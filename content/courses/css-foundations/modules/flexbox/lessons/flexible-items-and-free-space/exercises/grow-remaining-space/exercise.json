@@ -4,13 +4,13 @@
   "revision": 1,
   "slug": "grow-remaining-space",
   "title": "分配 positive free space",
-  "prompt": "让 .primary 使用 flex-grow: 2、.secondary 使用 flex-grow: 1，按因子分配 positive free space。",
+  "prompt": "两个 items 的 basis 总和小于 container，可用的是 positive free space。让 primary 获得 secondary 两倍的剩余空间份额；先从 free-space 模型选择机制，不要把目标理解成 2:1 的固定宽度。",
   "order": 2,
   "status": "published",
   "hints": [
-    "先确认 basis 总和小于 container 可用空间，剩余部分才是 positive free space。",
-    "grow 数值是相对分配因子，不是百分比 width。",
-    "分别设置 primary 为 2、secondary 为 1。"
+    "先判断 free-space 符号：basis 总和小于可用 main-axis space，所以当前要分配的是 positive free space。",
+    "需要的是相对分配因子；primary 的因子应是 secondary 的两倍，而不是把 width 写成百分比。",
+    "使用 `flex-grow`：`.primary` 设为 2，`.secondary` 设为 1。"
   ],
   "checks": [
     {

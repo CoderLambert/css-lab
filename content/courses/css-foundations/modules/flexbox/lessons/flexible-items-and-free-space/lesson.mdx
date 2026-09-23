@@ -56,7 +56,7 @@ Flex item 的最终 main-axis size 不是简单读取 `width`。Flexbox 先根�
 <Exercise
   slug="reason-about-flex-shorthand"
   label="拆解 flex shorthand"
-  goal="使用 flex: 1 这个 shorthand 配置 item，并从 computed longhand 结果理解 grow/shrink/basis 的角色。"
+  goal="先预测一值 flex shorthand 的 grow/shrink/basis，再用 flex: 1 对比 content-based auto basis 与 zero basis 的 free-space 行为。"
 />
 
-当前 checker 只检查明确的 flex declaration，不能可靠证明 free-space 算法最终分配的像素宽度、min-size 约束或多种等价 shorthand 写法。因此 Exercises 用 declaration subset 配合 Preview 观察，不把 `flex-grow` 数字伪装成最终 geometry proof。
+当前 checker 会读取明确的 flex declaration/computed longhands（包括 shorthand exercise 的 basis），但仍不能可靠证明 free-space 算法最终分配的像素宽度、min-size 约束或所有等价 shorthand 写法。因此 Exercises 用 declaration evidence 配合 Preview 观察，不把 grow/shrink 数字伪装成最终 geometry proof。
