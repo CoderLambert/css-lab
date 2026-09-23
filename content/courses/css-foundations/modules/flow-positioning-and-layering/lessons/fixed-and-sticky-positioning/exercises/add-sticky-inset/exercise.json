@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flow-positioning-and-layering.fixed-and-sticky-positioning.add-sticky-inset.001",
+  "revision": 1,
+  "slug": "add-sticky-inset",
+  "title": "为 sticky 添加 inset",
+  "prompt": "让 .toc 使用 position: sticky 和 top: 12px；真实滚动行为需要在足够长的 Preview 内容中观察。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "sticky 先参与 normal flow，再在滚动到阈值时改变视觉关系。",
+    "目标轴需要一个 inset；本题使用 top。",
+    "设置 position: sticky 与 top: 12px，然后滚动 Preview 观察。"
+  ],
+  "checks": [
+    {
+      "id": "toc-position",
+      "type": "style",
+      "selector": ".toc",
+      "property": "position",
+      "equals": "sticky",
+      "message": "让 toc 使用 position: sticky"
+    },
+    {
+      "id": "toc-top",
+      "type": "style",
+      "selector": ".toc",
+      "property": "top",
+      "equals": "12px",
+      "message": "为 toc 设置 top: 12px threshold"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

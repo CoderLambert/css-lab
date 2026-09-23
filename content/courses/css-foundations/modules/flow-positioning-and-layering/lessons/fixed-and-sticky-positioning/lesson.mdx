@@ -1,0 +1,58 @@
+## fixed 与 sticky 都不是“随便钉在屏幕上”
+
+`fixed` 和 `sticky` 都改变了元素在滚动场景中的表现，但 mental model 不同。先问它是否还保留 normal-flow participation，再问它的 offset 参照哪个 viewport 或 scrollport。
+
+<Concept title="sticky 是 flow participation 加滚动阈值">
+`fixed` 通常脱离 normal flow，并以 fixed containing block（常见情形是 viewport）计算 inset；某些祖先的特定 containing-block 建立条件也会改变这个参考上下文。它适合固定控件，但不是“把任何元素变成全局最高层”的声明。
+
+`sticky` 基于 relative positioning：它先在 normal flow 中占位，滚动到指定 inset 阈值后，才在其 scroll container 的范围内表现出粘住的效果；离开约束范围后还会继续受祖先边界限制。因此它需要目标轴上至少一个非 `auto` 的 inset，例如 `top: 0`，还需要有可观察的滚动空间和合适的 scroll context。缺少这些前提时，`position: sticky` 仍是合法声明，却可能看起来完全没有粘住。
+
+不要把 sticky 记成“弱版 fixed”：fixed 的固定参考与 flow participation 不同，sticky 的行为依赖滚动阈值、scrollport 和祖先空间。
+</Concept>
+
+<Predict
+  question="`.toc` 使用 `position: sticky`，但没有 `top`、`bottom` 或其他目标轴 inset。最稳妥的判断是什么？"
+  options={["声明一定会在滚动时粘住", "缺少阈值，不能仅凭 position 声明保证 sticky 行为", "它会自动改成 position: fixed"]}
+  answer="缺少阈值，不能仅凭 position 声明保证 sticky 行为"
+  explanation="sticky 需要目标轴上的 inset 来定义滚动阈值；还要结合 scroll container 与可用空间观察真实行为。"
+/>
+
+<Compare
+  leftTitle="fixed"
+  leftCode="position: fixed; right: 16px"
+  leftMeaning="通常脱离 normal flow，按 fixed containing block 处理；滚动时保持固定关系。"
+  rightTitle="sticky"
+  rightCode="position: sticky; top: 0"
+  rightMeaning="先保留 flow slot，再在 scroll threshold 条件满足时粘住；受 scrollport 与祖先范围限制。"
+/>
+
+<Compare
+  leftTitle="声明检查"
+  leftCode="position: sticky; top: 8px"
+  leftMeaning="可以检查作者声明是否存在。"
+  rightTitle="行为观察"
+  rightCode="scroll the preview"
+  rightMeaning="需要真实滚动环境；静态 checker 不能把声明当作滚动行为证明。"
+/>
+
+## 逐步补齐 fixed 与 sticky 的前提
+
+<Exercise
+  slug="observe-fixed-control"
+  label="观察 fixed control"
+  goal="让 .help 使用 fixed 与 inset 声明；在 Preview 中观察它脱离普通内容流后的固定关系。"
+/>
+
+<Exercise
+  slug="add-sticky-inset"
+  label="为 sticky 添加 inset"
+  goal="让 .toc 使用 sticky 定位并设置 top inset，再在足够长的 Preview 内容中观察滚动阈值。"
+/>
+
+<Exercise
+  slug="debug-sticky-preconditions"
+  label="诊断 sticky 前提"
+  goal="补齐 scroll container 与 top inset，让 sticky 声明具备可观察的运行条件，而不是把没有效果归因于浏览器 bug。"
+/>
+
+当前 checker 可检查 `position: fixed/sticky`、inset 与部分 overflow 声明，但不能可靠证明 fixed 的实际视口关系、sticky 的滚动阈值、scrollport 选择或祖先边界行为。因此本课保持 draft，并明确记录 `NEEDS_CHECKER_CAPABILITY`；不要用 declaration check 冒充完整 scroll behavior mastery。

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flow-positioning-and-layering.fixed-and-sticky-positioning.debug-sticky-preconditions.001",
+  "revision": 1,
+  "slug": "debug-sticky-preconditions",
+  "title": "诊断 sticky 前提",
+  "prompt": "让 .rail 成为可滚动的 scroll container，并让 .sticky-card 使用 position: sticky 与 top: 8px；滚动行为仍需在 Preview 中观察。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "sticky 不只有 position 值；滚动容器需要有限高度与可滚动 overflow。",
+    "把 .rail 的 overflow-y 从 visible 改为 auto。",
+    "为 .sticky-card 补上 position: sticky 和 top: 8px。"
+  ],
+  "checks": [
+    {
+      "id": "rail-overflow",
+      "type": "style",
+      "selector": ".rail",
+      "property": "overflow-y",
+      "equals": "auto",
+      "message": "让 rail 使用 overflow-y: auto 建立可滚动上下文"
+    },
+    {
+      "id": "sticky-card-position",
+      "type": "style",
+      "selector": ".sticky-card",
+      "property": "position",
+      "equals": "sticky",
+      "message": "让 sticky-card 使用 position: sticky"
+    },
+    {
+      "id": "sticky-card-top",
+      "type": "style",
+      "selector": ".sticky-card",
+      "property": "top",
+      "equals": "8px",
+      "message": "为 sticky-card 设置 top: 8px threshold"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

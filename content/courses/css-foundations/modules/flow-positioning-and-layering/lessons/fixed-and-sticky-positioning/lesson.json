@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flow-positioning-and-layering.fixed-and-sticky-positioning",
+  "slug": "fixed-and-sticky-positioning",
+  "title": "fixed 与 sticky 定位",
+  "description": "区分 fixed 与 sticky 的滚动参考、flow participation 和必要前提，并识别静态 checker 的行为边界。",
+  "estimatedMinutes": 22,
+  "order": 2,
+  "status": "draft"
+}

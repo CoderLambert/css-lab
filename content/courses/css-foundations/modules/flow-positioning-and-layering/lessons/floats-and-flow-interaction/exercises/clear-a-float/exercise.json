@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flow-positioning-and-layering.floats-and-flow-interaction.clear-a-float.001",
+  "revision": 1,
+  "slug": "clear-a-float",
+  "title": "清除 float 影响",
+  "prompt": "让 .chapter-title 使用 clear: both，避免它与前方 float 在同一侧开始。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "clear 作用在需要避开 float 的后续 box 上，不是把 float 变成 absolute。",
+    "题目要求避开左右两侧的 float，所以选择 both。",
+    "对 .chapter-title 设置 clear: both，再在 Preview 中观察它的位置。"
+  ],
+  "checks": [
+    {
+      "id": "title-clear",
+      "type": "style",
+      "selector": ".chapter-title",
+      "property": "clear",
+      "equals": "both",
+      "message": "让 .chapter-title 清除两侧的 float 影响"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

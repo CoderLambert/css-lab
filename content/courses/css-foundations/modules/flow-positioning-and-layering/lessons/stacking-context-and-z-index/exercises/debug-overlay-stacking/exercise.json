@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flow-positioning-and-layering.stacking-context-and-z-index.debug-overlay-stacking.001",
+  "revision": 1,
+  "slug": "debug-overlay-stacking",
+  "title": "诊断 overlay stacking",
+  "prompt": "把 .content 保持在 z-index: 1，让 .overlay-shell 使用 z-index: 3，并让 .tooltip 使用局部 z-index: 2；诊断父 context，而不是盲目使用 999999。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "被遮挡的 tooltip 先要看最近的 overlay-shell，而不是只看 tooltip 自己的数字。",
+    "让 content 位于 1、overlay-shell 位于 3。",
+    "tooltip 在 overlay-shell 内使用局部 z-index: 2；Preview 结果仍需人工观察。"
+  ],
+  "checks": [
+    {
+      "id": "content-layer",
+      "type": "style",
+      "selector": ".content",
+      "property": "z-index",
+      "equals": "1",
+      "message": "让 content 使用基础 context 的 z-index: 1"
+    },
+    {
+      "id": "overlay-context-layer",
+      "type": "style",
+      "selector": ".overlay-shell",
+      "property": "z-index",
+      "equals": "3",
+      "message": "提升 overlay-shell 的父 context 到 z-index: 3"
+    },
+    {
+      "id": "tooltip-local-layer",
+      "type": "style",
+      "selector": ".tooltip",
+      "property": "z-index",
+      "equals": "2",
+      "message": "让 tooltip 在 overlay context 内使用局部 z-index: 2"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

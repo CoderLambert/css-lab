@@ -1,0 +1,7 @@
+.backdrop {
+  z-index: 2;
+}
+
+.dialog {
+  z-index: 1;
+}

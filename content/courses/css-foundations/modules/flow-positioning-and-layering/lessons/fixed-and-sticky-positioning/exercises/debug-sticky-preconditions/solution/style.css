@@ -1,0 +1,8 @@
+.rail {
+  overflow-y: auto;
+}
+
+.sticky-card {
+  position: sticky;
+  top: 8px;
+}
