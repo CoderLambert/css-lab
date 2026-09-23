@@ -4,9 +4,30 @@
   "revision": 1,
   "slug": "fallback-missing-variable",
   "title": "为缺失变量提供 fallback",
-  "prompt": "--card-gap 没有定义。让 .card 使用 padding: var(--card-gap, 20px)，使 fallback 解析为 20px。",
+  "prompt": "--card-gap 没有定义。让 .card 的 padding 通过 var() fallback 得到 20px；不要直接硬编码 padding:20px。先判断 fallback 为什么会运行，再写 authored expression。",
   "order": 3,
   "status": "published",
-  "hints": ["var() 第二个参数是 substitution fallback。", "这里 referenced custom property 没有 usable value。", "使用 var(--card-gap, 20px)。"],
-  "checks": [{"id":"fallback-padding","type":"style","selector":".card","property":"padding-top","equals":"20px","message":"缺失变量时 padding 应使用 20px fallback"}]
+  "hints": [
+    "var() 第二个参数只在 referenced custom property 不可用时参与 substitution。",
+    "这里 --card-gap 缺失，因此第二个参数会成为 substitution 结果；直接写 20px 会绕过本题机制。",
+    "使用 padding: var(--card-gap, 20px)。"
+  ],
+  "checks": [
+    {
+      "id": "fallback-authored-expression",
+      "type": "rule-style",
+      "selector": ".card",
+      "property": "padding",
+      "equals": "var(--card-gap, 20px)",
+      "message": "让 .card authored padding 使用 var(--card-gap, 20px)"
+    },
+    {
+      "id": "fallback-padding",
+      "type": "style",
+      "selector": ".card",
+      "property": "padding-top",
+      "equals": "20px",
+      "message": "缺失变量时 padding 应使用 20px fallback"
+    }
+  ]
 }

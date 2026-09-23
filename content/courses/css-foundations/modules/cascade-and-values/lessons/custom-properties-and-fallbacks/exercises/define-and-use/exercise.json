@@ -7,10 +7,51 @@
   "prompt": "在 .card 定义 --gap: 24px；不要在 .content 重复写 24px，让 .content 用 padding: var(--gap) 使用继承到的 custom property。",
   "order": 1,
   "status": "published",
-  "hints": ["普通 --* custom property 默认继承。", "var() 在 property value 中 substitution。", "在 .card 写 --gap: 24px，在 .content 写 padding: var(--gap)。"],
+  "hints": [
+    "普通 --* custom property 默认继承。",
+    "var() 在 property value 中 substitution。",
+    "在 .card 写 --gap: 24px，在 .content 写 padding: var(--gap)。"
+  ],
   "checks": [
-    {"id":"card-gap","type":"style","selector":".card","property":"--gap","equals":"24px","message":"card 应定义 --gap"},
-    {"id":"content-gap","type":"style","selector":".content","property":"--gap","equals":"24px","message":"content 应得到 inherited --gap"},
-    {"id":"content-padding","type":"style","selector":".content","property":"padding-top","equals":"24px","message":"content padding 应解析为 24px"}
+    {
+      "id": "card-gap-authored",
+      "type": "rule-style",
+      "selector": ".card",
+      "property": "--gap",
+      "equals": "24px",
+      "message": "在 .card authored rule 中定义 --gap:24px"
+    },
+    {
+      "id": "content-gap-linkage",
+      "type": "rule-style",
+      "selector": ".content",
+      "property": "padding",
+      "equals": "var(--gap)",
+      "message": "让 .content authored padding 通过 var(--gap) 连接 inherited custom property"
+    },
+    {
+      "id": "card-gap",
+      "type": "style",
+      "selector": ".card",
+      "property": "--gap",
+      "equals": "24px",
+      "message": "card 应定义 --gap"
+    },
+    {
+      "id": "content-gap",
+      "type": "style",
+      "selector": ".content",
+      "property": "--gap",
+      "equals": "24px",
+      "message": "content 应得到 inherited --gap"
+    },
+    {
+      "id": "content-padding",
+      "type": "style",
+      "selector": ".content",
+      "property": "padding-top",
+      "equals": "24px",
+      "message": "content padding 应解析为 24px"
+    }
   ]
 }

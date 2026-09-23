@@ -7,10 +7,43 @@
   "prompt": ".list 已定义 --space: 12px，items 用 var(--space)。只在 .compact 上覆盖 --space 为 4px，让普通 item 保持 12px。",
   "order": 2,
   "status": "published",
-  "hints": ["custom property 的 scope 来自它声明所在的元素和 inheritance。", "不需要改 .item 的 padding declaration。", "在 .compact 上声明 --space: 4px。"],
+  "hints": [
+    "custom property 的 scope 来自它声明所在的元素和 inheritance。",
+    "不需要改 .item 的 padding declaration。",
+    "在 .compact 上声明 --space: 4px。"
+  ],
   "checks": [
-    {"id":"normal-padding","type":"style","selector":".normal","property":"padding-top","equals":"12px","message":"normal item 应继续使用 parent value"},
-    {"id":"compact-token","type":"style","selector":".compact","property":"--space","equals":"4px","message":"compact 应覆盖 --space"},
-    {"id":"compact-padding","type":"style","selector":".compact","property":"padding-top","equals":"4px","message":"compact padding 应使用局部 override"}
+    {
+      "id": "compact-override-authored",
+      "type": "rule-style",
+      "selector": ".compact",
+      "property": "--space",
+      "equals": "4px",
+      "message": "只在 .compact authored rule 中覆盖 --space:4px"
+    },
+    {
+      "id": "normal-padding",
+      "type": "style",
+      "selector": ".normal",
+      "property": "padding-top",
+      "equals": "12px",
+      "message": "normal item 应继续使用 parent value"
+    },
+    {
+      "id": "compact-token",
+      "type": "style",
+      "selector": ".compact",
+      "property": "--space",
+      "equals": "4px",
+      "message": "compact 应覆盖 --space"
+    },
+    {
+      "id": "compact-padding",
+      "type": "style",
+      "selector": ".compact",
+      "property": "padding-top",
+      "equals": "4px",
+      "message": "compact padding 应使用局部 override"
+    }
   ]
 }

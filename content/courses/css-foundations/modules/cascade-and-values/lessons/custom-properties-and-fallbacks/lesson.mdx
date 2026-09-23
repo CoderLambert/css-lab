@@ -28,6 +28,13 @@
 
 Fallback 不是“不支持 CSS variables 时的兼容方案”，也不是永远会执行的默认值。它只解决 `var()` 引用值不可用等 substitution 场景。
 
+<Predict
+  question="如果 .box 已经有 --space: red，同时写 padding: var(--space, 20px)，会因为 red 不是合法 padding 而自动使用 20px fallback 吗？"
+  options={["不会；--space 存在，先 substitution，再由 padding grammar 判断结果是否有效", "会；var() 会先替 consuming property 做类型校验", "会；fallback 永远优先于 custom property"]}
+  answer="不会；--space 存在，先 substitution，再由 padding grammar 判断结果是否有效"
+  explanation="普通 custom property 保存 token sequence；var() fallback 处理的是引用值不可用，而不是为 consuming property 做类型校验。一个存在但对 padding 不合法的 token 不会因此触发第二参数。"
+/>
+
 本 Foundations lesson 不引入 `@property` 注册语义；这里讨论的是普通 `--*` custom properties。
 
 ## 从 define/use 到 scoped override
@@ -38,4 +45,4 @@ Fallback 不是“不支持 CSS variables 时的兼容方案”，也不是永�
 
 <Exercise slug="fallback-missing-variable" label="为缺失变量提供 fallback" goal="在 referenced custom property 缺失时，用 var() fallback 得到可用 property value。" />
 
-Checker 可以观察 custom property 的 resolved token value和最终 property result，但不能证明 learner 唯一使用了预期 linkage strategy；这些练习因此仍是 checker-limited。
+Checker 会把 authored linkage 与 resolved result 分开验证：`rule-style` 检查 bounded custom-property declaration / `var()` use / fallback expression，computed `style` 再确认当前 fixture 的 inherited token 与最终 property result。它仍不能证明任意等价 linkage strategy，也不会把 destination property 的 grammar error 误当成 `var()` fallback。
