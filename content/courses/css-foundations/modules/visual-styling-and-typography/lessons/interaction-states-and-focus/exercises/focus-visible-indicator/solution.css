@@ -1,8 +1,6 @@
-.action:focus {
-  outline: 3px solid rgb(71, 114, 92);
-  outline-offset: 3px;
-}
-
 .action:focus-visible {
+  outline-width: 3px;
+  outline-style: solid;
   outline-color: rgb(26, 61, 47);
+  outline-offset: 3px;
 }

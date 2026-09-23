@@ -6,7 +6,7 @@
   "title": "恢复 formatting context",
   "prompt": "诊断并修复一个依赖 Flex 或 Grid formatting context 的布局组件。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先问布局规则需要哪一个 formatting context；这里只有 container 的最终 display 还没有建立 Flex context。",
     "`gap` 只有在对应的 layout context 中才会按预期参与 items 之间的空间分配。",
@@ -14,7 +14,7 @@
   ],
   "checks": [
     {
-      "id": "toolbar-flex-context",
+      "id": "debug-toolbar-flex-context",
       "type": "style",
       "selector": ".toolbar",
       "property": "display",
@@ -22,7 +22,7 @@
       "message": "恢复 toolbar 的 Flex formatting context"
     },
     {
-      "id": "toolbar-gap",
+      "id": "debug-toolbar-gap",
       "type": "style",
       "selector": ".toolbar",
       "property": "gap",

@@ -6,7 +6,7 @@
   "title": "在同一 context 内排序",
   "prompt": "让 .dialog 使用 z-index: 2、.backdrop 使用 z-index: 1，在同一 stacking context 内形成明确的局部绘制顺序。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先确认两个 box 是同一 scene 中的 positioned siblings。",
     "同一 context 内可以直接比较 z-index；不要把它理解成全页面排名。",

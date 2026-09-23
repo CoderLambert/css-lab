@@ -6,7 +6,7 @@
   "title": "定位 selector match",
   "prompt": "修复 selector 选择范围，让目标 notice 获得预期的 color declaration。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先比较 fixture 的 class/关系和 starter selector，判断规则是否能匹配目标元素。",
     "这是 selector match 阶段的问题，不需要提高 specificity 或修改 HTML。",

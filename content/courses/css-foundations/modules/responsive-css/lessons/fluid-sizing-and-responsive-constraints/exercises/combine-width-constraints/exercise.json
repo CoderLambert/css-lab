@@ -6,7 +6,7 @@
   "title": "组合 width 与 max-width",
   "prompt": "保留 width: 100%，再用 max-width: 480px 表达组件的内容上限。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "width: 100% 跟随 containing block；max-width 再给它一个上限。",
     "这两个 constraint 可以同时存在，不需要复制不同 viewport 的 width。",

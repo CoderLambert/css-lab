@@ -6,7 +6,7 @@
   "title": "修复错误的 containing block",
   "prompt": "修复定位祖先，让绝对定位的 .tooltip 使用 .panel 作为最近的 containing block，而不是只锚定到外层 .shell。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先找 .tooltip 的最近 positioned ancestor；当前 .shell 抢走了 reference context。",
     "不要只改 tooltip 的 top/right；让 .panel 建立自己的 containing block。",

@@ -14,7 +14,7 @@
   ],
   "checks": [
     {
-      "id": "container-display-flex",
+      "id": "align-items-end-container-display-flex",
       "type": "style",
       "selector": ".container",
       "property": "display",

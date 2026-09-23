@@ -6,7 +6,7 @@
   "title": "让行内 badge 可 sizing",
   "prompt": "让 .badge 仍能跟周围文字处在同一行，同时让 width: 120px 对它产生明确的 box sizing 作用。选择合适的 display value。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "普通 inline box 不是这里想要的 sizing 模型。",
     "你仍然需要 inline-level outer participation。",

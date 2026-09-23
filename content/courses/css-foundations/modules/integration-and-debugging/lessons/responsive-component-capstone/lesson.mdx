@@ -26,7 +26,7 @@ HTML 不可编辑是边界的一部分：它迫使你用已经存在的 DOM 关�
   question="一个可用的 capstone solution 使用 Grid，另一个使用 Flexbox；两者都满足固定 HTML 的内容和布局目标。课程 checker 应该怎样描述结果？"
   options={["把能诚实验证的 declaration subset 作为检查，并说明 geometry/等价实现需要 Preview review", "只接受其中一个 property 字符串并宣称另一种实现错误", "用 screenshot 的每个 pixel 作为唯一验收标准"]}
   answer="把能诚实验证的 declaration subset 作为检查，并说明 geometry/等价实现需要 Preview review"
-  explanation="当前 checker DSL 没有完整 geometry、multi-viewport 或多解等价判断能力；诚实的 subset 不应伪装成完整 acceptance。"
+  explanation="checker 可以验证明确的 declaration subset 与固定 viewport outcome；完整 geometry、paint/occlusion 与多解等价判断仍需要 Preview review，诚实的 subset 不应伪装成完整 acceptance。"
 />
 
 <Compare
@@ -46,4 +46,4 @@ HTML 不可编辑是边界的一部分：它迫使你用已经存在的 DOM 关�
   goal="在固定 HTML 上分阶段完成 surface、typography、box constraints、internal/broader layout 与 responsive adaptation，并进行最终 debugging pass。"
 />
 
-本练习的 checker 只保留为 draft：当前 DSL 可以表达少量明确的 declaration，但不足以可靠判断多个 viewport 的 geometry、wrapping、paint order 或多个等价 CSS solution。因此请在 Preview 的 `390 / 768 / 1280` presets 中观察同一份 CSS，并记录你选择 breakpoint 的 content/layout 理由；这些 presets 是 observation，不是 automated multi-viewport acceptance。
+本练习的 checker 会用 `rule-style` 验证明确的 authored declaration，并用 `viewport-style` 验证 390、768、1280 的指定 computed outcome。它仍不能可靠判断任意 viewport 的完整 geometry、wrapping、paint/occlusion、scroll 状态或多个等价 CSS solution，因此请在 Preview 的固定 presets 中观察同一份 CSS，并记录你选择 breakpoint 的 content/layout 理由。

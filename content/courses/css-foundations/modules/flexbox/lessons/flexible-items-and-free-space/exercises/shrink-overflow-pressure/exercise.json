@@ -6,7 +6,7 @@
   "title": "应对 negative free space",
   "prompt": "让 .first 与 .second 使用 flex-shrink: 1，应对 basis 总和超过容器空间的 negative free space。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "basis 总和超过 container 时，Flexbox 面对的是 negative free space。",
     "shrink 是 sizing algorithm 的参与因子，不是等 overflow 后才添加的视觉补丁。",

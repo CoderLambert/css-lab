@@ -6,7 +6,7 @@
   "title": "对齐 grid items",
   "prompt": "让 .board 使用 align-items: center 与 justify-items: end，控制 grid items 在各自 grid areas 内的对齐。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "items 在各自 grid areas 内对齐；这和分布整个 grid content 是不同层级。",
     "align-items 控制 block/cross 方向，justify-items 控制 inline 方向。",

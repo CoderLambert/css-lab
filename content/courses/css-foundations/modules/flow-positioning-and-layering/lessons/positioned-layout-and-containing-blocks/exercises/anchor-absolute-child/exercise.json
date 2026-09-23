@@ -6,7 +6,7 @@
   "title": "锚定 absolute child",
   "prompt": "让 .card 使用 position: relative 成为 containing block，并让 .badge 使用 absolute 与 top/right offset 相对 card 放置。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "absolute child 会寻找最近的 positioned ancestor。",
     "先把 .card 设为 position: relative；它仍然保留 normal-flow 布局。",
@@ -30,7 +30,7 @@
       "message": "让 badge 使用 position: absolute"
     },
     {
-      "id": "badge-top",
+      "id": "absolute-badge-top",
       "type": "style",
       "selector": ".badge",
       "property": "top",

@@ -4,13 +4,92 @@
   "revision": 1,
   "slug": "integrate-responsive-component",
   "title": "综合 responsive component",
-  "prompt": "综合 surface、typography、constraints、internal layout 与 selective adaptation，最后在多个 viewport 手动检查。",
+  "prompt": "综合 surface、typography、constraints、internal layout 与 selective adaptation，最后结合固定 viewport 检查与 Preview review。",
   "order": 4,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "按 surface/typography → constraints → internal layout → selective adaptation 的顺序工作，不要从截图像素反推。",
     "先让窄空间 baseline 可用，再让 Flexbox 或 Grid 承担自然变化；只有真实 content/layout break 才加入 query。",
-    "当前 checker 不足以判定多个 viewport 的 geometry、wrapping 或等价实现；完成后使用 Preview 手动比较 390、768、1280。"
+    "checker 会验证明确的 declaration 与固定 viewport outcome；完整 geometry、wrapping 或等价实现仍要使用 Preview 比较 390、768、1280。"
   ],
-  "checks": []
+  "checks": [
+    {
+      "id": "profile-max-width",
+      "type": "rule-style",
+      "selector": ".profile",
+      "property": "max-width",
+      "equals": "100%",
+      "message": "让 profile 不超过可用容器宽度"
+    },
+    {
+      "id": "profile-header-display-flex",
+      "type": "rule-style",
+      "selector": ".profile-header",
+      "property": "display",
+      "equals": "flex",
+      "message": "用 Flexbox 组织 profile header"
+    },
+    {
+      "id": "profile-actions-display-flex",
+      "type": "rule-style",
+      "selector": ".profile-actions",
+      "property": "display",
+      "equals": "flex",
+      "message": "让 profile actions 成为 flex container"
+    },
+    {
+      "id": "profile-actions-flex-wrap",
+      "type": "rule-style",
+      "selector": ".profile-actions",
+      "property": "flex-wrap",
+      "equals": "wrap",
+      "message": "允许 profile actions 在窄空间换行"
+    },
+    {
+      "id": "profile-body-columns-wide",
+      "type": "rule-style",
+      "selector": ".profile-body",
+      "property": "grid-template-columns",
+      "equals": "minmax(0, 1fr) auto",
+      "alsoAccepts": ["minmax(0px, 1fr) auto"],
+      "media": "(min-width: 640px)",
+      "message": "在宽空间为 profile body 定义两列"
+    },
+    {
+      "id": "profile-body-align-items-wide",
+      "type": "rule-style",
+      "selector": ".profile-body",
+      "property": "align-items",
+      "equals": "end",
+      "media": "(min-width: 640px)",
+      "message": "在宽空间让 profile body 沿末端对齐"
+    },
+    {
+      "id": "profile-body-align-items-mobile",
+      "type": "viewport-style",
+      "viewportWidth": 390,
+      "selector": ".profile-body",
+      "property": "align-items",
+      "equals": "normal",
+      "message": "在 390px 视口保留窄空间 baseline"
+    },
+    {
+      "id": "profile-body-align-items-tablet",
+      "type": "viewport-style",
+      "viewportWidth": 768,
+      "selector": ".profile-body",
+      "property": "align-items",
+      "equals": "end",
+      "message": "在 768px 视口启用宽空间对齐"
+    },
+    {
+      "id": "profile-body-align-items-desktop",
+      "type": "viewport-style",
+      "viewportWidth": 1280,
+      "selector": ".profile-body",
+      "property": "align-items",
+      "equals": "end",
+      "message": "在 1280px 视口保持宽空间对齐"
+    }
+  ]
 }

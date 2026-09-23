@@ -6,7 +6,7 @@
   "title": "设置 track gaps",
   "prompt": "用 gap: 16px 为 Grid tracks 建立统一 gutter，不把它误认为 item alignment。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "gap 直接表达相邻 tracks 之间的 gutter。",
     "它不是 align-items，也不是 justify-content 的剩余空间分配。",

@@ -53,4 +53,4 @@ Flexbox 的 wrap、Grid 的 flexible tracks、`minmax()` 或一个合理的 max 
   goal="让 .cards 使用 Flexbox wrap 与 gap，先依赖自然 flexibility 适应 available space。"
 />
 
-Preview 的 `390 / 768 / 1280` presets 适合观察同一份 CSS 如何变化，但当前 checker 没有把同一 draft 在多个 viewport 独立执行并返回 viewport-specific diagnostics 的能力。因此本课的 checks 只覆盖 declaration subset，不宣称 automated multi-viewport responsive mastery；本课保持 `NEEDS_CHECKER_CAPABILITY` draft。
+Preview 的 `390 / 768 / 1280` presets 适合观察同一份 CSS 如何变化。`viewport-style` 可以用于题目明确指定的固定视口 outcome；本课这些 exercises 主要检查 fluid constraint 与自然适应的 authored declaration，因此不把 declaration subset 宣称成任意连续 viewport 的 automated responsive mastery。

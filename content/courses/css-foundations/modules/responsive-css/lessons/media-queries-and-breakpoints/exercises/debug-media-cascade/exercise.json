@@ -6,11 +6,56 @@
   "title": "诊断 media cascade",
   "prompt": "修复 media condition 与 source order 冲突，让宽空间 query 的 color declaration 在命中时真正成为 winner。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先确认 media condition 是否命中，再检查 query 内外 declaration 的 source order。",
     "命中 query 不会自动跳过后面的 unconditional rule。",
-    "把 baseline 放在前面，把宽空间覆盖规则放在对应 media block 中；当前 checker 不读取 source。"
+    "把 baseline 放在前面，把宽空间覆盖规则放在对应 media block 中；checker 会分别读取 authored rule 和固定视口 winner。"
   ],
-  "checks": []
+  "checks": [
+    {
+      "id": "notice-color-baseline",
+      "type": "rule-style",
+      "selector": ".notice",
+      "property": "color",
+      "equals": "black",
+      "message": "保留 notice 的窄空间 baseline 颜色"
+    },
+    {
+      "id": "notice-color-wide",
+      "type": "rule-style",
+      "selector": ".notice",
+      "property": "color",
+      "equals": "darkgreen",
+      "media": "(min-width: 600px)",
+      "message": "在宽空间 media block 中声明 darkgreen"
+    },
+    {
+      "id": "notice-color-mobile",
+      "type": "viewport-style",
+      "viewportWidth": 390,
+      "selector": ".notice",
+      "property": "color",
+      "equals": "rgb(0, 0, 0)",
+      "message": "在 390px 视口使用 baseline 颜色"
+    },
+    {
+      "id": "notice-color-tablet",
+      "type": "viewport-style",
+      "viewportWidth": 768,
+      "selector": ".notice",
+      "property": "color",
+      "equals": "rgb(0, 100, 0)",
+      "message": "在 768px 视口应用 media 覆盖"
+    },
+    {
+      "id": "notice-color-desktop",
+      "type": "viewport-style",
+      "viewportWidth": 1280,
+      "selector": ".notice",
+      "property": "color",
+      "equals": "rgb(0, 100, 0)",
+      "message": "在 1280px 视口保持 media 覆盖"
+    }
+  ]
 }

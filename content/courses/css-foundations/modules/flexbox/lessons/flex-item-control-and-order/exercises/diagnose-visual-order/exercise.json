@@ -6,7 +6,7 @@
   "title": "诊断 visual order",
   "prompt": "让 .primary 使用 order: 1、.secondary 使用 order: 2，恢复视觉顺序；注意这不会改变 DOM/source order。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先查看 HTML source order；order 只改变 flex items 的视觉排列。",
     "本题目标是 primary 先视觉出现，secondary 后视觉出现。",

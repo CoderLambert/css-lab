@@ -6,7 +6,7 @@
   "title": "追踪 width percentage 的 reference",
   "prompt": ".frame 的 content width 固定为 400px。让 .meter 使用 width: 50%，最终得到 200px；不要把 percentage 解释成 viewport percentage。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": ["percentage 的 reference 由 property/context 决定。", "这里 width percentage 参考 containing block 的宽度。", "设置 width: 50%。"],
   "checks": [{"id":"meter-width","type":"style","selector":".meter","property":"width","equals":"200px","message":"meter 最终宽度应为 200px"}]
 }

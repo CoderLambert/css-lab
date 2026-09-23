@@ -6,7 +6,7 @@
   "title": "补全盒模型四层",
   "prompt": "给 .card 设置 16px padding、4px solid border 和 12px margin。不要修改 width；观察 content、padding、border、margin 的层级关系。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先从 content box 向外数：第一层是 padding。",
     "border 包住 content 与 padding；margin 在 border 外。",

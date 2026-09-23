@@ -53,4 +53,4 @@ Mobile-first 是一种 source-order 策略：先写较窄空间也成立的 base
   goal="修复 media condition 与 source order 冲突，判断命中 rule 后仍由哪条 declaration 获胜。"
 />
 
-当前 checker 没有 source-aware CSS 或 viewport-aware check request：它不能证明 learner 写了正确的 `@media` condition、breakpoint 是否由内容推导，也不能在 390/768/1280 独立验收每个 outcome。因此这三个 exercises 保留真实 narrative 与 Preview observation，checks 为空并保持 draft；不得把静态 default viewport 结果冒充 multi-viewport mastery。
+现在可以用 `rule-style` 检查指定 `@media` block 中的 authored selector、property 与 value，并用 `viewport-style` 分别验收 390、768、1280 的 computed outcome。checker 能证明条件和固定视口下的结果，但不能证明 breakpoint 的设计理由、任意连续宽度范围、完整 geometry 或所有等价实现；这些仍需要结合 Preview 与内容/布局推理。

@@ -6,7 +6,7 @@
   "title": "观察 auto-placement",
   "prompt": "让 .board 明确使用 grid-auto-flow: row，保留未指定位置的 items，并观察 auto-placement algorithm 的结果。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "未写 grid-column/grid-row 的 items 会进入 auto-placement algorithm。",
     "本题的 flow direction 是 row；不要把它理解成随机坐标。",

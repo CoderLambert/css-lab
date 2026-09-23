@@ -6,7 +6,7 @@
   "title": "分开设置前景与背景",
   "prompt": "为 .card 设置指定的文字颜色与背景颜色，观察两种 paint layer 各自负责什么。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先区分前景文字和 box 背后的背景，它们不是同一个 property。",
     "文字颜色看 color，box 的铺色看 background-color。",

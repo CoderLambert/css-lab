@@ -55,4 +55,4 @@
   goal="补齐 scroll container 与 top inset，让 sticky 声明具备可观察的运行条件，而不是把没有效果归因于浏览器 bug。"
 />
 
-当前 checker 可检查 `position: fixed/sticky`、inset 与部分 overflow 声明，但不能可靠证明 fixed 的实际视口关系、sticky 的滚动阈值、scrollport 选择或祖先边界行为。因此本课保持 draft，并明确记录 `NEEDS_CHECKER_CAPABILITY`；不要用 declaration check 冒充完整 scroll behavior mastery。
+当前 checker 可检查 `position: fixed/sticky`、inset 与部分 overflow 声明，但不能可靠证明 fixed 的实际视口关系、sticky 的滚动阈值、scrollport 选择或祖先边界行为。因此本课的 declaration checks 与 Preview scroll review 分工协作，不把前者冒充成完整 scroll behavior mastery。

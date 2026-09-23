@@ -6,7 +6,7 @@
   "title": "让说明不生成 box",
   "prompt": "可选说明当前不应参与布局。不要只让它透明；使用 display 让 .optional 不生成 box。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "opacity 只改变绘制透明度，不等于不生成 box。",
     "这里的目标是改变 box generation。",

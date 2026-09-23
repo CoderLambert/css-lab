@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  CommonRecordSchema,
-  NonEmptyStringSchema,
-} from "./common";
+import { CommonRecordSchema, NonEmptyStringSchema } from "./common";
 
 const CheckBaseSchema = z
   .object({
@@ -14,6 +11,28 @@ const CheckBaseSchema = z
 
 export const StyleCheckSchema = CheckBaseSchema.extend({
   type: z.literal("style"),
+  selector: NonEmptyStringSchema,
+  property: NonEmptyStringSchema,
+  equals: NonEmptyStringSchema,
+  alsoAccepts: z.array(NonEmptyStringSchema).optional(),
+}).strict();
+
+const RuleStyleCheckFields = {
+  selector: NonEmptyStringSchema,
+  property: NonEmptyStringSchema,
+  equals: NonEmptyStringSchema,
+  alsoAccepts: z.array(NonEmptyStringSchema).optional(),
+  media: NonEmptyStringSchema.optional(),
+};
+
+export const RuleStyleCheckSchema = CheckBaseSchema.extend({
+  type: z.literal("rule-style"),
+  ...RuleStyleCheckFields,
+}).strict();
+
+export const ViewportStyleCheckSchema = CheckBaseSchema.extend({
+  type: z.literal("viewport-style"),
+  viewportWidth: z.number().int().positive(),
   selector: NonEmptyStringSchema,
   property: NonEmptyStringSchema,
   equals: NonEmptyStringSchema,
@@ -33,6 +52,8 @@ export const CountCheckSchema = CheckBaseSchema.extend({
 
 export const CheckSchema = z.discriminatedUnion("type", [
   StyleCheckSchema,
+  RuleStyleCheckSchema,
+  ViewportStyleCheckSchema,
   ExistsCheckSchema,
   CountCheckSchema,
 ]);
@@ -46,6 +67,8 @@ export const ExerciseRecordSchema = CommonRecordSchema.extend({
 }).strict();
 
 export type StyleCheck = z.infer<typeof StyleCheckSchema>;
+export type RuleStyleCheck = z.infer<typeof RuleStyleCheckSchema>;
+export type ViewportStyleCheck = z.infer<typeof ViewportStyleCheckSchema>;
 export type ExistsCheck = z.infer<typeof ExistsCheckSchema>;
 export type CountCheck = z.infer<typeof CountCheckSchema>;
 export type Check = z.infer<typeof CheckSchema>;

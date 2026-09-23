@@ -6,7 +6,7 @@
   "title": "按属性值匹配",
   "prompt": "使用 attribute selector，只让 data-state=\"ready\" 的两个项目显示为 uppercase；pending 项目保持原样。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "目标条件已经写在 HTML attribute 中，不需要先添加新的 class。",
     "attribute selector 可以直接检查属性值是否等于某个字符串。",

@@ -6,12 +6,91 @@
   "title": "构建 responsive profile",
   "prompt": "在固定 HTML fixture 上完成一个综合 CSS component，并用 Preview 检查多个 viewport。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "阶段 1：先处理 surface、typography 与 readable measure；确认固定 HTML 中的 heading、summary 和 action 都可读。",
     "阶段 2–3：再用 max-width 处理外层 constraint，用 Flexbox/Grid 或 normal flow 组织 header、body、actions。",
     "阶段 4：让窄空间 baseline 先成立，只在真实 layout break 时加入 selective media query；最后沿 diagnosis pipeline 回查。",
-    "当前 checker 不足以证明 geometry、multi-viewport outcome 或多个等价实现；完成后用 390、768、1280 presets 观察，并说明你的选择。"
+    "checker 会验证明确的 authored declaration 与 390、768、1280 的指定 outcome；完整 geometry 和等价实现仍要用 Preview review，并说明你的选择。"
   ],
-  "checks": []
+  "checks": [
+    {
+      "id": "dashboard-max-width",
+      "type": "rule-style",
+      "selector": ".dashboard",
+      "property": "max-width",
+      "equals": "100%",
+      "message": "让 dashboard 不超过可用容器宽度"
+    },
+    {
+      "id": "dashboard-header-display-flex",
+      "type": "rule-style",
+      "selector": ".dashboard-header",
+      "property": "display",
+      "equals": "flex",
+      "message": "用 Flexbox 组织 dashboard header"
+    },
+    {
+      "id": "dashboard-actions-display-flex",
+      "type": "rule-style",
+      "selector": ".dashboard-actions",
+      "property": "display",
+      "equals": "flex",
+      "message": "让 dashboard actions 成为 flex container"
+    },
+    {
+      "id": "dashboard-actions-flex-wrap",
+      "type": "rule-style",
+      "selector": ".dashboard-actions",
+      "property": "flex-wrap",
+      "equals": "wrap",
+      "message": "允许 dashboard actions 在窄空间换行"
+    },
+    {
+      "id": "dashboard-grid-columns-wide",
+      "type": "rule-style",
+      "selector": ".dashboard-grid",
+      "property": "grid-template-columns",
+      "equals": "minmax(0, 2fr) minmax(160px, 1fr)",
+      "alsoAccepts": ["minmax(0px, 2fr) minmax(160px, 1fr)"],
+      "media": "(min-width: 640px)",
+      "message": "在宽空间为 dashboard grid 定义两列"
+    },
+    {
+      "id": "dashboard-grid-align-items-wide",
+      "type": "rule-style",
+      "selector": ".dashboard-grid",
+      "property": "align-items",
+      "equals": "start",
+      "media": "(min-width: 640px)",
+      "message": "在宽空间让 dashboard grid 项目沿起点对齐"
+    },
+    {
+      "id": "dashboard-grid-align-items-mobile",
+      "type": "viewport-style",
+      "viewportWidth": 390,
+      "selector": ".dashboard-grid",
+      "property": "align-items",
+      "equals": "normal",
+      "message": "在 390px 视口保留窄空间 baseline"
+    },
+    {
+      "id": "dashboard-grid-align-items-tablet",
+      "type": "viewport-style",
+      "viewportWidth": 768,
+      "selector": ".dashboard-grid",
+      "property": "align-items",
+      "equals": "start",
+      "message": "在 768px 视口启用宽空间对齐"
+    },
+    {
+      "id": "dashboard-grid-align-items-desktop",
+      "type": "viewport-style",
+      "viewportWidth": 1280,
+      "selector": ".dashboard-grid",
+      "property": "align-items",
+      "equals": "start",
+      "message": "在 1280px 视口保持宽空间对齐"
+    }
+  ]
 }

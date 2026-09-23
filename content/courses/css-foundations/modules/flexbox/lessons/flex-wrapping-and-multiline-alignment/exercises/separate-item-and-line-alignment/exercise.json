@@ -6,7 +6,7 @@
   "title": "区分 item 与 line 对齐",
   "prompt": "让 .tray 使用 align-items: center 与 align-content: space-between，分别表达 line 内 item 对齐和多条 lines 的整体分布。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "align-items 观察的是每条 line 内的 items；align-content 观察的是 lines 的整体。",
     "本题已经允许 wrap；需要让每个层级使用不同的 property。",

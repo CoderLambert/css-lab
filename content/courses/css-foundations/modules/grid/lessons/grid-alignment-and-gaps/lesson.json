@@ -6,5 +6,5 @@
   "description": "区分 Grid item alignment、content alignment 与 gap，并把它们放回 Box Alignment 的共同模型。",
   "estimatedMinutes": 18,
   "order": 4,
-  "status": "draft"
+  "status": "published"
 }

@@ -6,7 +6,7 @@
   "title": "按元素类型匹配",
   "prompt": "使用 type selector，让所有 li 的文字显示为 uppercase；下方说明段落必须保持原样。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先看 fixture：三个目标都使用同一种 HTML 元素类型。",
     "type selector 直接写元素名称，不需要 . 或 # 前缀。",

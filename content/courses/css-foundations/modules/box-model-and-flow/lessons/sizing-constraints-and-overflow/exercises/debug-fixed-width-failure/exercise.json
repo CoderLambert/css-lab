@@ -6,7 +6,7 @@
   "title": "修复固定宽度失败",
   "prompt": "修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。",
   "order": 4,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先定位失败发生在哪个约束：preferred width 是否超过 containing block？",
     "保留 320px 的宽度意图，再增加一个可用空间上限。",

@@ -6,7 +6,7 @@
   "title": "按 sibling 位置匹配",
   "prompt": "使用 :nth-child() 只让 .steps 的第三个 child（.step-b）使用 italic。注意它是第二个 p，但第三个 child。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     ":nth-child() 看的是元素在 sibling list 中的位置，不是只在同 tag 中重新编号。",
     "先从 .steps 的直接 children 从 1 开始数：h3 是 1，step-a 是 2，step-b 是 3。",

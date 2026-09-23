@@ -6,7 +6,7 @@
   "title": "让边框参与 box model",
   "prompt": "为 .card 添加 2px solid 边框；保留 padding，并把它作为 box model 的新边缘来推理。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "边框是 box model 的一层，不是只改变颜色的 shadow。",
     "题目需要线型和厚度；不要删除既有 padding 来躲开尺寸变化。",

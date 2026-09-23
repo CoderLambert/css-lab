@@ -6,7 +6,7 @@
   "title": "不用 breakpoint 的 flexible layout",
   "prompt": "让 .cards 使用 display: flex、flex-wrap: wrap 与 gap: 12px，先依赖自然 flexibility 适应可用空间。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先建立 flex formatting context，再允许 items 在空间不足时换行。",
     "gap 表达 gutter；本题不需要为每个 viewport 复制 layout。",

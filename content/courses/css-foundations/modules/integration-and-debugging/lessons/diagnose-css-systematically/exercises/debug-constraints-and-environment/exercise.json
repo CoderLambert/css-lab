@@ -6,7 +6,7 @@
   "title": "追踪 constraints 与 environment",
   "prompt": "从 sizing/overflow 与 viewport condition 中找出 realistic responsive failure 的控制阶段。",
   "order": 4,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先定位到 sizing/overflow branch：比较 fixed width、containing block 与 available space。",
     "`max-width` 可以约束 authored width；长文本还需要一个适合内容的 wrapping strategy。",

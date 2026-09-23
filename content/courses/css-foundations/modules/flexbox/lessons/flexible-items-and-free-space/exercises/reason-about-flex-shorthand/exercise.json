@@ -6,7 +6,7 @@
   "title": "拆解 flex shorthand",
   "prompt": "让 .first 与 .second 使用 flex: 1，并从 computed longhand 结果理解 grow/shrink/basis；不要把 flex: 1 当成 width: 100%。",
   "order": 4,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "flex shorthand 组合 grow、shrink 和 basis；先看它展开后的 longhand。",
     "flex: 1 描述的是可参与 free-space 的 item 配置，不是 width: 100%。",

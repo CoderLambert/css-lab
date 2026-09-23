@@ -6,7 +6,7 @@
   "title": "局部覆盖 inherited custom property",
   "prompt": ".list 已定义 --space: 12px，items 用 var(--space)。只在 .compact 上覆盖 --space 为 4px，让普通 item 保持 12px。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": ["custom property 的 scope 来自它声明所在的元素和 inheritance。", "不需要改 .item 的 padding declaration。", "在 .compact 上声明 --space: 4px。"],
   "checks": [
     {"id":"normal-padding","type":"style","selector":".normal","property":"padding-top","equals":"12px","message":"normal item 应继续使用 parent value"},

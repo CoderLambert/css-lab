@@ -6,5 +6,5 @@
   "description": "理解 intrinsic content、author constraints 与 containing context 如何共同决定 used size，并选择合适的 min/max 与 overflow 策略。",
   "estimatedMinutes": 20,
   "order": 3,
-  "status": "draft"
+  "status": "published"
 }

@@ -6,5 +6,5 @@
   "description": "用 selector、cascade、resolved value、formatting context、constraints 与 environment 组成可迁移的 CSS debugging pipeline。",
   "estimatedMinutes": 26,
   "order": 1,
-  "status": "draft"
+  "status": "published"
 }

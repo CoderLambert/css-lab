@@ -6,7 +6,7 @@
   "title": "组合不同目标集合",
   "prompt": "使用一个 selector list，让 #spotlight 标题和 .tagged 段落都使用 italic；普通段落必须保持 normal。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "一个目标由 id 标识，另一个目标由 class 标识。",
     "逗号把多个 selector 组成 selector list，表示匹配其中任意一个即可。",

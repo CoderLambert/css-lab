@@ -6,5 +6,5 @@
   "description": "综合 constraints、Flexbox、Grid 与 selective media query，建立可观察但不夸大 automated validation 的 responsive strategy。",
   "estimatedMinutes": 24,
   "order": 3,
-  "status": "draft"
+  "status": "published"
 }

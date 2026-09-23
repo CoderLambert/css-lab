@@ -6,7 +6,7 @@
   "title": "跨列放置项目",
   "prompt": "让 .feature 从第 1 条 column line 延伸到第 3 条 column line，覆盖两条 tracks。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "这是三条 column lines 之间的范围，不是三个 tracks。",
     "从第 1 条 line 开始，到第 3 条 line 结束，正好覆盖两条 tracks。",

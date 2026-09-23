@@ -1,3 +1,1 @@
-.action:focus {
-  outline: none;
-}
+/* Add a :focus-visible rule without removing the browser's focus indicator. */

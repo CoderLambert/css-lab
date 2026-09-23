@@ -6,11 +6,83 @@
   "title": "建立 mobile-first override",
   "prompt": "先写窄空间 baseline，再在较宽条件下选择性覆盖布局规则；用 Preview 观察同一份 CSS。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "baseline 应在窄空间也成立，不要把 390px 写成唯一的 device rule。",
     "在真正发生 layout need 的 min-width 条件中覆盖 display/gap。",
-    "当前 checker 不验证 @media source 或所有 viewport outcome，完成后手动切换 presets。"
+    "rule-style 会验证 baseline 与 media declaration，viewport checks 会覆盖 390、768、1280；完整 geometry 仍需 Preview review。"
   ],
-  "checks": []
+  "checks": [
+    {
+      "id": "layout-display-block-baseline",
+      "type": "rule-style",
+      "selector": ".layout",
+      "property": "display",
+      "equals": "block",
+      "message": "先为 layout 建立 block baseline"
+    },
+    {
+      "id": "layout-display-flex-wide",
+      "type": "rule-style",
+      "selector": ".layout",
+      "property": "display",
+      "equals": "flex",
+      "media": "(min-width: 640px)",
+      "message": "在宽空间将 layout 切换为 flex"
+    },
+    {
+      "id": "layout-gap-wide",
+      "type": "rule-style",
+      "selector": ".layout",
+      "property": "gap",
+      "equals": "16px",
+      "media": "(min-width: 640px)",
+      "message": "为宽空间 layout 设置列间距"
+    },
+    {
+      "id": "sidebar-flex-basis-wide",
+      "type": "rule-style",
+      "selector": ".sidebar",
+      "property": "flex-basis",
+      "equals": "120px",
+      "media": "(min-width: 640px)",
+      "message": "为宽空间 sidebar 固定基础宽度"
+    },
+    {
+      "id": "content-flex-grow-wide",
+      "type": "rule-style",
+      "selector": ".content",
+      "property": "flex-grow",
+      "equals": "1",
+      "media": "(min-width: 640px)",
+      "message": "让宽空间 content 吸收剩余空间"
+    },
+    {
+      "id": "layout-display-mobile",
+      "type": "viewport-style",
+      "viewportWidth": 390,
+      "selector": ".layout",
+      "property": "display",
+      "equals": "block",
+      "message": "在 390px 视口保持 block layout"
+    },
+    {
+      "id": "layout-display-tablet",
+      "type": "viewport-style",
+      "viewportWidth": 768,
+      "selector": ".layout",
+      "property": "display",
+      "equals": "flex",
+      "message": "在 768px 视口切换为 flex layout"
+    },
+    {
+      "id": "layout-display-desktop",
+      "type": "viewport-style",
+      "viewportWidth": 1280,
+      "selector": ".layout",
+      "property": "display",
+      "equals": "flex",
+      "message": "在 1280px 视口保持 flex layout"
+    }
+  ]
 }

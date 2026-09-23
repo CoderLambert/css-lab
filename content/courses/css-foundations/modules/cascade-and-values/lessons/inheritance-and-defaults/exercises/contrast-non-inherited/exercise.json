@@ -6,7 +6,7 @@
   "title": "对比不会自动继承的属性",
   "prompt": "只修改 .panel：设置 font-weight: 700 和 border-style: solid。观察 .child 会继承 font-weight，但自己的 border-top-style 仍应是 none。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "font-weight 默认继承，而 border-style 默认不继承。",
     "两个 declarations 都写在 parent .panel 上；不要给 .child 补 border。",

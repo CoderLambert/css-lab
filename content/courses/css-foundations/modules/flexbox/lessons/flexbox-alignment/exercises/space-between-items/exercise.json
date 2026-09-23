@@ -14,7 +14,7 @@
   ],
   "checks": [
     {
-      "id": "container-display-flex",
+      "id": "space-between-container-display-flex",
       "type": "style",
       "selector": ".container",
       "property": "display",

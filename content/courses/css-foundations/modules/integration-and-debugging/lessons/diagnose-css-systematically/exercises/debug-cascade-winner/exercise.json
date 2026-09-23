@@ -6,7 +6,7 @@
   "title": "诊断 cascade winner",
   "prompt": "在保持 selector 不变的前提下，修复 source order/specificity 冲突，让状态 rule 成为 winner。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "selector 已经命中；比较两条等 specificity 的 `.card .status` 与 `.status.is-ready`，再看 source order。",
     "cascade 会在 specificity 相同的候选中使用后出现的 declaration；不要用 `!important` 跳过 diagnosis。",

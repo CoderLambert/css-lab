@@ -6,5 +6,5 @@
   "description": "理解 foreground、background 与 border 的绘制职责，并把 border 对 box model 的影响连接到前一 Module。",
   "estimatedMinutes": 18,
   "order": 1,
-  "status": "draft"
+  "status": "published"
 }

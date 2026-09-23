@@ -35,7 +35,7 @@
   rightMeaning="在 focus 基础上使用用户代理的可见性判断，适合定制 focus indicator。"
 />
 
-## 在 Preview 中观察状态，而不是伪造 checker 证明
+## 用规则检查配合 Preview 观察状态
 
 <Exercise
   slug="hover-state-feedback"
@@ -55,4 +55,4 @@
   goal="为两个按钮分别提供 :focus 与 :focus-visible 规则，观察指针与键盘输入可能触发的差异。"
 />
 
-本课 Exercise 保持 draft：当前 checker 不能主动 drive `:hover`、`:focus` 或 `:focus-visible`，也不能从一个静态 declaration check 诚实证明状态行为。因此这里不添加普通静态 property proxy；请通过 Preview 的真实指针与键盘操作观察结果。该 gap 记录为 `NEEDS_CHECKER_CAPABILITY`，留到最终集成阶段处理。
+`rule-style` 可以检查 `.action:hover`、`.action:focus` 与 `.action:focus-visible` 中明确写出的 authored declarations，但 checker 不会主动驱动真实的指针或键盘 modality，也不能证明 paint/occlusion、滚动状态或所有等价视觉结果。因此仍要通过 Preview 的真实指针与 Tab 操作观察状态；这些行为边界不能被静态规则检查冒充覆盖。

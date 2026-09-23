@@ -6,11 +6,20 @@
   "title": "定义 explicit tracks",
   "prompt": "为 .board 定义两列 explicit tracks，并在 Preview 中区分 tracks 与它们之间的 grid lines。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "两列 tracks 需要三条 column lines；不要把 line number 当成 column count。",
     "explicit tracks 由 grid-template-columns 声明，Preview 中可以观察它们之间的边界。",
-    "对 .board 设置 grid-template-columns: 1fr 1fr；当前 checker 不锁定 authored track serialization。"
+    "对 .board 设置 grid-template-columns: 1fr 1fr；rule-style 会锁定这条 authored declaration，最终 track geometry 仍在 Preview 中观察。"
   ],
-  "checks": []
+  "checks": [
+    {
+      "id": "board-grid-template-columns-two-fractions",
+      "type": "rule-style",
+      "selector": ".board",
+      "property": "grid-template-columns",
+      "equals": "1fr 1fr",
+      "message": "为 .board 定义两条 1fr explicit tracks"
+    }
+  ]
 }

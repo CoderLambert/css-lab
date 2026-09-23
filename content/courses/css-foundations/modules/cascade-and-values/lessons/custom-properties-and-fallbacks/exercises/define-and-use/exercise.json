@@ -6,7 +6,7 @@
   "title": "定义并使用 custom property",
   "prompt": "在 .card 定义 --gap: 24px；不要在 .content 重复写 24px，让 .content 用 padding: var(--gap) 使用继承到的 custom property。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": ["普通 --* custom property 默认继承。", "var() 在 property value 中 substitution。", "在 .card 写 --gap: 24px，在 .content 写 padding: var(--gap)。"],
   "checks": [
     {"id":"card-gap","type":"style","selector":".card","property":"--gap","equals":"24px","message":"card 应定义 --gap"},

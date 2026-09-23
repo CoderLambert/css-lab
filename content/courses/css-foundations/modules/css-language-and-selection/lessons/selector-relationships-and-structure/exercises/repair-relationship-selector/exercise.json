@@ -6,7 +6,7 @@
   "title": "修复错误的关系假设",
   "prompt": "starter 假设 .label 是 .card 的直接 child，因此没有命中。根据真实 DOM 修正 selector，只让 card 内的 label 加粗；card 外的 label 保持 normal。",
   "order": 4,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先看 fixture：.card 和 .label 之间是否只隔一层？",
     "如果目标只需要有某个 ancestor，而不要求直接 parent，应使用 descendant combinator。",

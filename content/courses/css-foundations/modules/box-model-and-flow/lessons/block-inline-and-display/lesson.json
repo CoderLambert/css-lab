@@ -6,5 +6,5 @@
   "description": "理解 block、inline、inline-block 与 none 的 outer/inner participation，而不把 display 简化成是否换行。",
   "estimatedMinutes": 18,
   "order": 2,
-  "status": "draft"
+  "status": "published"
 }

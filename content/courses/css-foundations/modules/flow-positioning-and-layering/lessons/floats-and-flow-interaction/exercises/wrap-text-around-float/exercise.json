@@ -6,7 +6,7 @@
   "title": "让文本环绕 float",
   "prompt": "让 .photo 使用 float: left，使段落 inline content 在它右侧环绕。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "float 改变 box placement；它不是 position: absolute。",
     "目标是让 photo 到左侧，让段落的 line boxes 为它让路。",

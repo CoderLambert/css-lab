@@ -1,11 +1,17 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const FIRST_EXERCISE_URL =
+  "/learn/css-foundations/css-language-and-selection/css-rules-and-declarations/style-a-heading";
+const FLEX_FIRST_EXERCISE_URL =
   "/learn/css-foundations/flexbox/flexbox-alignment/center-box";
 const SECOND_EXERCISE_URL =
   "/learn/css-foundations/flexbox/flexbox-alignment/space-between-items";
 const THIRD_EXERCISE_URL =
   "/learn/css-foundations/flexbox/flexbox-alignment/align-items-end";
+const BREAKPOINT_EXERCISE_URL =
+  "/learn/css-foundations/responsive-css/media-queries-and-breakpoints/choose-content-breakpoint";
+const FOCUS_EXERCISE_URL =
+  "/learn/css-foundations/visual-styling-and-typography/interaction-states-and-focus/compare-focus-input";
 
 const SELECT_ALL = process.platform === "darwin" ? "Meta+A" : "Control+A";
 const UNDO = process.platform === "darwin" ? "Meta+Z" : "Control+Z";
@@ -37,20 +43,11 @@ test("learner navigation follows the published exercise sequence", async ({
   await expect(page).toHaveURL(new RegExp(`${FIRST_EXERCISE_URL}$`));
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(
-    page.getByRole("heading", { level: 1, name: "让元素稳定地对齐" }),
+    page.getByRole("heading", { level: 1, name: "规则先匹配，再产生声明" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { level: 2, name: "水平与垂直居中" }),
+    page.getByRole("heading", { level: 2, name: "让标题居中" }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { level: 2, name: "先判断轴，再选择属性" }),
-  ).toBeVisible();
-  await expect(
-    page.locator("code").filter({ hasText: "justify-content" }).first(),
-  ).toBeVisible();
-
-  await page.getByRole("button", { name: "align-items", exact: true }).click();
-  await expect(page.getByRole("status").getByText("预测正确")).toBeVisible();
 
   const previewFrame = page.locator('iframe[title="CSS exercise preview"]');
   await expect(previewFrame).toBeVisible();
@@ -66,12 +63,13 @@ test("learner navigation follows the published exercise sequence", async ({
   await expect(page.getByText("1280 × 720", { exact: true })).toBeVisible();
   await expect(previewFrame).toBeVisible();
 
+  await page.goto(FLEX_FIRST_EXERCISE_URL);
   await page.getByRole("link", { name: "在主轴上拉开间距" }).click();
   await expect(page).toHaveURL(new RegExp(`${SECOND_EXERCISE_URL}$`));
 
-  await page.goto(FIRST_EXERCISE_URL);
-  await expect(page).toHaveURL(new RegExp(`${FIRST_EXERCISE_URL}$`));
-  await expect(page.getByRole("button", { name: "上一题" })).toBeDisabled();
+  await page.goto(FLEX_FIRST_EXERCISE_URL);
+  await expect(page).toHaveURL(new RegExp(`${FLEX_FIRST_EXERCISE_URL}$`));
+  await expect(page.getByRole("link", { name: "上一题" })).toBeVisible();
 
   await page.locator("a").filter({ hasText: "下一题" }).click();
   await expect(page).toHaveURL(new RegExp(`${SECOND_EXERCISE_URL}$`));
@@ -82,15 +80,15 @@ test("learner navigation follows the published exercise sequence", async ({
   await page.locator("a").filter({ hasText: "下一题" }).click();
   await expect(page).toHaveURL(new RegExp(`${THIRD_EXERCISE_URL}$`));
   await expect(
-    page.getByRole("heading", { level: 2, name: "沿交叉轴底部对齐" }),
+    page.getByRole("heading", { level: 2, name: "沿交叉轴末端对齐" }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "下一题" })).toBeDisabled();
+  await expect(page.getByRole("link", { name: "下一题" })).toBeVisible();
 });
 
 test("editing updates preview, checking persists completion, and reload restores progress", async ({
   page,
 }) => {
-  await page.goto(FIRST_EXERCISE_URL);
+  await page.goto(FLEX_FIRST_EXERCISE_URL);
   await waitForExerciseHydration(page);
 
   const source = `.container {
@@ -119,7 +117,7 @@ test("editing updates preview, checking persists completion, and reload restores
 
   await page.getByRole("button", { name: "检查答案" }).click();
   await expect(page.getByText("全部检查通过")).toBeVisible();
-  await expect(page.getByText("33%")).toBeVisible();
+  await expect(page.getByText("1%")).toBeVisible();
 
   const storedProgress = await page.evaluate(
     ({ exerciseId, revision }) =>
@@ -155,13 +153,13 @@ test("editing updates preview, checking persists completion, and reload restores
   await expect
     .poll(() => readEditorCss(page))
     .toContain("justify-content: center;");
-  await expect(page.getByText("33%")).toBeVisible();
+  await expect(page.getByText("1%")).toBeVisible();
 });
 
 test("format is one undoable editor action and color swatches stay editor-local", async ({
   page,
 }) => {
-  await page.goto(FIRST_EXERCISE_URL);
+  await page.goto(FLEX_FIRST_EXERCISE_URL);
   await waitForExerciseHydration(page);
 
   const unformatted =
@@ -205,7 +203,7 @@ test("failed checks explain actual values, hints reveal progressively, and equiv
   await expect(
     checkResults.getByText("当前实现还未满足全部条件"),
   ).toBeVisible();
-  await expect(checkResults.getByText("当前值")).toBeVisible();
+  await expect(checkResults.getByText("当前值").first()).toBeVisible();
   await expect(
     checkResults.getByText("stretch", { exact: true }),
   ).toBeVisible();
@@ -213,15 +211,17 @@ test("failed checks explain actual values, hints reveal progressively, and equiv
     checkResults.getByText("flex-end / end", { exact: true }),
   ).toBeVisible();
   await expect(
-    checkResults.getByText(
-      "检测器已正常执行；这里是当前实现与验收条件不一致，不是检测器运行失败。",
-    ),
+    checkResults
+      .getByText(
+        "检测器已正常执行；这里是当前实现与验收条件不一致，不是检测器运行失败。",
+      )
+      .first(),
   ).toBeVisible();
 
   const firstHint =
-    "先确认 .container 已经是 flex container；这道题不需要改变三个项目自身的高度。";
+    "先确认 .container 使用 column；这道题不要求改变项目自身的尺寸。";
   const secondHint =
-    "默认 row 方向下，交叉轴是垂直方向，因此“交叉轴末端”就是容器的底部。";
+    "column 的 main axis 是纵向，cross axis 是水平方向，因此 cross-axis end 在常见书写模式中是右侧。";
   const thirdHint =
     "用 align-items 控制整组项目的交叉轴对齐。经典 Flexbox 写法是 flex-end；现代 Box Alignment 的 end 在本题中也视为正确。";
 
@@ -241,10 +241,160 @@ test("failed checks explain actual values, hints reveal progressively, and equiv
     page,
     `.container {
   display: flex;
+  flex-direction: column;
   align-items: end;
 }`,
   );
 
+  await page.getByRole("button", { name: "检查答案" }).click();
+  await expect(page.getByText("全部检查通过")).toBeVisible({
+    timeout: 15_000,
+  });
+});
+
+test("source-aware checks use the matching rule and report missing rule evidence", async ({
+  page,
+}) => {
+  await page.goto(BREAKPOINT_EXERCISE_URL);
+  await waitForExerciseHydration(page);
+
+  await replaceEditorCss(
+    page,
+    `.nav {
+  display: block;
+}
+
+.nav a {
+  display: block;
+}
+
+@media (min-width: 600px) {
+  .nav {
+    display: flex;
+    gap: 12px;
+  }
+
+  .nav a {
+    display: inline-block;
+  }
+}`,
+  );
+  await page.getByRole("button", { name: "检查答案" }).click();
+  await expect(page.getByText("全部检查通过")).toBeVisible({
+    timeout: 15_000,
+  });
+
+  await replaceEditorCss(
+    page,
+    `.nav {
+  display: block;
+  display: flex;
+}
+
+.nav a {
+  display: block;
+}
+
+@media (min-width: 600px) {
+  .nav {
+    display: flex;
+    gap: 12px;
+  }
+
+  .nav a {
+    display: inline-block;
+  }
+}
+
+.nav {
+  display: flex;
+}`,
+  );
+  await page.getByRole("button", { name: "检查答案" }).click();
+  await expect(page.getByText("当前实现还未满足全部条件")).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "检查结果" })
+      .getByText("flex", {
+        exact: true,
+      })
+      .last(),
+  ).toBeVisible();
+
+  await replaceEditorCss(
+    page,
+    `.nav {
+  display: block;
+}
+
+.nav a {
+  display: block;
+}
+
+@media (min-width: 700px) {
+  .nav {
+    display: flex;
+  }
+}`,
+  );
+  await page.getByRole("button", { name: "检查答案" }).click();
+  await expect(page.getByText("检测规则需要检查")).toBeVisible();
+  await expect(page.getByText("检测器没有找到").first()).toBeVisible();
+});
+
+test("viewport checks validate the same media implementation at fixed widths", async ({
+  page,
+}) => {
+  test.setTimeout(20_000);
+  await page.goto(BREAKPOINT_EXERCISE_URL);
+  await waitForExerciseHydration(page);
+
+  await replaceEditorCss(
+    page,
+    `.nav {
+  display: block;
+}
+
+.nav a {
+  display: block;
+}
+
+@media (min-width: 600px) {
+  .nav {
+    display: flex;
+    gap: 12px;
+  }
+
+  .nav a {
+    display: inline-block;
+  }
+}`,
+  );
+  await page.getByRole("button", { name: "检查答案" }).click();
+  await expect(page.getByText("全部检查通过")).toBeVisible();
+});
+
+test("rule-style checks cover pseudo-class declarations without removing focus indicators", async ({
+  page,
+}) => {
+  await page.goto(FOCUS_EXERCISE_URL);
+  await waitForExerciseHydration(page);
+
+  await replaceEditorCss(
+    page,
+    `.mouse-action:focus {
+  outline-width: 3px;
+  outline-style: solid;
+  outline-color: rgb(71, 114, 92);
+}
+
+.keyboard-action:focus-visible {
+  outline-width: 3px;
+  outline-style: dashed;
+  outline-color: rgb(71, 114, 92);
+  outline-offset: 3px;
+}`,
+  );
   await page.getByRole("button", { name: "检查答案" }).click();
   await expect(page.getByText("全部检查通过")).toBeVisible();
 });

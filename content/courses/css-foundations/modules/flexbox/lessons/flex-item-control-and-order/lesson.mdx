@@ -55,4 +55,4 @@ Flex context 中的 auto margin 会吸收对应 axis 上的剩余空间，因此
   goal="用 order 调整视觉顺序，同时明确 visual order 不等于 DOM/source order 或 keyboard/accessibility order。"
 />
 
-当前 checker 可以检查 `align-self` 与 `order` 声明，但 computed style 会把 auto margin 解析为与布局有关的 used value，不能诚实证明 learner 写了 authored `auto`。因此 auto-margin exercise 保留真实目标、空 checks 与 draft 状态；不要用固定像素 proxy 冒充 auto-margin mastery。
+`rule-style` 可以直接检查 `margin-inline-start: auto` 这样的 authored declaration，因此 auto-margin exercise 不需要用固定像素 proxy 冒充 mastery。checker 证明的是规则输入；auto margin 如何吸收剩余空间、最终项目位置与其他几何结果仍应在 Preview 中观察。

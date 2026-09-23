@@ -6,7 +6,7 @@
   "title": "同时指定行与列",
   "prompt": "把 .summary 放到第 2 列、第 2 行对应的 grid area；使用 line start 声明，不要改 HTML 顺序。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "Grid 有独立的 column line 和 row line；不要把两个方向混成一个坐标。",
     "目标是第 2 条 column line 与第 2 条 row line 的起点。",

@@ -6,5 +6,5 @@
   "description": "理解多个候选 declaration 如何通过 cascade、specificity 与 source order 决出同一 property 的 winning value。",
   "estimatedMinutes": 18,
   "order": 1,
-  "status": "draft"
+  "status": "published"
 }

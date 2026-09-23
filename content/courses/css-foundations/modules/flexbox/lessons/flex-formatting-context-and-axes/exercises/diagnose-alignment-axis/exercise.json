@@ -6,7 +6,7 @@
   "title": "诊断方向不对的对齐",
   "prompt": "修复一个把 justify-content 当成“水平属性”的 bug：先确认 flex-direction，再选择控制目标轴的属性。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "不要先背“水平属性”；先读取 .panel 的 flex-direction。",
     "column 的 main axis 是纵向，所以视觉水平方向是 cross axis。",

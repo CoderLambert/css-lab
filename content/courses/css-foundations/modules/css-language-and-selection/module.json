@@ -5,5 +5,5 @@
   "title": "CSS 语言与选择器",
   "description": "理解 CSS 规则如何通过选择器匹配元素，并让声明成为样式候选。",
   "order": 1,
-  "status": "draft"
+  "status": "published"
 }

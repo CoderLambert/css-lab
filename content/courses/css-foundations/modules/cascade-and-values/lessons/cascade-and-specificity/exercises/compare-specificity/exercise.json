@@ -6,7 +6,7 @@
   "title": "后写不一定赢",
   "prompt": "starter 中较后的 .copy rule 想把文字加粗，但较早的 #summary declaration 仍然获胜。不要使用 !important；修改真正获胜的 declaration，让 #summary 最终为 700。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先不要看 source order，比较 #summary 与 .copy 的 selector 类型。",
     "ID selector 的 specificity 权重类别高于 class selector，所以这里较早的 #summary 仍然获胜。",

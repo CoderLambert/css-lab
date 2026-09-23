@@ -6,7 +6,7 @@
   "title": "按 class 匹配",
   "prompt": "只让带有 featured class 的两张卡片使用 italic；普通卡片必须保持 normal。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "多个元素可以共享同一个 class，因此它们可以进入同一个匹配集合。",
     "class selector 以 . 开头，后面写 class 名。",

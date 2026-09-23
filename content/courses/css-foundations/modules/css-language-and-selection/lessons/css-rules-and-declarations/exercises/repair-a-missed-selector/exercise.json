@@ -6,7 +6,7 @@
   "title": "修复没有命中的规则",
   "prompt": "starter 中的规则没有命中提醒文本。修正 selector，并让提醒文字使用 italic；普通说明文字必须保持 normal。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先比较 fixture 里的 class 和 starter 里的 selector，确认规则是否真的能匹配目标。",
     "selector 修正后，再检查 declaration 的 property/value 是否表达了目标样式。",

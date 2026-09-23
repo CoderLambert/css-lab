@@ -6,7 +6,7 @@
   "title": "分配 positive free space",
   "prompt": "让 .primary 使用 flex-grow: 2、.secondary 使用 flex-grow: 1，按因子分配 positive free space。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先确认 basis 总和小于 container 可用空间，剩余部分才是 positive free space。",
     "grow 数值是相对分配因子，不是百分比 width。",

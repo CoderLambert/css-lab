@@ -6,5 +6,5 @@
   "description": "预测 type、class、id 与 selector list 会命中哪些元素，并把 selector 理解为匹配表达式。",
   "estimatedMinutes": 18,
   "order": 2,
-  "status": "draft"
+  "status": "published"
 }

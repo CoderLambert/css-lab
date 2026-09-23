@@ -6,7 +6,7 @@
   "title": "定义 implicit tracks 的尺寸",
   "prompt": "为自动生成的 rows 设置 grid-auto-rows: 72px，区分 explicit template 与 implicit track。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "template 中没有写出的 rows 可能由 auto-placement 需要而生成。",
     "grid-auto-rows 为 implicit rows 提供 sizing rule，不会改写 explicit template。",

@@ -6,11 +6,82 @@
   "title": "添加 selective breakpoint",
   "prompt": "只有当 content/layout 真正断裂时，才为 component 添加一个 selective media query。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先让窄空间 baseline 保持可读，再找出 links 何时因内容宽度而需要另一种布局。",
     "只为真实的 layout break 添加一个 min-width 条件，不要按设备品牌复制多套规则。",
-    "当前 checker 不读取 @media source，也不驱动多个 viewport；完成后在 390、768、1280 presets 中观察同一份 CSS。"
+    "rule-style 会验证指定 media declaration，viewport checks 会在 390、768、1280 对照同一份 CSS 的结果。"
   ],
-  "checks": []
+  "checks": [
+    {
+      "id": "selective-nav-display-block-baseline",
+      "type": "rule-style",
+      "selector": ".nav",
+      "property": "display",
+      "equals": "block",
+      "message": "为 nav 保留窄空间 baseline"
+    },
+    {
+      "id": "selective-nav-link-display-block-baseline",
+      "type": "rule-style",
+      "selector": ".nav a",
+      "property": "display",
+      "equals": "block",
+      "message": "让 nav link 在窄空间逐行显示"
+    },
+    {
+      "id": "selective-nav-display-flex-wide",
+      "type": "rule-style",
+      "selector": ".nav",
+      "property": "display",
+      "equals": "flex",
+      "media": "(min-width: 640px)",
+      "message": "在宽空间切换 nav 为 flex"
+    },
+    {
+      "id": "selective-nav-gap-wide",
+      "type": "rule-style",
+      "selector": ".nav",
+      "property": "gap",
+      "equals": "12px",
+      "media": "(min-width: 640px)",
+      "message": "为宽空间 nav links 设置间距"
+    },
+    {
+      "id": "selective-nav-link-display-inline-block-wide",
+      "type": "rule-style",
+      "selector": ".nav a",
+      "property": "display",
+      "equals": "inline-block",
+      "media": "(min-width: 640px)",
+      "message": "在宽空间让 nav link 横向排列"
+    },
+    {
+      "id": "selective-nav-display-mobile",
+      "type": "viewport-style",
+      "viewportWidth": 390,
+      "selector": ".nav",
+      "property": "display",
+      "equals": "block",
+      "message": "在 390px 视口使用 block nav"
+    },
+    {
+      "id": "selective-nav-display-tablet",
+      "type": "viewport-style",
+      "viewportWidth": 768,
+      "selector": ".nav",
+      "property": "display",
+      "equals": "flex",
+      "message": "在 768px 视口使用 flex nav"
+    },
+    {
+      "id": "selective-nav-display-desktop",
+      "type": "viewport-style",
+      "viewportWidth": 1280,
+      "selector": ".nav",
+      "property": "display",
+      "equals": "flex",
+      "message": "在 1280px 视口使用 flex nav"
+    }
+  ]
 }

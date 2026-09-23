@@ -6,7 +6,7 @@
   "title": "让标题居中",
   "prompt": "为页面中的 h2 写一条 CSS 规则，把标题文本居中。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先找出要匹配的 HTML 元素类型；这里目标就是 h2。",
     "selector 写在花括号前，declaration 写在花括号内。",

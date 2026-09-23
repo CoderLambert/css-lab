@@ -6,7 +6,7 @@
   "title": "单独控制一个 item",
   "prompt": "让 .featured 使用 align-self: end 覆盖 container 的默认 cross-axis alignment。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先读取 tray 的 flex-direction 与 align-items；本题只控制一个 item。",
     "align-self 沿同一条 cross axis 工作，不会改变 main axis。",

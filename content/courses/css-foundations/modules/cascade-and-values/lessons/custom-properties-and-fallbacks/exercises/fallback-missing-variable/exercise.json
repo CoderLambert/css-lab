@@ -6,7 +6,7 @@
   "title": "为缺失变量提供 fallback",
   "prompt": "--card-gap 没有定义。让 .card 使用 padding: var(--card-gap, 20px)，使 fallback 解析为 20px。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": ["var() 第二个参数是 substitution fallback。", "这里 referenced custom property 没有 usable value。", "使用 var(--card-gap, 20px)。"],
   "checks": [{"id":"fallback-padding","type":"style","selector":".card","property":"padding-top","equals":"20px","message":"缺失变量时 padding 应使用 20px fallback"}]
 }

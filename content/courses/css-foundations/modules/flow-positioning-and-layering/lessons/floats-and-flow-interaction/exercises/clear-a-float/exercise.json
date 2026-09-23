@@ -6,7 +6,7 @@
   "title": "清除 float 影响",
   "prompt": "让 .chapter-title 使用 clear: both，避免它与前方 float 在同一侧开始。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "clear 作用在需要避开 float 的后续 box 上，不是把 float 变成 absolute。",
     "题目要求避开左右两侧的 float，所以选择 both。",

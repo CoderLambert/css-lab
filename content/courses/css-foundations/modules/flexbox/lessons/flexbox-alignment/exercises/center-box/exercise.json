@@ -14,7 +14,7 @@
   ],
   "checks": [
     {
-      "id": "container-display-flex",
+      "id": "center-box-container-display-flex",
       "type": "style",
       "selector": ".container",
       "property": "display",

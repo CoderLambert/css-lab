@@ -6,7 +6,7 @@
   "title": "responsive Flex component",
   "prompt": "让 toolbar 使用可换行的 Flex layout 与 max-width constraint，先观察自然适应。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先让 toolbar 成为 Flex formatting context，再允许 items 在 available space 不足时换行。",
     "max-width: 100% 表达组件不能超过 containing block 的 inline size；它不负责决定每个 item 的宽度。",
@@ -14,7 +14,7 @@
   ],
   "checks": [
     {
-      "id": "toolbar-flex-context",
+      "id": "responsive-toolbar-flex-context",
       "type": "style",
       "selector": ".toolbar",
       "property": "display",
@@ -30,7 +30,7 @@
       "message": "让 toolbar 在空间不足时允许 items 换行"
     },
     {
-      "id": "toolbar-gap",
+      "id": "responsive-toolbar-gap",
       "type": "style",
       "selector": ".toolbar",
       "property": "gap",

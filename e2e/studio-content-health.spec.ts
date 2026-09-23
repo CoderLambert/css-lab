@@ -22,9 +22,15 @@ test("studio audits the full content tree and exposes published learner entries"
   await expect(page.getByText("盒模型与常规流")).toBeVisible();
 
   const learnerLinks = page.getByRole("link", { name: "打开 learner" });
-  await expect(learnerLinks).toHaveCount(3);
-  await expect(learnerLinks.first()).toHaveAttribute(
-    "href",
-    "/learn/css-foundations/flexbox/flexbox-alignment/center-box",
-  );
+  await expect(learnerLinks).toHaveCount(100);
+  await expect(
+    page.locator(
+      'a[href="/learn/css-foundations/box-model-and-flow/sizing-constraints-and-overflow/observe-intrinsic-content"]',
+    ),
+  ).toBeVisible();
+  await expect(
+    page.locator(
+      'a[href="/learn/css-foundations/integration-and-debugging/responsive-component-capstone/build-responsive-profile"]',
+    ),
+  ).toBeVisible();
 });

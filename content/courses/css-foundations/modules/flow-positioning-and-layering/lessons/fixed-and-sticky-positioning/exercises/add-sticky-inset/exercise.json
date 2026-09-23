@@ -6,7 +6,7 @@
   "title": "为 sticky 添加 inset",
   "prompt": "让 .toc 使用 position: sticky 和 top: 12px；真实滚动行为需要在足够长的 Preview 内容中观察。",
   "order": 2,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "sticky 先参与 normal flow，再在滚动到阈值时改变视觉关系。",
     "目标轴需要一个 inset；本题使用 top。",

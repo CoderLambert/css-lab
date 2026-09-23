@@ -6,7 +6,7 @@
   "title": "只匹配直接子元素",
   "prompt": "使用 child combinator，只让 .menu 的两个直接 .item 使用 italic；嵌套在 .submenu 里的 .item 必须保持 normal。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先画出一跳关系：哪些 .item 的 parent 就是 .menu？",
     "空格会匹配任意深度后代；这里需要限制为直接 child。",

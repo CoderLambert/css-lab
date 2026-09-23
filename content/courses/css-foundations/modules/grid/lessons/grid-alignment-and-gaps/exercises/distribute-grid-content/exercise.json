@@ -6,7 +6,7 @@
   "title": "分布 grid content",
   "prompt": "让 .board 使用 align-content: space-between 与 justify-content: center，分布未填满 container 的整个 Grid content。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "本题控制的是整个 grid content，不是单个 item 在 area 内的位置。",
     "container 要有额外空间，content alignment 才有可分配的空间。",

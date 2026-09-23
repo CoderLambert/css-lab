@@ -6,7 +6,7 @@
   "title": "选择 overflow 策略",
   "prompt": "对一个可能出现长内容的面板设置 overflow:auto，让内容可以在空间不足时被访问，而不是把 hidden 当成通用修复。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先问自己：空间不足时，内容应该消失、溢出，还是仍可访问？",
     "overflow 的值同时表达裁剪和滚动容器行为。",

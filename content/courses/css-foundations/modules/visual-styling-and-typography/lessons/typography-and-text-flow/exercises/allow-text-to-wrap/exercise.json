@@ -6,7 +6,7 @@
   "title": "让受限文本正常换行",
   "prompt": "让窄卡片中的长文本保留正常换行，并处理很长的连续 token；不要用固定 height 截断文字。",
   "order": 3,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先看限制来自哪里：nowrap 会禁止普通换行，连续 token 还可能没有自然断点。",
     "让普通空白重新成为换行机会，并为超长 token 选择可断开的策略。",

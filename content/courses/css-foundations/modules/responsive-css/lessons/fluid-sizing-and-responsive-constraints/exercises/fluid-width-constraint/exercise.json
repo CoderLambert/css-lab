@@ -6,7 +6,7 @@
   "title": "把 rigid width 变成 fluid constraint",
   "prompt": "为 .card 添加 max-width: 100%，让 authored width 不超过 containing block 的可用 inline size。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先保留 card 的 width 意图，再问 containing block 能否容纳它。",
     "max-width: 100% 把可用 inline size 变成一个上限。",

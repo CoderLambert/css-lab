@@ -53,4 +53,4 @@
   goal="定位被遮挡的 tooltip 所属 context，补齐合理的父级 layering 声明，而不是只把 z-index 改成更大的数字。"
 />
 
-当前 checker 可以检查 `position`、`z-index` 等声明，但不能可靠证明最终 paint order、occlusion 或 stacking-context escape behavior。三题的 checks 只验证明确的 declaration subset；Preview 观察和本课 mental model 才负责解释实际遮挡结果，因此本课保持 `NEEDS_CHECKER_CAPABILITY` draft。
+当前 checker 可以检查 `position`、`z-index` 等声明，但不能可靠证明最终 paint order、occlusion 或 stacking-context escape behavior。三题的 checks 只验证明确的 declaration subset；Preview 观察和本课 mental model 继续负责解释实际遮挡结果。

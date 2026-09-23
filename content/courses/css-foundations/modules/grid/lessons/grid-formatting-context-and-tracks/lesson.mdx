@@ -7,7 +7,7 @@ Flexbox 先沿一条轴处理项目；Grid 则先建立水平与垂直两组 tra
 
 固定 track（例如 `160px`）直接给出一个 sizing function；`fr` 是 flexible fraction，用于在固定/内容所需空间和 gutters 之后分配剩余空间。`1fr 2fr` 表达剩余空间的比例，不是两个永远等于 33%/67% 的百分比，也可能受到内容、最小尺寸和可用空间影响。
 
-本课只把 track definition 当作作者输入来观察。当前 preview checker 读取 computed/resolved style，而浏览器可能把 `repeat()`、`fr` 等 authored expression 序列化成逐条的 used pixel tracks，所以不能用 `equals: "1fr 2fr"` 假装证明作者语义。
+本课把 track definition 作为作者输入来检查。`rule-style` 读取 learner stylesheet 中匹配规则的 authored declaration，因此可以区分 `160px 1fr` 与 `1fr 1fr`；它仍不等于完整的 track sizing、内容溢出或最终几何证明，这些结果需要结合 Preview 观察。
 </Concept>
 
 <Predict

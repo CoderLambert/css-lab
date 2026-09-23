@@ -25,12 +25,12 @@
 />
 
 <Compare
-  leftTitle="manual viewport branches"
+  leftTitle="device-specific viewport branches"
   leftCode="390 / 768 / 1280 三套 layout"
   leftMeaning="把 observation presets 误当成 curriculum taxonomy，增加重复与 cascade 分支。"
   rightTitle="same implementation"
   rightCode="preview at 390, 768, 1280"
-  rightMeaning="观察同一份 CSS 在不同 available space 下的结果；当前产品不自动验收这些 outcome。"
+  rightMeaning="观察并验收同一份 CSS 在固定 available space 下的结果；不要把 presets 当成三套页面。"
 />
 
 ## 从局部策略走向综合组件
@@ -56,7 +56,7 @@
 <Exercise
   slug="integrate-responsive-component"
   label="综合 responsive component"
-  goal="综合 surface、typography、constraints、internal layout 与 selective adaptation，最后在多个 viewport 手动检查。"
+  goal="综合 surface、typography、constraints、internal layout 与 selective adaptation，再结合固定 viewport 检查与 Preview review。"
 />
 
-当前 checker 可以验证部分 surface、layout 与 constraint declarations，但不能证明多 viewport 的最终 geometry、wrapping、Grid tracks、breakpoint strategy 或多个等价实现之间的优劣。Preview 的 `390 / 768 / 1280` 只用于 observation；本课保持 `NEEDS_CHECKER_CAPABILITY` draft，不宣称完整 automated acceptance。
+checker 现在通过 `rule-style` 验证明确的 authored declaration，并通过 `viewport-style` 验证 390、768、1280 的指定 computed outcome。它仍不能证明任意连续 viewport 的最终 geometry、全部 wrapping/paint/scroll 行为、breakpoint 的内容理由或多个等价实现之间的优劣；这些部分继续由 Preview review 与诊断流程补充。

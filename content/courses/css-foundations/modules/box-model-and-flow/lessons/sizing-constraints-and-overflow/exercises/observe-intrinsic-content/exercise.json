@@ -6,11 +6,36 @@
   "title": "让内容参与尺寸决定",
   "prompt": "让 .label 依据内容形成 intrinsic inline size，并观察长内容与 containing context 的关系。不要把固定像素宽度当成 intrinsic sizing 的替代品。",
   "order": 1,
-  "status": "draft",
+  "status": "published",
   "hints": [
     "先区分 preferred size 与 content-derived intrinsic size。",
     "这次要让 box 的 inline size 贴近不换行内容，而不是给它一个任意固定宽度。",
     "对 .label 设置 width: max-content；Preview 中再把 containing context 改窄观察结果。"
   ],
-  "checks": []
+  "checks": [
+    {
+      "id": "label-display-inline-block",
+      "type": "rule-style",
+      "selector": ".label",
+      "property": "display",
+      "equals": "inline-block",
+      "message": "让 .label 以 inline-block 参与布局"
+    },
+    {
+      "id": "label-width-max-content",
+      "type": "rule-style",
+      "selector": ".label",
+      "property": "width",
+      "equals": "max-content",
+      "message": "用 max-content 让宽度依据内容决定"
+    },
+    {
+      "id": "label-white-space-nowrap",
+      "type": "rule-style",
+      "selector": ".label",
+      "property": "white-space",
+      "equals": "nowrap",
+      "message": "保持标签内容不换行"
+    }
+  ]
 }

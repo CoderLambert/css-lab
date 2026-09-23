@@ -74,9 +74,7 @@ export function createCssUpdateMessage(css: string): CssUpdateMessage {
   };
 }
 
-export function createCheckRunMessage(
-  request: CheckRequest,
-): CheckRunMessage {
+export function createCheckRunMessage(request: CheckRequest): CheckRunMessage {
   return {
     source: PREVIEW_MESSAGE_SOURCE.parent,
     type: PREVIEW_MESSAGE_TYPE.checkRun,
@@ -115,7 +113,13 @@ export function isPreviewReadyMessage(
 }
 
 function isCheckType(value: unknown): value is Check["type"] {
-  return value === "style" || value === "exists" || value === "count";
+  return (
+    value === "style" ||
+    value === "rule-style" ||
+    value === "viewport-style" ||
+    value === "exists" ||
+    value === "count"
+  );
 }
 
 function isCheckResultReason(value: unknown): value is CheckResultReason {
