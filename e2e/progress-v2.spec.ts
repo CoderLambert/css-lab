@@ -225,6 +225,96 @@ async function readProgressRecord(
   );
 }
 
+test("fresh database opens directly at v2 and persists the v2 draft shape", async ({
+  page,
+}) => {
+  await page.goto("/studio");
+
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const request = indexedDB.deleteDatabase("css-lab");
+
+        request.onerror = () => reject(request.error);
+        request.onblocked = () =>
+          reject(new Error("delete blocked"));
+        request.onsuccess = () => resolve();
+      }),
+  );
+
+  await page.goto(FIRST_EXERCISE_URL);
+  await expect(
+    page.getByRole("button", { name: "检查答案" }),
+  ).toBeEnabled();
+
+  const edited =
+    ".container { display: flex; gap: 29px; }";
+  await replaceEditorCss(page, edited);
+
+  await expect
+    .poll(() =>
+      readProgressRecord(page, FIRST_EXERCISE_ID),
+    )
+    .toMatchObject({
+      status: "started",
+      files: {
+        "style.css": edited,
+      },
+    });
+
+  const databaseState = await page.evaluate(
+    ({ exerciseId }) =>
+      new Promise<{
+        version: number;
+        stores: string[];
+        record: Record<string, unknown> | null;
+      }>((resolve, reject) => {
+        const request = indexedDB.open("css-lab");
+
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result;
+          const transaction = db.transaction(
+            "exercise-progress",
+            "readonly",
+          );
+          const getRequest = transaction
+            .objectStore("exercise-progress")
+            .get([exerciseId, 1]);
+
+          getRequest.onerror = () =>
+            reject(getRequest.error);
+          getRequest.onsuccess = () => {
+            resolve({
+              version: db.version,
+              stores: Array.from(db.objectStoreNames),
+              record:
+                (getRequest.result as
+                  | Record<string, unknown>
+                  | undefined) ?? null,
+            });
+            db.close();
+          };
+        };
+      }),
+    { exerciseId: FIRST_EXERCISE_ID },
+  );
+
+  expect(databaseState.version).toBe(2);
+  expect(databaseState.stores).toContain(
+    "exercise-progress",
+  );
+  expect(databaseState.record).toMatchObject({
+    exerciseId: FIRST_EXERCISE_ID,
+    revision: 1,
+    status: "started",
+    files: {
+      "style.css": edited,
+    },
+  });
+  expect(databaseState.record).not.toHaveProperty("code");
+});
+
 test("existing DB v2 data is read without rerunning the v1 mapping", async ({
   page,
 }) => {
