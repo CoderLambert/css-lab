@@ -70,8 +70,18 @@ function createPreviewBridgeScript({
     }
 
     if (isStyleCheck(value)) {
-      if (value.type === "rule-style" && value.media !== undefined && typeof value.media !== "string") {
-        return false;
+      if (value.type === "rule-style") {
+        if (value.media !== undefined && typeof value.media !== "string") {
+          return false;
+        }
+
+        if (
+          value.priority !== undefined &&
+          value.priority !== "normal" &&
+          value.priority !== "important"
+        ) {
+          return false;
+        }
       }
 
       return value.type !== "viewport-style" ||
@@ -92,7 +102,13 @@ function createPreviewBridgeScript({
         ...(Array.isArray(check.alsoAccepts) ? check.alsoAccepts : []),
       ];
 
-      return accepted.join(" / ");
+      const expectedValue = accepted.join(" / ");
+
+      if (check.type === "rule-style" && check.priority !== undefined) {
+        return expectedValue + " [priority: " + check.priority + "]";
+      }
+
+      return expectedValue;
     }
 
     if (check.type === "count" && Number.isInteger(check.equals)) {
@@ -163,7 +179,12 @@ function createPreviewBridgeScript({
     const styleElement = document.getElementById("user-css");
 
     if (!styleElement || !styleElement.sheet) {
-      return { selectorFound: false, propertyFound: false, actual: null };
+      return {
+        selectorFound: false,
+        propertyFound: false,
+        actual: null,
+        priority: null,
+      };
     }
 
     const matchingMedia = check.media === undefined
@@ -172,6 +193,7 @@ function createPreviewBridgeScript({
     let selectorFound = false;
     let propertyFound = false;
     let actual = null;
+    let priority = null;
 
     const inspectRules = (rules, insideMatchingMedia) => {
       for (const rule of Array.from(rules)) {
@@ -191,6 +213,10 @@ function createPreviewBridgeScript({
             if (value) {
               propertyFound = true;
               actual = value;
+              priority =
+                rule.style.getPropertyPriority(check.property) === "important"
+                  ? "important"
+                  : "normal";
             }
           }
 
@@ -213,7 +239,7 @@ function createPreviewBridgeScript({
 
     inspectRules(styleElement.sheet.cssRules, false);
 
-    return { selectorFound, propertyFound, actual };
+    return { selectorFound, propertyFound, actual, priority };
   };
 
   const escapeStyleClosingTagInProbe = (value) =>
@@ -394,12 +420,28 @@ function createPreviewBridgeScript({
         }
 
         const accepted = acceptedValuesFor(check);
+        const priorityMatches =
+          check.priority === undefined || result.priority === check.priority;
+        const expected =
+          accepted.join(" / ") +
+          (check.priority === undefined
+            ? ""
+            : " [priority: " + check.priority + "]");
+        const actual =
+          result.actual === null
+            ? null
+            : result.actual +
+              (check.priority === undefined
+                ? ""
+                : " [priority: " + result.priority + "]");
 
         return completedResult(
           check,
-          result.propertyFound && accepted.includes(result.actual),
-          accepted.join(" / "),
-          result.actual,
+          result.propertyFound &&
+            accepted.includes(result.actual) &&
+            priorityMatches,
+          expected,
+          actual,
         );
       }
 

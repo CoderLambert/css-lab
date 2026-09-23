@@ -19,7 +19,8 @@
       "selector": ".notice",
       "property": "color",
       "equals": "black",
-      "message": "保留 notice 的窄空间 baseline 颜色"
+      "message": "保留 notice 的窄空间 baseline 颜色",
+      "priority": "normal"
     },
     {
       "id": "notice-color-wide",
@@ -28,7 +29,8 @@
       "property": "color",
       "equals": "darkgreen",
       "media": "(min-width: 600px)",
-      "message": "在宽空间 media block 中声明 darkgreen"
+      "message": "在宽空间 media block 中声明 darkgreen",
+      "priority": "normal"
     },
     {
       "id": "notice-color-mobile",

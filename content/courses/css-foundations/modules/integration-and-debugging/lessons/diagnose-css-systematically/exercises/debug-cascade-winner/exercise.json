@@ -19,7 +19,8 @@
       "selector": ".card .status",
       "property": "color",
       "equals": "rgb(32, 42, 36)",
-      "message": "保留 baseline status 的 authored color"
+      "message": "保留 baseline status 的 authored color",
+      "priority": "normal"
     },
     {
       "id": "ready-status-rule",
@@ -27,7 +28,8 @@
       "selector": ".status.is-ready",
       "property": "color",
       "equals": "rgb(35, 116, 76)",
-      "message": "保留 ready-state authored color"
+      "message": "保留 ready-state authored color",
+      "priority": "normal"
     },
     {
       "id": "ready-status-color",

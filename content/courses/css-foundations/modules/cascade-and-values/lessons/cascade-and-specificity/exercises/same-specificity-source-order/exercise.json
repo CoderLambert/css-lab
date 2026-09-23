@@ -19,7 +19,8 @@
       "selector": ".status",
       "property": "text-transform",
       "equals": "uppercase",
-      "message": "写出较后的同 specificity .status rule"
+      "message": "写出较后的同 specificity .status rule",
+      "priority": "normal"
     },
     {
       "id": "status-uppercase",

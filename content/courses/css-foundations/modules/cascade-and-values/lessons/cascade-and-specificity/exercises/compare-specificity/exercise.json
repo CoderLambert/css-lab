@@ -19,7 +19,8 @@
       "selector": "#summary",
       "property": "font-weight",
       "equals": "700",
-      "message": "让高 specificity 的 #summary authored rule 使用 700"
+      "message": "让高 specificity 的 #summary authored rule 使用 700",
+      "priority": "normal"
     },
     {
       "id": "copy-baseline-rule",
@@ -27,7 +28,8 @@
       "selector": ".copy",
       "property": "font-weight",
       "equals": "400",
-      "message": "保留较后的 .copy baseline 为 400"
+      "message": "保留较后的 .copy baseline 为 400",
+      "priority": "normal"
     },
     {
       "id": "summary-bold",

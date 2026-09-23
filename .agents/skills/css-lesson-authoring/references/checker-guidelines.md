@@ -54,11 +54,12 @@ The current runtime reads learner CSS through CSSOM and compares:
 - `CSSStyleRule.selectorText` exactly
 - authored property value against `equals` / `alsoAccepts`
 - media condition after whitespace normalization when `media` is supplied
+- declaration priority when optional `priority: "normal" | "important"` is supplied
 
 Therefore `rule-style` does **not** prove:
 
 - selector-list or media-query semantic equivalence across different spellings/orderings
-- declaration priority such as `!important`
+- declaration priority when the check omits the optional `priority` field
 - final geometry, line formation, scrolling, or paint order
 - real pointer/keyboard modality
 
@@ -124,7 +125,7 @@ Before accepting a checker plan, ask whether an incorrect solution could still p
 - targeting fixture helper classes instead of the selector strategy being taught
 - deleting the declaration conflict that creates a cascade lesson
 - making competing declarations identical
-- adding `!important`
+- adding `!important` when a cascade exercise failed to assert `priority: "normal"`
 - writing an unrelated declaration that happens to produce the same fixture result
 
 Also ask whether a correct solution could be rejected because the checker requires one arbitrary selector/media/value spelling.
