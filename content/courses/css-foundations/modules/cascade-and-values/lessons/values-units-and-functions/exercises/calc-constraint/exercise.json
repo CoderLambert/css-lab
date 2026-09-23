@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.cascade-and-values.values-units-and-functions.calc-constraint.001",
+  "revision": 1,
+  "slug": "calc-constraint",
+  "title": "用 calc 组合 relative 与 absolute value",
+  "prompt": ".frame 宽 400px。让 .content 使用 calc(100% - 48px)，最终宽度为 352px。",
+  "order": 4,
+  "status": "draft",
+  "hints": [
+    "calc() 可以在兼容的 length-percentage context 中组合 % 与 px。",
+    "100% 在这里对应 frame 的 400px。",
+    "使用 width: calc(100% - 48px)。"
+  ],
+  "checks": [
+    {
+      "id": "content-width",
+      "type": "style",
+      "selector": ".content",
+      "property": "width",
+      "equals": "352px",
+      "message": "content 最终宽度应为 352px"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

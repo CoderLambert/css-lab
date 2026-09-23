@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.cascade-and-specificity",
+  "slug": "cascade-and-specificity",
+  "title": "候选声明如何决出胜者",
+  "description": "理解多个候选 declaration 如何通过 cascade、specificity 与 source order 决出同一 property 的 winning value。",
+  "estimatedMinutes": 18,
+  "order": 1,
+  "status": "draft"
+}

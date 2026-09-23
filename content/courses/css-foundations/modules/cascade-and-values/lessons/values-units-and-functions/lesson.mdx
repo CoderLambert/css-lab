@@ -1,0 +1,43 @@
+## 同一个数字，reference context 可能完全不同
+
+CSS declaration 里的 value 不是总能脱离 property 和上下文单独解释。`px` 是 absolute length；`em`、`rem`、percentage 等 relative value 必须先知道自己的 reference context，才能理解最终结果。
+
+<Concept title="Authored value 不等于最终观察到的 value">
+浏览器会经历 specified、computed、used 等 value processing 阶段。相对单位和 percentage 可能在不同阶段结合上下文被解析；`getComputedStyle()` 暴露的是 resolved value，而不是保证原样返回你写进 stylesheet 的 source spelling。
+
+因此 checker 看到 `32px`，不能反推 learner 一定写了 `32px`；它也可能来自 `2rem`、`calc()` 或其他等价表达。
+</Concept>
+
+<Predict
+  question="root font-size 为 16px，parent font-size 为 20px。child 的 font-size: 2rem 最直接参考哪个尺寸？"
+  options={["root element 的 font-size", "parent 的 font-size", "viewport width"]}
+  answer="root element 的 font-size"
+  explanation="rem length 以 root element 的 font-size 为 reference；不要把 rem 和 em 混为一谈。"
+/>
+
+## relative unit 的 reference 由 unit 和 property 共同决定
+
+<Compare
+  leftTitle="em"
+  leftCode="font-size: 1.5em"
+  leftMeaning="用于 font-size 时相对 parent 的 font-size；em 在其他 property 上的计算上下文也与当前元素 font-size 相关。"
+  rightTitle="rem"
+  rightCode="font-size: 1.5rem"
+  rightMeaning="相对 root element 的 font-size，不是相对直接 parent。"
+/>
+
+Percentage 更不能统一解释成“viewport 的百分比”。它的 reference 由具体 property 定义；例如本课只在明确尺寸上下文中观察 width percentage。
+
+`calc()` 可以组合兼容的 value，例如 `calc(100% - 24px)`。它不是把 CSS 变成任意数学语言；表达式仍必须产生该 property 接受的 value type。
+
+## 观察 reference context，而不是背最终 px
+
+<Exercise slug="compare-absolute-relative" label="对比 absolute 与 relative length" goal="在固定 root font-size 下让两个 box 得到相同最终宽度，但使用不同 authored units。" />
+
+<Exercise slug="rem-em-context" label="区分 rem 与 em" goal="在 parent font-size 改变时，让两个 child 分别展示 root-relative 与 parent-relative sizing。" />
+
+<Exercise slug="percentage-reference" label="追踪 percentage reference" goal="在固定 containing block 宽度下用 percentage 得到目标宽度。" />
+
+<Exercise slug="calc-constraint" label="用 calc 组合 reference" goal="从 containing block 的 100% 中减去固定空间得到目标宽度。" />
+
+本课 checker 只验证最终 resolved style。它不能证明 authored unit 或 `calc()` strategy，因此 prompt 明确约束练习意图；机器结果不能被宣传为 source-level 证明。

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.inheritance-and-defaults",
+  "slug": "inheritance-and-defaults",
+  "title": "没有声明时，值从哪里来",
+  "description": "理解 inherited 与 non-inherited property 在没有 cascaded value 时如何从 parent computed value 或 initial value 得到结果。",
+  "estimatedMinutes": 17,
+  "order": 2,
+  "status": "draft"
+}

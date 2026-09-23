@@ -1,0 +1,3 @@
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px; font-family: ui-sans-serif, system-ui, sans-serif; }
+.card { max-width: 420px; border: 1px solid #cbd8c8; }
