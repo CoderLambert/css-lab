@@ -1,0 +1,75 @@
+## “没有生效”是 pipeline 中的某一阶段出了问题
+
+CSS 的结果不是由某一条 declaration 单独决定的。先确认 selector 是否命中，再确认 cascade winner；即使 rule 成为 winner，浏览器还会把 source value 解析为 computed/used value，并把它交给当前 formatting context、sizing constraints、positioning context 或 viewport condition。调试时应沿着因果链缩小范围，而不是不断添加更大的 selector 或更大的 `z-index`。
+
+<Concept title="从 selector 到 environment 的 debugging pipeline">
+把“CSS 没生效”拆成七个可检查的阶段：
+
+1. selector 是否匹配了目标元素？
+2. 匹配的 declarations 中，哪条在 cascade 中胜出？要一起看 specificity、source order、inheritance 与重要性。
+3. 浏览器最终解析出了什么 value？`width: 100%`、`max-width`、字体度量或 shorthand 的结果不能只靠 source text 猜。
+4. 需要的 formatting context 是否真的建立？例如 Flex/Grid 规则要求对应的 container context；normal flow 也始终在工作。
+5. sizing、intrinsic size 或 overflow constraint 是否改变了可见结果？固定 width 可能超过 containing block，min/max 也可能限制它。
+6. 是否有 containing block、stacking context、scroll context 或 positioned ancestor 参与？声明存在不等于最终 paint/scroll outcome 已被证明。
+7. 是否有 media query 或其他 viewport/environment condition 控制这条规则？先确认条件，再判断命中的 cascade。
+
+这条顺序来自前面各 Module 的 mental model，也符合 MDN 的 CSS debugging guidance：先观察实际命中的规则和浏览器结果，再回到对应的 CSS 机制。它是迁移用的思考框架，不要求每次都机械打开同一组 DevTools 面板。
+</Concept>
+
+<Predict
+  question="一个 `.notice` 的文字保持默认颜色；你在 CSS 中看到一条想给它上色的 declaration。第一步应该先问什么？"
+  options={["selector 是否真的匹配 `.notice`", "先把 declaration 的 specificity 提高到最高", "先给元素加一个固定 position"]}
+  answer="selector 是否真的匹配 `.notice`"
+  explanation="如果 selector 没有命中，后续 cascade、resolved value 和 layout 分析都还没有目标。先确认匹配集合，再进入下一阶段。"
+/>
+
+<Predict
+  question="`.card` 已经建立了 `display: flex`，但 items 仍然像普通 block 一样上下排列。哪一项最值得先检查？"
+  options={["是否存在后面的 declaration 覆盖了 display，或实际 selector 没有命中", "直接把 children 改成 absolute positioning", "把所有 width 改成 100vw"]}
+  answer="是否存在后面的 declaration 覆盖了 display，或实际 selector 没有命中"
+  explanation="formatting context 只有在最终生效的 `display: flex` 上成立。先回到 selector/cascade，再判断 flex properties。"
+/>
+
+<Predict
+  question="一个 panel 在宽 viewport 看起来正常，在窄 containing block 中横向溢出。哪条 diagnosis branch 最直接？"
+  options={["sizing / intrinsic / overflow constraints", "只检查 `z-index` 是否足够大", "把所有 margin 改成负值"]}
+  answer="sizing / intrinsic / overflow constraints"
+  explanation="available space、authored width、min/max 与 overflow 会共同决定结果；这是约束问题，不是 stacking order 问题。"
+/>
+
+<Compare
+  leftTitle="按 pipeline 缩小范围"
+  leftCode="match → cascade → value → context → constraint → environment"
+  leftMeaning="每一步都用可观察的证据排除一个原因类别，再修改最小必要规则。"
+  rightTitle="反复堆叠 CSS"
+  rightCode=".card .thing { ... } !important"
+  rightMeaning="可能暂时改变结果，却遮蔽真正的 selector、cascade 或 containing-context 问题。"
+/>
+
+## 把诊断分支交给练习
+
+下面的 failure state 分别对应 pipeline 的不同阶段。每题的 checker 只确认最终的部分 CSS state；它不能证明你真的按哪条 diagnosis path 找到了答案，所以先写下你定位的阶段，再编辑 CSS。
+
+<Exercise
+  slug="debug-selector-match"
+  label="定位 selector match"
+  goal="确认 selector 命中目标 notice，并修复一个合理但没有匹配目标的规则。"
+/>
+
+<Exercise
+  slug="debug-cascade-winner"
+  label="诊断 cascade winner"
+  goal="在 equal-specificity 的 source-order 冲突中，让状态 rule 成为最终 winner。"
+/>
+
+<Exercise
+  slug="debug-formatting-context"
+  label="恢复 formatting context"
+  goal="确认布局 container 的最终 display，并恢复它所需的 Flex formatting context。"
+/>
+
+<Exercise
+  slug="debug-constraints-and-environment"
+  label="追踪 constraints 与 environment"
+  goal="修复 fixed sizing 造成的 overflow，并在 Preview 中观察 environment 条件仍需人工判断的部分。"
+/>

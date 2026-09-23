@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.grid.grid-formatting-context-and-tracks",
+  "slug": "grid-formatting-context-and-tracks",
+  "title": "Grid formatting context 与轨道",
+  "description": "理解 display:grid 如何建立二维 formatting context，并区分 track、grid line、explicit grid 与 fr flexible sizing。",
+  "estimatedMinutes": 20,
+  "order": 1,
+  "status": "draft"
+}

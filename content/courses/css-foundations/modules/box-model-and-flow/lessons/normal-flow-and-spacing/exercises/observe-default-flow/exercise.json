@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.box-model-and-flow.normal-flow-and-spacing.observe-default-flow.001",
+  "revision": 1,
+  "slug": "observe-default-flow",
+  "title": "观察默认 normal flow",
+  "prompt": "让两个内容块明确以 block box 参与 normal flow，并通过声明观察它们如何依次占据 block direction。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先确认题目只要求 normal flow，不要引入 Flexbox 或 Grid。",
+    "block-level box 会在 block direction 中依次参与普通流。",
+    "对 .card 设置 display: block。"
+  ],
+  "checks": [
+    {
+      "id": "block-participation",
+      "type": "style",
+      "selector": ".card:first-child",
+      "property": "display",
+      "equals": "block",
+      "message": "让第一个 .card 作为 block-level box 参与 normal flow"
+    },
+    {
+      "id": "block-participation-last",
+      "type": "style",
+      "selector": ".card:last-child",
+      "property": "display",
+      "equals": "block",
+      "message": "让第二个 .card 也作为 block-level box 参与 normal flow"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

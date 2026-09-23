@@ -1,0 +1,22 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.nav {
+  width: 360px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.nav a {
+  padding: 8px;
+  text-decoration: none;
+}

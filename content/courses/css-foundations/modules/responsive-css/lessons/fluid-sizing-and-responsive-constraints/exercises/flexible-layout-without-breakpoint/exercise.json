@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.responsive-css.fluid-sizing-and-responsive-constraints.flexible-layout-without-breakpoint.001",
+  "revision": 1,
+  "slug": "flexible-layout-without-breakpoint",
+  "title": "不用 breakpoint 的 flexible layout",
+  "prompt": "让 .cards 使用 display: flex、flex-wrap: wrap 与 gap: 12px，先依赖自然 flexibility 适应可用空间。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先建立 flex formatting context，再允许 items 在空间不足时换行。",
+    "gap 表达 gutter；本题不需要为每个 viewport 复制 layout。",
+    "设置 display: flex、flex-wrap: wrap 与 gap: 12px。"
+  ],
+  "checks": [
+    {
+      "id": "cards-flex-context",
+      "type": "style",
+      "selector": ".cards",
+      "property": "display",
+      "equals": "flex",
+      "message": "让 cards 建立 Flexbox formatting context"
+    },
+    {
+      "id": "cards-wrap",
+      "type": "style",
+      "selector": ".cards",
+      "property": "flex-wrap",
+      "equals": "wrap",
+      "message": "让 cards 在空间不足时允许 wrapping"
+    },
+    {
+      "id": "cards-gap",
+      "type": "style",
+      "selector": ".cards",
+      "property": "gap",
+      "equals": "12px",
+      "message": "让 cards 使用 12px gutter"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

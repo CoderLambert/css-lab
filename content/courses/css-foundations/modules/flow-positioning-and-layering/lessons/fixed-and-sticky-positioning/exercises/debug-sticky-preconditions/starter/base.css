@@ -1,0 +1,36 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.demo {
+  padding: 12px;
+}
+
+.rail {
+  width: 280px;
+  height: 180px;
+  border: 1px solid;
+}
+
+.sticky-card {
+  padding: 8px;
+  border-bottom: 1px solid;
+  background: white;
+}
+
+.rail-content {
+  min-height: 520px;
+  padding: 12px;
+}
+
+.rail-content p {
+  margin: 0 0 120px;
+}

@@ -1,0 +1,58 @@
+## 状态变化会改变 matched rule set
+
+交互状态不是一个永久写进 DOM 的 class。用户指针、键盘或其他输入改变当前状态时，元素可能开始或停止匹配某个 pseudo-class，于是 cascade 重新选择适用的声明。
+
+<Concept title="把 pseudo-class 当作当前状态的选择器">
+`:hover` 表示指针正在悬停等符合条件的状态；`:focus` 表示元素当前拥有 focus；`:focus-visible` 是 focus 的一个更有选择性的可见指示状态，浏览器会根据输入方式和用户代理判断决定何时需要明显提示。
+
+`:focus` 不等于“鼠标状态”，`:hover` 也不是一个要复制进 HTML 的 class。状态规则应当与默认样式一起设计：悬停可以改变 surface 或 border，focus indicator 则必须让键盘使用者能看见当前位置。
+
+不要无条件写 `outline: none`。如果要调整默认 focus ring，应在 `:focus-visible` 等状态中提供足够清晰的替代指示；颜色变化本身也不应是唯一的焦点线索。
+</Concept>
+
+<Predict
+  question="一个 button 通过键盘 Tab 获得焦点。哪条预测最可靠？"
+  options={["只有 :hover 会匹配，因为键盘没有指针", ":focus 会匹配，并且用户代理可能让 :focus-visible 也匹配", "pseudo-class 会创建一个新的 button DOM 节点"]}
+  answer=":focus 会匹配，并且用户代理可能让 :focus-visible 也匹配"
+  explanation="focus 描述当前焦点，focus-visible 让可见焦点提示可以根据输入方式和用户代理判断出现；它们都不会创建新 DOM。"
+/>
+
+<Compare
+  leftTitle=":hover"
+  leftCode=".action:hover { ... }"
+  leftMeaning="指针悬停时的状态；适合提供鼠标/指针反馈，但不能代替键盘 focus。"
+  rightTitle=":focus"
+  rightCode=".action:focus { ... }"
+  rightMeaning="元素当前拥有焦点；必须考虑键盘路径和可见指示。"
+/>
+
+<Compare
+  leftTitle=":focus"
+  leftCode="button:focus { outline: ... }"
+  leftMeaning="更宽地匹配当前 focus。"
+  rightTitle=":focus-visible"
+  rightCode="button:focus-visible { outline: ... }"
+  rightMeaning="在 focus 基础上使用用户代理的可见性判断，适合定制 focus indicator。"
+/>
+
+## 在 Preview 中观察状态，而不是伪造 checker 证明
+
+<Exercise
+  slug="hover-state-feedback"
+  label="为 hover 提供反馈"
+  goal="为 .action 设计 :hover 状态反馈，让指针悬停时表面和边框发生有意的视觉变化。"
+/>
+
+<Exercise
+  slug="focus-visible-indicator"
+  label="保留可见的键盘焦点"
+  goal="为 .action:focus-visible 设计清晰的 focus indicator；不要无条件删除 outline，也不要只依赖颜色变化。"
+/>
+
+<Exercise
+  slug="compare-focus-input"
+  label="比较 focus 与 focus-visible"
+  goal="为两个按钮分别提供 :focus 与 :focus-visible 规则，观察指针与键盘输入可能触发的差异。"
+/>
+
+本课 Exercise 保持 draft：当前 checker 不能主动 drive `:hover`、`:focus` 或 `:focus-visible`，也不能从一个静态 declaration check 诚实证明状态行为。因此这里不添加普通静态 property proxy；请通过 Preview 的真实指针与键盘操作观察结果。该 gap 记录为 `NEEDS_CHECKER_CAPABILITY`，留到最终集成阶段处理。

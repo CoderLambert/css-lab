@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flow-positioning-and-layering.floats-and-flow-interaction.wrap-text-around-float.001",
+  "revision": 1,
+  "slug": "wrap-text-around-float",
+  "title": "让文本环绕 float",
+  "prompt": "让 .photo 使用 float: left，使段落 inline content 在它右侧环绕。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "float 改变 box placement；它不是 position: absolute。",
+    "目标是让 photo 到左侧，让段落的 line boxes 为它让路。",
+    "对 .photo 设置 float: left，然后在 Preview 中观察文字环绕。"
+  ],
+  "checks": [
+    {
+      "id": "photo-float",
+      "type": "style",
+      "selector": ".photo",
+      "property": "float",
+      "equals": "left",
+      "message": "让 .photo 使用 float: left"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

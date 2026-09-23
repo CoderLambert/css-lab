@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.visual-styling-and-typography.interaction-states-and-focus",
+  "slug": "interaction-states-and-focus",
+  "title": "交互状态与可见焦点",
+  "description": "理解 :hover、:focus 与 :focus-visible 如何随当前交互状态匹配规则，并保留可见、可用的 focus indicator。",
+  "estimatedMinutes": 18,
+  "order": 3,
+  "status": "draft"
+}

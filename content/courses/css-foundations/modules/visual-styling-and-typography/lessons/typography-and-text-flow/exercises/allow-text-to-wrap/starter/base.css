@@ -1,0 +1,21 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.card {
+  width: 220px;
+  border: 1px solid;
+  padding: 16px;
+}
+
+.copy {
+  margin: 0;
+}

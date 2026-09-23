@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.cascade-and-values.inheritance-and-defaults.inherit-text-style.001",
+  "revision": 1,
+  "slug": "inherit-text-style",
+  "title": "让文字从 parent 继承样式",
+  "prompt": "只修改 .panel rule，把 font-style 设置为 italic。不要给 .message 单独写 font-style；让 .message 通过 inheritance 得到 italic。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先确认 font-style 是 inherited property。",
+    "目标是让 parent 拥有 winning declaration，然后让没有该 declaration 的 child 走 inheritance。",
+    "在 .panel 中设置 font-style: italic；不要给 .message 重复写同一个 declaration。"
+  ],
+  "checks": [
+    {
+      "id": "panel-italic",
+      "type": "style",
+      "selector": ".panel",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "parent .panel 应使用 italic"
+    },
+    {
+      "id": "message-inherits-italic",
+      "type": "style",
+      "selector": ".message",
+      "property": "font-style",
+      "equals": "italic",
+      "message": ".message 应从 parent 得到 italic"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

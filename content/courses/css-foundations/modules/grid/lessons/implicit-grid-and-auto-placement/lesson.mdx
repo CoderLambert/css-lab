@@ -1,0 +1,56 @@
+## 未指定项目也会进入一个算法
+
+Explicit grid 是由 `grid-template-columns` / `grid-template-rows` 明确声明的 tracks；但不是每个 item 都必须手写 placement。没有被显式放置的 items 会进入 Grid 的 auto-placement algorithm，浏览器按既定 flow direction 寻找可用位置。
+
+<Concept title="auto-placement 会扩展 implicit grid">
+当 auto-placement 需要的空间超出 explicit grid 时，Grid 可以创建 implicit tracks。它不是“随机自动布局”：auto-flow direction、已有 placement、dense 选项以及 `grid-auto-rows` / `grid-auto-columns` 等都参与这个过程。
+
+`grid-auto-flow: row` 与 `column` 改变算法优先填充的方向；`grid-auto-rows` 和 `grid-auto-columns` 为自动生成的 tracks 提供 sizing rule。不要把 implicit track 当成作者已经在 template 中写出的 explicit track，也不要从一次静态 declaration check 推断最终 item geometry 或 visual order。
+</Concept>
+
+<Predict
+  question="一个只有两条 explicit columns 的 grid 放入五个未指定 placement 的 items。最合理的预测是什么？"
+  options={["未指定 items 会进入 auto-placement，必要时可能生成 implicit rows", "浏览器会随机选择任意二维坐标", "所有 items 都会自动挤进第一条 track"]}
+  answer="未指定 items 会进入 auto-placement，必要时可能生成 implicit rows"
+  explanation="auto-placement 会按照 flow direction 依次寻找位置；空间不足时，implicit tracks 可以被创建。"
+/>
+
+<Compare
+  leftTitle="explicit grid"
+  leftCode="grid-template-rows: 80px 80px"
+  leftMeaning="由 template 明确声明的 tracks；它们属于作者定义的 explicit grid。"
+  rightTitle="implicit grid"
+  rightCode="grid-auto-rows: 72px"
+  rightMeaning="由 placement 需要自动生成的 tracks；其 sizing 可由 grid-auto-* 控制。"
+/>
+
+<Compare
+  leftTitle="auto-flow row"
+  leftCode="grid-auto-flow: row"
+  leftMeaning="auto-placement 优先沿 row direction 寻找位置。"
+  rightTitle="auto-flow column"
+  rightCode="grid-auto-flow: column"
+  rightMeaning="改变 auto-placement 的优先方向；不等于把 item 变成任意坐标。"
+/>
+
+## 用声明观察 auto-placement 前提
+
+<Exercise
+  slug="observe-auto-placement"
+  label="观察 auto-placement"
+  goal="让 .board 明确使用 grid-auto-flow: row，保留未指定 placement 的 items，并在 Preview 中观察算法结果。"
+/>
+
+<Exercise
+  slug="control-auto-flow"
+  label="控制 auto-flow 方向"
+  goal="把 .board 的 auto-placement direction 改为 column，观察 items 如何按另一方向尝试安置。"
+/>
+
+<Exercise
+  slug="create-implicit-tracks"
+  label="定义 implicit tracks 的尺寸"
+  goal="为自动生成的 rows 设置 grid-auto-rows: 72px，区分 implicit track sizing 与 explicit template。"
+/>
+
+当前 checker 可以检查 `grid-auto-flow`、`grid-auto-*` 等声明，但不能完整验证 auto-placement 的最终 item geometry、implicit track 数量或视觉顺序。因此本课只把 declaration subset 交给 checker，最终布局仍需 Preview 观察，不把静态声明说成算法行为证明。

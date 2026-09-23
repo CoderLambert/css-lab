@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.responsive-css.fluid-sizing-and-responsive-constraints.combine-width-constraints.001",
+  "revision": 1,
+  "slug": "combine-width-constraints",
+  "title": "组合 width 与 max-width",
+  "prompt": "保留 width: 100%，再用 max-width: 480px 表达组件的内容上限。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "width: 100% 跟随 containing block；max-width 再给它一个上限。",
+    "这两个 constraint 可以同时存在，不需要复制不同 viewport 的 width。",
+    "设置 width: 100% 与 max-width: 480px。"
+  ],
+  "checks": [
+    {
+      "id": "panel-fluid-width",
+      "type": "style",
+      "selector": ".panel",
+      "property": "width",
+      "equals": "100%",
+      "message": "让 panel 使用 width: 100% 跟随 containing block"
+    },
+    {
+      "id": "panel-content-cap",
+      "type": "style",
+      "selector": ".panel",
+      "property": "max-width",
+      "equals": "480px",
+      "message": "让 panel 使用 480px max-width 内容上限"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

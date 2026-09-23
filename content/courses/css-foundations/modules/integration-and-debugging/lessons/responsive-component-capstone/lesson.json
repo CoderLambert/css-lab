@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.integration-and-debugging.responsive-component-capstone",
+  "slug": "responsive-component-capstone",
+  "title": "responsive component capstone",
+  "description": "在固定 HTML 边界内综合 surface、typography、box、layout、responsive adaptation 与 debugging pass。",
+  "estimatedMinutes": 34,
+  "order": 2,
+  "status": "draft"
+}

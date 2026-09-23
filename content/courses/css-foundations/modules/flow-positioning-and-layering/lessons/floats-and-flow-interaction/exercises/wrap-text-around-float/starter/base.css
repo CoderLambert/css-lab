@@ -1,0 +1,31 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.story {
+  width: 340px;
+  padding: 16px;
+  border: 1px solid;
+  line-height: 1.5;
+}
+
+.photo {
+  width: 96px;
+  height: 72px;
+  margin: 0 12px 8px 0;
+  padding: 8px;
+  border: 1px solid;
+  background: white;
+}
+
+.story p {
+  margin: 0;
+}

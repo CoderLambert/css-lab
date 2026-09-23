@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.values-units-and-functions",
+  "slug": "values-units-and-functions",
+  "title": "值要结合上下文才能得到结果",
+  "description": "理解常用 CSS unit 的 reference context、calc() 组合，以及 authored value 与 computed/resolved result 的区别。",
+  "estimatedMinutes": 20,
+  "order": 3,
+  "status": "draft"
+}

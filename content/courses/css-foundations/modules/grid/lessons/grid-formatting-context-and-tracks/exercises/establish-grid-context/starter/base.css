@@ -1,0 +1,24 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.board {
+  width: 300px;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.cell {
+  min-height: 48px;
+  padding: 10px;
+  border: 1px solid;
+}

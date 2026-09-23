@@ -13,6 +13,7 @@ import {
   isDirectExecution,
   listExerciseRecords,
   listLessonRecords,
+  listModuleRecords,
   nextOrder,
   parseArgs,
   pathExists,
@@ -51,6 +52,71 @@ function optionalPositiveOrder(value, records, kind) {
   const order = positiveInteger(value, `${kind} order`);
   assertOrderAvailable(records, order, kind);
   return order;
+}
+
+export async function scaffoldModule({
+  repoRoot,
+  courseSlug,
+  slug,
+  id,
+  title,
+  description,
+  order: requestedOrder,
+}) {
+  assertSlug(courseSlug, "course slug");
+  assertSlug(slug, "module slug");
+  assertEntityId(id, "module id");
+
+  if (!title.trim()) {
+    throw new Error("Module title must not be empty.");
+  }
+  if (!description.trim()) {
+    throw new Error("Module description must not be empty.");
+  }
+
+  const paths = contentPaths(repoRoot, courseSlug, slug);
+  await readAndValidateRecord(
+    join(paths.courseRoot, "course.json"),
+    courseSlug,
+    "Course",
+  );
+
+  const modules = await listModuleRecords(repoRoot, courseSlug);
+  const order = optionalPositiveOrder(requestedOrder, modules, "Module");
+  await assertEntityIdAvailable(paths.coursesRoot, id);
+
+  const metadata = `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      id,
+      slug,
+      title: title.trim(),
+      description: description.trim(),
+      order,
+      status: "draft",
+    },
+    null,
+    2,
+  )}\n`;
+
+  await mkdir(join(paths.courseRoot, "modules"), { recursive: true });
+  await createDirectoryAtomicallyEnough(paths.moduleRoot, [
+    { path: "module.json", content: metadata },
+    { path: "lessons", directory: true },
+  ]);
+
+  return {
+    kind: "module",
+    path: paths.moduleRoot,
+    id,
+    slug,
+    order,
+    status: "draft",
+    next: [
+      "Scaffold lessons with the lesson subcommand.",
+      "Keep the module draft until curriculum review is complete.",
+    ],
+  };
 }
 
 export async function scaffoldLesson({
@@ -236,6 +302,20 @@ async function main() {
     ? resolve(String(options.root))
     : await findRepoRoot();
 
+  if (command === "module") {
+    const result = await scaffoldModule({
+      repoRoot,
+      courseSlug: requireOption(options, "course"),
+      slug: requireOption(options, "slug"),
+      id: requireOption(options, "id"),
+      title: requireOption(options, "title"),
+      description: requireOption(options, "description"),
+      order: typeof options.order === "string" ? options.order : undefined,
+    });
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
+
   if (command === "lesson") {
     const result = await scaffoldLesson({
       repoRoot,
@@ -279,6 +359,7 @@ async function main() {
   throw new Error(
     [
       "Usage:",
+      "  scaffold.mjs module --course <slug> --slug <slug> --id <stable-id> --title <title> --description <text> [--order <n>]",
       "  scaffold.mjs lesson --course <slug> --module <slug> --slug <slug> --id <stable-id> --title <title> --minutes <n> [--description <text>] [--order <n>]",
       "  scaffold.mjs exercise --course <slug> --module <slug> --lesson <slug> --slug <slug> --id <stable-id> --title <title> [--prompt <text>] [--revision <n>] [--order <n>]",
     ].join("\n"),

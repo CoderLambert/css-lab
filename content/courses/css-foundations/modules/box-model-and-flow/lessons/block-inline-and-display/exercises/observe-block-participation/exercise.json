@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.box-model-and-flow.block-inline-and-display.observe-block-participation.001",
+  "revision": 1,
+  "slug": "observe-block-participation",
+  "title": "切换为 block participation",
+  "prompt": "把 .notice 从 inline 改成 block。不要添加 Flexbox/Grid；本题只观察它作为 block-level box 参与 normal flow。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "问题在 outer participation，不需要引入新的 layout system。",
+    "目标是让 .notice 作为 block-level box 参与 flow。",
+    "设置 display: block。"
+  ],
+  "checks": [
+    {
+      "id": "block-display",
+      "type": "style",
+      "selector": ".notice",
+      "property": "display",
+      "equals": "block",
+      "message": "让 .notice 使用 block display"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

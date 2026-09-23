@@ -1,0 +1,56 @@
+## media query 是 conditional rule selection
+
+Media query 不会创造一个“手机模式”。它根据当前 environment condition 选择是否让某组 CSS rules 参与 cascade；命中之后，selector、specificity、source order 与其他 declarations 仍然决定最终 winner。
+
+<Concept title="breakpoint 来自内容/布局断裂">
+`min-width` 表达“当 available viewport width 至少达到某个条件时选择这组规则”，`max-width` 表达相反方向。数字应该来自 nav 是否放得下、cards 是否需要换行、文字 measure 是否失控等 content/layout need，而不是来自 iPhone、iPad、desktop 这样的设备品牌表。
+
+Mobile-first 是一种 source-order 策略：先写较窄空间也成立的 baseline，再用较宽条件的 query 增加或改变必要规则。它不等于把 390px 当作永远正确的 breakpoint，也不意味着 query 命中后 cascade 就停止。
+</Concept>
+
+<Predict
+  question="baseline 把 `.nav` 设为 block，后面有 `@media (min-width: 600px)` 将它设为 flex。viewport 宽度为 768px 时，应该先问什么？"
+  options={["条件是否命中，然后再按 cascade 判断 flex 是否成为 winner", "因为是 mobile-first，baseline 永远覆盖 query", "768px 代表 tablet，所以浏览器自动选择 flex"]}
+  answer="条件是否命中，然后再按 cascade 判断 flex 是否成为 winner"
+  explanation="media query 只是条件性地把 rule 放进 cascade；命中后仍要看 selector、specificity 和 source order。"
+/>
+
+<Compare
+  leftTitle="condition"
+  leftCode="@media (min-width: 600px)"
+  leftMeaning="environment condition；满足时，内部 rules 才参与当前 cascade。"
+  rightTitle="breakpoint reason"
+  rightCode="nav 内容开始互相挤压"
+  rightMeaning="由 layout/content failure 推导出的切换理由，不是某个设备名称。"
+/>
+
+<Compare
+  leftTitle="mobile-first baseline"
+  leftCode=".nav { display: block }"
+  leftMeaning="先让窄空间 baseline 成立，再选择性添加宽空间规则。"
+  rightTitle="source order"
+  rightCode="@media rule after baseline"
+  rightMeaning="query 命中仍要参与 cascade；后写不等于无条件赢，但要把关系读清楚。"
+/>
+
+## 用内容断裂而不是设备表设计条件
+
+<Exercise
+  slug="choose-content-breakpoint"
+  label="按内容选择 breakpoint"
+  goal="为 nav 设计一个由内容断裂驱动的 min-width 条件，并在 Preview presets 中观察 rule selection。"
+/>
+
+<Exercise
+  slug="mobile-first-override"
+  label="建立 mobile-first override"
+  goal="先写窄空间 baseline，再在较宽条件下选择性覆盖布局规则。"
+/>
+
+<Exercise
+  slug="debug-media-cascade"
+  label="诊断 media cascade"
+  goal="修复 media condition 与 source order 冲突，判断命中 rule 后仍由哪条 declaration 获胜。"
+/>
+
+当前 checker 没有 source-aware CSS 或 viewport-aware check request：它不能证明 learner 写了正确的 `@media` condition、breakpoint 是否由内容推导，也不能在 390/768/1280 独立验收每个 outcome。因此这三个 exercises 保留真实 narrative 与 Preview observation，checks 为空并保持 draft；不得把静态 default viewport 结果冒充 multi-viewport mastery。

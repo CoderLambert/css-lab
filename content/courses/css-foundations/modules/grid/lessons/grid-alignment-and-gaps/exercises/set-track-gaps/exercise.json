@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.grid.grid-alignment-and-gaps.set-track-gaps.001",
+  "revision": 1,
+  "slug": "set-track-gaps",
+  "title": "设置 track gaps",
+  "prompt": "用 gap: 16px 为 Grid tracks 建立统一 gutter，不把它误认为 item alignment。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "gap 直接表达相邻 tracks 之间的 gutter。",
+    "它不是 align-items，也不是 justify-content 的剩余空间分配。",
+    "对 .board 设置 gap: 16px。"
+  ],
+  "checks": [
+    {
+      "id": "board-gap",
+      "type": "style",
+      "selector": ".board",
+      "property": "gap",
+      "equals": "16px",
+      "message": "让 board 使用 gap: 16px"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

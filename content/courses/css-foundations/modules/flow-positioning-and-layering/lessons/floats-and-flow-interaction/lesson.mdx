@@ -1,0 +1,58 @@
+## float 改变 box placement，也改变文字可用的 line box
+
+`float` 是一种特定的 flow interaction mechanism：box 会向左或右移动，后续 inline content 的 line boxes 会避开它并在旁边环绕。它不是任意坐标定位，也不是现代整页布局的默认替代方案。
+
+<Concept title="float 与 clear 的短模型">
+浮动 box 不再按普通 block flow 的位置占据布局，但它仍会影响周围内容的排布；inline content 可以围绕 float，形成适合图片加说明文字的窄场景。`clear` 则要求元素避开指定一侧的 float，直到可以在其下方开始。
+
+因此看到文字环绕时，先问“哪一个 box 被 float 推到一侧，哪些 line boxes 为它让路”；看到标题落到图片下方时，再问是否需要 `clear`。这和 `position: absolute` 的 containing-block offset 不是同一套机制。
+
+现代页面的主要区域通常使用 Flexbox、Grid 或正常约束布局；本课只保留 float/clear 的 flow interaction 与历史背景，不重建 legacy float-based full-page layout 或 clearfix 框架。
+</Concept>
+
+<Predict
+  question="一个左浮动的图片旁边有一段足够长的普通文本。最合理的预测是什么？"
+  options={["文本的 inline line boxes 会在图片旁边环绕", "文本和图片都会离开文档并相对 viewport 定位", "文本会自动变成 Flexbox item"]}
+  answer="文本的 inline line boxes 会在图片旁边环绕"
+  explanation="float 改变 box placement，并让相邻 inline content 的 line boxes 避开浮动区域；它不会自动建立 Flexbox 或 absolute positioning。"
+/>
+
+<Compare
+  leftTitle="float"
+  leftCode="float: inline-start"
+  leftMeaning="改变 box 在 flow 中的放置，并让 inline content 围绕它。"
+  rightTitle="absolute"
+  rightCode="position: absolute"
+  rightMeaning="脱离 normal flow，offset 参照 containing block；不会提供 float 式的文字环绕语义。"
+/>
+
+<Compare
+  leftTitle="clear"
+  leftCode="clear: both"
+  leftMeaning="让该 box 避开两侧相关 float，再开始自己的 flow 位置。"
+  rightTitle="clearfix framework"
+  rightCode="overflow / generated content"
+  rightMeaning="是历史上处理容器包裹 float 的额外策略，不是本课必须背诵的布局体系。"
+/>
+
+## 在小场景中观察 float interaction
+
+<Exercise
+  slug="wrap-text-around-float"
+  label="让文本环绕 float"
+  goal="让 .photo 浮动到 inline-start，观察段落 line boxes 如何在它旁边排布。"
+/>
+
+<Exercise
+  slug="clear-a-float"
+  label="清除 float 影响"
+  goal="让 .chapter-title 使用 clear，观察标题如何避开前方 float，而不是用 absolute 坐标移动它。"
+/>
+
+<Exercise
+  slug="diagnose-float-flow"
+  label="诊断 float flow"
+  goal="修复一个由 float 声明造成的环绕问题，并用 Preview 观察文字与 box 的 flow interaction。"
+/>
+
+当前 checker 可以检查 `float` 与 `clear` 声明，但不能用固定几何结果证明文字最终环绕、父容器包裹高度或 clear 的实际视觉位置；这些结果保留给 Preview 观察。本课不扩展 checker 能力，也不把 float 当成整页 layout 方案。

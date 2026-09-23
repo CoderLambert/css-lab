@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.visual-styling-and-typography.typography-and-text-flow.allow-text-to-wrap.001",
+  "revision": 1,
+  "slug": "allow-text-to-wrap",
+  "title": "让受限文本正常换行",
+  "prompt": "让窄卡片中的长文本保留正常换行，并处理很长的连续 token；不要用固定 height 截断文字。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先看限制来自哪里：nowrap 会禁止普通换行，连续 token 还可能没有自然断点。",
+    "让普通空白重新成为换行机会，并为超长 token 选择可断开的策略。",
+    "对 .copy 设置 white-space: normal 和 overflow-wrap: anywhere。"
+  ],
+  "checks": [
+    {
+      "id": "normal-white-space",
+      "type": "style",
+      "selector": ".copy",
+      "property": "white-space",
+      "equals": "normal",
+      "message": "允许 .copy 按普通空白换行"
+    },
+    {
+      "id": "long-token-wrap",
+      "type": "style",
+      "selector": ".copy",
+      "property": "overflow-wrap",
+      "equals": "anywhere",
+      "message": "允许很长的连续 token 在需要时断开"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

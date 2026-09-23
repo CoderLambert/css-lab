@@ -1,0 +1,64 @@
+## 复杂 selector 在描述结构，不是在“加大力度”
+
+前一课里，selector 主要根据元素本身的 type、class 或 id 建立匹配集合。这一课再增加三个信息来源：**DOM 关系、HTML 属性和 sibling 位置**。
+
+<Concept title="关系、属性和位置都是匹配条件">
+复杂 selector 仍然只是在回答“哪些元素满足条件”。
+
+- descendant combinator（空格）允许目标出现在某个祖先内部的任意层级；
+- child combinator（`>`）只接受直接子元素；
+- attribute selector 根据元素是否具有某个属性，或属性是否具有指定值来匹配；
+- `:first-child`、`:nth-child()` 这样的 structural pseudo-class 根据元素在 sibling list 中的位置匹配。
+
+这些写法表达的是 DOM 事实，不是用来“提高 selector 强度”的技巧。
+</Concept>
+
+<Predict
+  question=".menu 里有一个直接 .item，还在 .submenu 里嵌套了另一个 .item。哪个 selector 只匹配直接 .item？"
+  options={[".menu > .item", ".menu .item"]}
+  answer=".menu > .item"
+  explanation="> 要求右侧元素是左侧元素的直接 child；空格只要求存在匹配的 ancestor，因此会包含更深层的后代。"
+/>
+
+## Descendant 和 child 的差异是一跳还是多跳
+
+<Compare
+  leftTitle="descendant combinator"
+  leftCode=".card .label"
+  leftMeaning="匹配 .card 内任意深度的 .label，只要祖先链上存在 .card。"
+  rightTitle="child combinator"
+  rightCode=".card > .label"
+  rightMeaning="只匹配 parent 直接是 .card 的 .label。"
+/>
+
+`[data-state="ready"]` 不需要先配合 class 或 id；属性本身就可以成为匹配条件。
+
+`:nth-child()` 也不要理解成“同一种 tag 的第 N 个”。它首先看元素在 sibling list 中的位置；只有该位置上的元素同时满足 selector 其他部分时才匹配。
+
+## 用真实 DOM 关系练习
+
+<Exercise
+  slug="direct-vs-descendant"
+  label="只匹配直接子元素"
+  goal="区分 descendant 与 child combinator，并排除更深层的同名目标。"
+/>
+
+<Exercise
+  slug="target-by-attribute"
+  label="按属性值匹配"
+  goal="直接用 attribute selector 建立匹配集合，不依赖额外 class。"
+/>
+
+<Exercise
+  slug="select-by-sibling-position"
+  label="按 sibling 位置匹配"
+  goal="用 :nth-child() 根据真实 sibling 位置命中目标，而不是按 tag 类型计数。"
+/>
+
+<Exercise
+  slug="repair-relationship-selector"
+  label="修复错误的关系假设"
+  goal="根据 fixture 的实际 DOM 层级，把错误的 direct-child 假设改成正确的关系 selector。"
+/>
+
+当前 checker 可以验证最终哪些元素得到指定 resolved style，也可以检查明确的非目标元素没有被影响；但它**不能证明 learner 写出的源码一定使用了要求的 combinator、attribute selector 或 pseudo-class**。因此本课不会把最终样式结果伪装成 source-aware validation。

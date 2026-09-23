@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.box-model-and-flow.box-model-and-box-sizing.build-the-box-layers.001",
+  "revision": 1,
+  "slug": "build-the-box-layers",
+  "title": "补全盒模型四层",
+  "prompt": "给 .card 设置 16px padding、4px solid border 和 12px margin。不要修改 width；观察 content、padding、border、margin 的层级关系。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先从 content box 向外数：第一层是 padding。",
+    "border 包住 content 与 padding；margin 在 border 外。",
+    "设置 padding: 16px、border: 4px solid、margin: 12px。"
+  ],
+  "checks": [
+    {
+      "id": "padding",
+      "type": "style",
+      "selector": ".card",
+      "property": "padding-top",
+      "equals": "16px",
+      "message": "给 .card 设置 16px padding"
+    },
+    {
+      "id": "border",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-top-width",
+      "equals": "4px",
+      "message": "给 .card 设置 4px border"
+    },
+    {
+      "id": "margin",
+      "type": "style",
+      "selector": ".card",
+      "property": "margin-top",
+      "equals": "12px",
+      "message": "给 .card 设置 12px margin"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,7 @@
+.card .status {
+  color: rgb(32, 42, 36);
+}
+
+.status.is-ready {
+  color: rgb(35, 116, 76);
+}

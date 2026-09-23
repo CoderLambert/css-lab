@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.flexbox.flex-wrapping-and-multiline-alignment",
+  "slug": "flex-wrapping-and-multiline-alignment",
+  "title": "Flex wrapping 与多行对齐",
+  "description": "理解 flex-wrap 如何创建多条 flex lines，并区分 item alignment、line alignment、gap 与 main-axis distribution。",
+  "estimatedMinutes": 20,
+  "order": 3,
+  "status": "draft"
+}

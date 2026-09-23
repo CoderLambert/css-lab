@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 1,
+  "purpose": "M6B Task 01 remote source freeze and forward-port inventory",
+  "sourceOfTruth": "GitHub remote",
+  "mainHead": "9762a9ed06aeeec296591f06d43ea517b79e77ad",
+  "curriculumSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+  "featureStartHead": "9762a9ed06aeeec296591f06d43ea517b79e77ad",
+  "sourceHeads": {
+    "migrationSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+    "frozenSourceHead": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+    "priorObservedSourceHead": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+    "intermediateObservedSourceHead": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+    "priorLatestObservedSourceHead": "2472e7fd4c7b5a7564feb4020f11329329f881a0",
+    "priorGridCorrectedSourceHead": "f3eb60f00a9e832c5097265c3b14b56d3f7e1526",
+    "priorResponsiveCorrectedSourceHead": "7c0b52acd51b4be4708d0fb82f6132e79f0b5d0b",
+    "priorEnvironmentCorrectedSourceHead": "2adc3daecebdcc6162dede5999dac2a457a04511",
+    "priorSelectorTypographyCorrectedSourceHead": "48978b2808f947d8215b161f49caf8942a8258a4",
+    "priorAuthoredValueCorrectedSourceHead": "7ba27cfbedf5c0257c81b7804573c8401d6634a7",
+    "priorFocusStateCorrectedSourceHead": "d91c7681a5ed599393a31f58ad81cf5c832c7e5c",
+    "priorClearAccessibilityCorrectedSourceHead": "46a0d15585c3c5c41761534d4c26735cd428c163",
+    "priorPartialReasoningCorrectedSourceHead": "77eb0c615f013548aaba3f350239d24ae8635ba0",
+    "priorAnswerLeakageCorrectedSourceHead": "8bfaed7251be79f437d1f888ee0448c84dcf673f",
+    "priorPriorityCorrectedSourceHead": "54a26dbbb41a26dfdeec23fb37c7f1b10b12e672",
+    "priorSourceOrderCorrectedSourceHead": "1b1a9785fa338b0c8fb08a5c6b670ecd9e70e894",
+    "latestObservedSourceHead": "e48f365cc6a6f0688916813cb4bc4a8c765b98c2",
+    "latestObservedCommit": "cssf(a): finalize latest curriculum audit evidence"
+  },
+  "sourceHeadRoles": {
+    "curriculumSourceHead": "historical frozen migration/planning input; not the latest observed source",
+    "priorObservedSourceHead": "first post-freeze source evidence, including the checker rollout; not the migration input",
+    "intermediateObservedSourceHead": "post-freeze source evidence after source-only authoring guidance/test corrections; not the migration input",
+    "priorLatestObservedSourceHead": "post-freeze source evidence after selected curriculum corrections; not the migration input",
+    "priorGridCorrectedSourceHead": "post-freeze source evidence after grid/constraint curriculum corrections; not the migration input",
+    "priorResponsiveCorrectedSourceHead": "post-freeze source evidence after responsive fixture corrections; not the migration input",
+    "priorEnvironmentCorrectedSourceHead": "post-freeze source evidence after selective-breakpoint/environment corrections; not the migration input",
+    "priorSelectorTypographyCorrectedSourceHead": "post-freeze source evidence after authored selector/typography corrections; not the migration input",
+    "priorAuthoredValueCorrectedSourceHead": "post-freeze source evidence after authored value/custom-property corrections; not the migration input",
+    "priorFocusStateCorrectedSourceHead": "post-freeze source evidence after focus-state corrections; not the migration input",
+    "priorClearAccessibilityCorrectedSourceHead": "post-freeze source evidence after clear/accessibility corrections; not the migration input",
+    "priorPartialReasoningCorrectedSourceHead": "post-freeze source evidence after partial reasoning/false-mastery corrections; not the migration input",
+    "priorAnswerLeakageCorrectedSourceHead": "post-freeze source evidence after further reasoning/answer-leakage corrections; not the migration input",
+    "priorPriorityCorrectedSourceHead": "post-freeze source evidence after optional rule-style priority corrections; not the migration input",
+    "priorSourceOrderCorrectedSourceHead": "post-freeze source evidence after optional rule-style source-order corrections and source-contract guard; not the migration input",
+    "latestObservedSourceHead": "current post-freeze source evidence after final curriculum audit/breakpoint corrections; not the migration input"
+  },
+  "postFreezeSourceDelta": {
+    "from": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+    "to": "e48f365cc6a6f0688916813cb4bc4a8c765b98c2",
+    "commits": 38,
+    "files": 216,
+    "fileCountNote": "range file counts are unique paths; segment file counts are not additive when later source commits modify a path already changed in an earlier segment",
+    "segments": {
+      "frozenToPriorObserved": {
+        "from": "70cb8dcfcbda6456b35f64826a7a634c071f6a8f",
+        "to": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+        "commits": 1,
+        "files": 160
+      },
+      "priorObservedToIntermediateObserved": {
+        "from": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+        "to": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+        "commits": 2,
+        "files": 3,
+        "paths": [
+          "AGENTS.md",
+          ".agents/skills/css-lesson-authoring/references/checker-guidelines.md",
+          ".agents/skills/css-lesson-authoring/scripts/authoring-skill.test.mjs"
+        ],
+        "disposition": "source-branch authoring guidance/test correction reviewed but not ported into M6B"
+      },
+      "intermediateToPriorLatestObserved": {
+        "from": "70266f67319a1cb7ed4400b8f0db64cb725ab0e",
+        "to": "2472e7fd4c7b5a7564feb4020f11329329f881a0",
+        "commits": 4,
+        "files": 12,
+        "issuesAddressedInSource": [8, 10, 23, 26],
+        "disposition": "source-branch curriculum corrections reviewed; those findings were subsequently closed on the source branch, but changes are not ported into M6B"
+      },
+      "priorLatestToLatestObserved": {
+        "from": "2472e7fd4c7b5a7564feb4020f11329329f881a0",
+        "to": "f3eb60f00a9e832c5097265c3b14b56d3f7e1526",
+        "commits": 2,
+        "files": 12,
+        "issuesAddressedInSource": [16, 28],
+        "disposition": "source-branch curriculum corrections reviewed; those findings were subsequently closed on the source branch, but changes are not ported into M6B"
+      },
+      "priorGridCorrectedToPriorResponsiveObserved": {
+        "from": "f3eb60f00a9e832c5097265c3b14b56d3f7e1526",
+        "to": "7c0b52acd51b4be4708d0fb82f6132e79f0b5d0b",
+        "commits": 1,
+        "files": 8,
+        "issuesAddressedInSource": [20],
+        "disposition": "source-branch responsive fixture correction reviewed; issue remains open and changes are not ported into M6B"
+      },
+      "priorResponsiveObservedToLatestObserved": {
+        "from": "7c0b52acd51b4be4708d0fb82f6132e79f0b5d0b",
+        "to": "2adc3daecebdcc6162dede5999dac2a457a04511",
+        "commits": 2,
+        "files": 8,
+        "issuesAddressedInSource": [22, 27],
+        "disposition": "source-branch responsive/environment corrections reviewed; source-only checker addition remains deferred and changes are not ported into M6B"
+      },
+      "environmentObservedToLatestObserved": {
+        "from": "2adc3daecebdcc6162dede5999dac2a457a04511",
+        "to": "48978b2808f947d8215b161f49caf8942a8258a4",
+        "commits": 3,
+        "files": 12,
+        "issuesAddressedInSource": [9, 15],
+        "addedUnsupportedCheckerExercises": 9,
+        "disposition": "source-branch selector/typography corrections reviewed; authored-check rollout remains deferred and changes are not ported into M6B"
+      },
+      "selectorTypographyObservedToLatestObserved": {
+        "from": "48978b2808f947d8215b161f49caf8942a8258a4",
+        "to": "7ba27cfbedf5c0257c81b7804573c8401d6634a7",
+        "commits": 2,
+        "files": 9,
+        "issuesAddressedInSource": [14],
+        "addedUnsupportedCheckerExercises": 7,
+        "disposition": "source-branch authored-value/custom-property corrections reviewed; authored-check rollout remains deferred and changes are not ported into M6B"
+      },
+      "authoredValueObservedToLatestObserved": {
+        "from": "7ba27cfbedf5c0257c81b7804573c8401d6634a7",
+        "to": "d91c7681a5ed599393a31f58ad81cf5c832c7e5c",
+        "commits": 1,
+        "files": 5,
+        "issuesAddressedInSource": [18],
+        "addedUnsupportedCheckerExercises": 0,
+        "disposition": "source-branch focus-state/pseudo-state wording correction reviewed; changes are not ported into M6B"
+      },
+      "focusStateObservedToLatestObserved": {
+        "from": "d91c7681a5ed599393a31f58ad81cf5c832c7e5c",
+        "to": "46a0d15585c3c5c41761534d4c26735cd428c163",
+        "commits": 2,
+        "files": 4,
+        "issuesAddressedInSource": [25, 30],
+        "addedUnsupportedCheckerExercises": 0,
+        "disposition": "source-branch clear/accessibility corrections reviewed; changes are not ported into M6B"
+      },
+      "clearAccessibilityObservedToLatestObserved": {
+        "from": "46a0d15585c3c5c41761534d4c26735cd428c163",
+        "to": "77eb0c615f013548aaba3f350239d24ae8635ba0",
+        "commits": 5,
+        "files": 17,
+        "issuesAddressedInSource": [7],
+        "addedUnsupportedCheckerExercises": 3,
+        "disposition": "source-branch partial false-mastery corrections reviewed; #7 remains open and none of these changes are ported into M6B"
+      },
+      "partialReasoningObservedToLatestObserved": {
+        "from": "77eb0c615f013548aaba3f350239d24ae8635ba0",
+        "to": "8bfaed7251be79f437d1f888ee0448c84dcf673f",
+        "commits": 3,
+        "files": 11,
+        "issuesAddressedInSource": [7],
+        "addedUnsupportedCheckerExercises": 0,
+        "disposition": "source-branch further answer-leakage/transfer corrections reviewed; #7 remains open and none of these changes are ported into M6B"
+      },
+      "answerLeakageObservedToLatestObserved": {
+        "from": "8bfaed7251be79f437d1f888ee0448c84dcf673f",
+        "to": "54a26dbbb41a26dfdeec23fb37c7f1b10b12e672",
+        "commits": 5,
+        "files": 18,
+        "issuesAddressedInSource": [7, 31],
+        "addedUnsupportedCheckerExercises": 2,
+        "addedCheckerCapability": "source-only optional rule-style priority validation",
+        "disposition": "source-branch cascade/progression/mobile-first corrections and source report refresh reviewed; source-only checker/runtime/schema capability remains denied and no changes are ported into M6B"
+      },
+      "priorityObservedToLatestObserved": {
+        "from": "54a26dbbb41a26dfdeec23fb37c7f1b10b12e672",
+        "to": "1b1a9785fa338b0c8fb08a5c6b670ecd9e70e894",
+        "commits": 2,
+        "files": 6,
+        "issuesAddressedInSource": [7, 29],
+        "addedUnsupportedCheckerExercises": 0,
+        "addedCheckerCapability": "source-only optional rule-style afterSelector source-order validation plus source-contract guard",
+        "disposition": "source-only checker/runtime/schema/guidance/test extension reviewed and denied for M6B"
+      },
+      "sourceOrderObservedToLatestObserved": {
+        "from": "1b1a9785fa338b0c8fb08a5c6b670ecd9e70e894",
+        "to": "e48f365cc6a6f0688916813cb4bc4a8c765b98c2",
+        "commits": 3,
+        "files": 3,
+        "issuesAddressedInSource": [7, 31],
+        "addedUnsupportedCheckerExercises": 0,
+        "disposition": "source-branch breakpoint-space and final-audit evidence refresh reviewed; source report remains source-lineage evidence only"
+      }
+    },
+    "frozenToPriorObservedComposition": {
+      "exerciseJson": 100,
+      "lessonFiles": 42,
+      "legacyRuntimeSchema": 3,
+      "e2e": 2,
+      "auditReport": 1,
+      "moduleAssetsOther": 12
+    },
+    "priorObservedToIntermediateObservedComposition": {
+      "files": 3,
+      "paths": [
+        "AGENTS.md",
+        ".agents/skills/css-lesson-authoring/references/checker-guidelines.md",
+        ".agents/skills/css-lesson-authoring/scripts/authoring-skill.test.mjs"
+      ]
+    },
+    "intermediateToPriorLatestObservedComposition": {
+      "files": 12,
+      "issuesAddressedInSource": [8, 10, 23, 26]
+    },
+    "priorLatestToLatestObservedComposition": {
+      "files": 12,
+      "issuesAddressedInSource": [16, 28]
+    },
+    "priorGridCorrectedToPriorResponsiveObservedComposition": {
+      "files": 8,
+      "issuesAddressedInSource": [20]
+    },
+    "priorResponsiveObservedToLatestObservedComposition": {
+      "files": 8,
+      "issuesAddressedInSource": [22, 27],
+      "sourceOnlyUnsupportedCheckerExercise": "debug-constraints-and-environment"
+    },
+    "environmentObservedToLatestObservedComposition": {
+      "files": 12,
+      "issuesAddressedInSource": [9, 15],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 9
+    },
+    "selectorTypographyObservedToLatestObservedComposition": {
+      "files": 9,
+      "issuesAddressedInSource": [14],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 7
+    },
+    "authoredValueObservedToLatestObservedComposition": {
+      "files": 5,
+      "issuesAddressedInSource": [18],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 0
+    },
+    "focusStateObservedToLatestObservedComposition": {
+      "files": 4,
+      "issuesAddressedInSource": [25, 30],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 0
+    },
+    "clearAccessibilityObservedToLatestObservedComposition": {
+      "files": 17,
+      "issuesAddressedInSource": [7],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 3
+    },
+    "partialReasoningObservedToLatestObservedComposition": {
+      "files": 11,
+      "issuesAddressedInSource": [7],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 0
+    },
+    "answerLeakageObservedToLatestObservedComposition": {
+      "files": 18,
+      "issuesAddressedInSource": [7, 31],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 2,
+      "addedCheckerCapability": "optional rule-style priority validation"
+    },
+    "priorityObservedToLatestObservedComposition": {
+      "files": 6,
+      "issuesAddressedInSource": [7, 29],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 0,
+      "addedCheckerCapability": "optional rule-style afterSelector source-order validation"
+    },
+    "sourceOrderObservedToLatestObservedComposition": {
+      "files": 3,
+      "issuesAddressedInSource": [7, 31],
+      "sourceOnlyUnsupportedCheckerExercisesAdded": 0
+    },
+    "publicationSweep": {
+      "modules": 8,
+      "lessons": 31,
+      "exercises": 97,
+      "publicationOnlyFiles": 116,
+      "publicationOnlyBreakdown": {
+        "exerciseJson": 77,
+        "lessonJson": 31,
+        "moduleJson": 8
+      }
+    },
+    "unsupportedCheckerRollout": {
+      "exerciseCount": 13,
+      "types": ["rule-style", "viewport-style"],
+      "m6bWarningCode": "exercise-without-checks",
+      "m6bWarningCount": 13,
+      "setEquality": "exact",
+      "sourceOnly": 0,
+      "warningOnly": 0
+    },
+    "latestObservedUnsupportedCheckerRollout": {
+      "baselineSourceHead": "e48ba8781ed78e37ca0af77cea75e324cd4c24e4",
+      "latestObservedSourceHead": "e48f365cc6a6f0688916813cb4bc4a8c765b98c2",
+      "exerciseCount": 34,
+      "unsupportedCheckRecordCount": 95,
+      "types": ["rule-style", "viewport-style"],
+      "m6bWarningCode": "exercise-without-checks",
+      "m6bWarningCount": 13,
+      "sourceOnly": 21,
+      "warningOnly": 0,
+      "sourceOnlyExercises": [
+        "repair-a-missed-selector",
+        "target-by-class",
+        "target-by-type",
+        "direct-vs-descendant",
+        "repair-relationship-selector",
+        "select-by-sibling-position",
+        "target-by-attribute",
+        "debug-constraints-and-environment",
+        "inherit-text-styles",
+        "define-and-use",
+        "fallback-missing-variable",
+        "scoped-override",
+        "calc-constraint",
+        "compare-absolute-relative",
+        "percentage-reference",
+        "rem-em-context",
+        "compare-specificity",
+        "same-specificity-source-order",
+        "debug-cascade-winner",
+        "debug-selector-match",
+        "responsive-grid-section"
+      ],
+      "resolution": "latest source-only checker rollout, optional rule-style priority, and optional afterSelector capability remain deferred; M6B keeps the 13-warning intentional release boundary and does not expand the checker DSL"
+    },
+    "legacyRuntimeSchemaDisposition": "denied; do not import legacy preview-document.ts, preview-messages.ts, or v1 exercise schema",
+    "resolution": "defer unsupported checker/publication/narrative/priority rollout to the Post-M6B capability roadmap; do not port source-only authoring guidance or legacy runtime/schema changes into the current M6B contract"
+  },
+  "curriculumAuditCrossCheck": {
+    "sourcePromotedExercisesWithOpenIssuesAtLatestRead": 0,
+    "sourcePromotedExercisesWithOpenIssuesAtLatestReadNote": "at the latest issue read, exercise-specific source audit issues including #7 were closed; #29 remains open as a cross-branch checker-contract issue and #31 was re-closed after the source report was refreshed for the latest audit lineage",
+    "sourcePromotedExercisesWithOpenIssuesAtInitialReconciliationAtLeast": 30,
+    "initialIssueNumbers": [7, 8, 9, 10, 14, 15, 16, 18, 20, 22, 25, 26, 27, 28, 30],
+    "reportEvidenceIssue": 31,
+    "preExistingDraftDebtNotSourceDelta": 23,
+    "sourceContractDriftIssue": 29,
+    "latestSourceCorrectionIssues": [7, 8, 9, 10, 14, 15, 16, 18, 20, 22, 23, 25, 26, 27, 28, 30],
+    "historicalOpenPromotedExerciseCountAtInitialReconciliation": 30,
+    "currentOpenPromotedExerciseCountAtLatestIssueRead": 0,
+    "currentOpenPromotedExerciseIssueNumbers": []
+  },
+  "compare": {
+    "status": "diverged",
+    "aheadBy": 72,
+    "behindBy": 36,
+    "mergeBase": "7252b93505427582c6483edb910a5051bdd30fe3"
+  },
+  "treeInventory": {
+    "main": {
+      "modules": 1,
+      "lessons": 1,
+      "exercises": 3,
+      "legacyExerciseAssets": {
+        "fixtureHtml": 0,
+        "baseCss": 0,
+        "starterCss": 0,
+        "solutionCss": 0
+      },
+      "v2ExerciseAssets": {
+        "starterIndexHtml": 3,
+        "starterBaseCss": 3,
+        "starterStyleCss": 3,
+        "solutionStyleCss": 3
+      }
+    },
+    "curriculumSource": {
+      "modules": 9,
+      "lessons": 32,
+      "exercises": 100,
+      "legacyExerciseAssets": {
+        "fixtureHtml": 100,
+        "baseCss": 100,
+        "starterCss": 100,
+        "solutionCss": 100
+      },
+      "v2ExerciseAssets": {
+        "starterIndexHtml": 0,
+        "starterBaseCss": 0,
+        "starterStyleCss": 0,
+        "solutionStyleCss": 0
+      }
+    }
+  },
+  "sourceAuditReport": {
+    "lessons": {
+      "published": 1,
+      "draft": 31
+    },
+    "exercises": {
+      "published": 3,
+      "draft": 97
+    },
+    "implementationFit": {
+      "READY": 14,
+      "TEACHABLE_BUT_CHECKER_LIMITED": 10,
+      "NEEDS_CHECKER_CAPABILITY": 8
+    },
+    "fullE2E": "NOT_PASS — source Task 13 records environment failure and explicitly withholds publication-ready"
+  },
+  "latestObservedSourceReport": {
+    "head": "e48f365cc6a6f0688916813cb4bc4a8c765b98c2",
+    "reportRecordedHeadBeforeItsWrite": "b78a949aa24a9d2acf4990d8a850a5dbda6e32f9",
+    "lessons": {
+      "published": 32,
+      "draft": 0
+    },
+    "exercises": {
+      "published": 100,
+      "draft": 0
+    },
+    "disposition": "source report refreshed at the latest source audit commit and claims curriculum-audited/source-report-ready only for its own v1 lineage; M6B does not adopt its publication or sign-off state"
+  },
+  "overlap": [
+    {
+      "kind": "course",
+      "id": "css-foundations",
+      "slug": "css-foundations"
+    },
+    {
+      "kind": "module",
+      "id": "css.flexbox",
+      "slug": "flexbox",
+      "mainOrder": 1,
+      "sourceOrder": 5
+    },
+    {
+      "kind": "lesson",
+      "id": "css.flexbox.alignment",
+      "slug": "flexbox-alignment",
+      "mainOrder": 1,
+      "sourceOrder": 2
+    },
+    {
+      "kind": "exercise",
+      "id": "css.flexbox.alignment.center-box.001",
+      "slug": "center-box",
+      "mainRevision": 1,
+      "sourceRevision": 1,
+      "reconciliation": "Task 04"
+    },
+    {
+      "kind": "exercise",
+      "id": "css.flexbox.alignment.space-between-items.001",
+      "slug": "space-between-items",
+      "mainRevision": 1,
+      "sourceRevision": 1,
+      "reconciliation": "Task 04"
+    },
+    {
+      "kind": "exercise",
+      "id": "css.flexbox.alignment.align-items-end.001",
+      "slug": "align-items-end",
+      "mainRevision": 1,
+      "sourceRevision": 2,
+      "reconciliation": "Task 04"
+    }
+  ],
+  "allowlist": [
+    "new module metadata",
+    "new lesson metadata and lesson.mdx",
+    "new exercise teaching metadata",
+    "legacy authored assets mapped offline to v2 starter/solution paths",
+    "CSS Foundations v1 planning/final-audit docs",
+    "module scaffold and module/lesson reorder logic after v2 review"
+  ],
+  "denylist": [
+    "production legacy Exercise schema",
+    "production v1/v2 dual reader or writer",
+    "legacy ContentReader/learner runtime",
+    "legacy v1 exercise templates",
+    "legacy generated registry",
+    "old AGENTS.md full-file replacement",
+    "old M6A docs replacement",
+    "runtime fixtureHtml/baseCss/starterCss aliases"
+  ],
+  "repeatability": "Run `pnpm content:migrate:v1-to-v2 -- --source-root <legacy-css-foundations-root> --target-root <current-css-foundations-root> --dry-run` to emit stable-id/slug/order/status/revision/check-count/source-hash inventory. Default overlap policy is reject; Task 03 may explicitly skip the frozen Task 04 overlap set."
+}

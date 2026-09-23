@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.cascade-and-values.values-units-and-functions.compare-absolute-relative.001",
+  "revision": 1,
+  "slug": "compare-absolute-relative",
+  "title": "对比 absolute 与 relative length",
+  "prompt": "root font-size 已固定为 16px。让 .absolute 用 32px，让 .relative 用 2rem；两者最终宽度都应为 32px。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "px 是 absolute length。",
+    "rem 参考 root element 的 font-size。",
+    "设置 width: 32px 与 width: 2rem。"
+  ],
+  "checks": [
+    {
+      "id": "absolute-width",
+      "type": "style",
+      "selector": ".absolute",
+      "property": "width",
+      "equals": "32px",
+      "message": "absolute box 最终宽度应为 32px"
+    },
+    {
+      "id": "relative-width",
+      "type": "style",
+      "selector": ".relative",
+      "property": "width",
+      "equals": "32px",
+      "message": "relative box 最终宽度应为 32px"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

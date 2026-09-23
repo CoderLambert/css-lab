@@ -1,0 +1,21 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.panel {
+  max-width: 420px;
+  padding: 20px;
+}
+
+.child {
+  margin: 12px 0 0;
+  padding: 12px;
+}

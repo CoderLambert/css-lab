@@ -1,0 +1,21 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.panel {
+  width: 280px;
+  border: 1px solid;
+}
+
+.heading {
+  margin-block-start: 24px;
+  margin-block-end: 12px;
+}

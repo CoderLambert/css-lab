@@ -1,0 +1,20 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.jobs {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.jobs li + li {
+  margin-top: 8px;
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.cascade-and-values.values-units-and-functions.rem-em-context.001",
+  "revision": 1,
+  "slug": "rem-em-context",
+  "title": "区分 rem 与 em 的 reference",
+  "prompt": "root 是 16px，.parent 是 20px。让 .root-relative 使用 2rem 得到 32px font-size；让 .parent-relative 使用 2em 得到 40px font-size。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "rem 看 root font-size。",
+    "child 的 font-size 使用 em 时参考 parent font-size。",
+    "分别设置 2rem 与 2em。"
+  ],
+  "checks": [
+    {
+      "id": "rem-size",
+      "type": "style",
+      "selector": ".root-relative",
+      "property": "font-size",
+      "equals": "32px",
+      "message": "2rem 应解析为 32px"
+    },
+    {
+      "id": "em-size",
+      "type": "style",
+      "selector": ".parent-relative",
+      "property": "font-size",
+      "equals": "40px",
+      "message": "2em 应在此上下文解析为 40px"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,11 @@
+.list {
+  --space: 12px;
+}
+
+.item {
+  padding: var(--space);
+}
+
+.compact {
+
+}

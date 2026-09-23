@@ -1,0 +1,13 @@
+.shell {
+  position: relative;
+}
+
+.panel {
+  position: static;
+}
+
+.tooltip {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}

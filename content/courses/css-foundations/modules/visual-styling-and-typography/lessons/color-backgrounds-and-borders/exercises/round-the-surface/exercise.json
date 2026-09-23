@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "id": "css.visual-styling-and-typography.color-backgrounds-and-borders.round-the-surface.001",
+  "revision": 1,
+  "slug": "round-the-surface",
+  "title": "给表面加入圆角",
+  "prompt": "为 .card 设置 12px border-radius，让背景与边框的角落形成圆角表面。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "这题改变的是 border box 的角落形状，不是 display 或布局方向。",
+    "border-radius 可以让背景和边框的角落沿曲线绘制。",
+    "对 .card 设置 border-radius: 12px。"
+  ],
+  "checks": [
+    {
+      "id": "rounded-corner",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-top-left-radius",
+      "equals": "12px",
+      "message": "让 .card 的角落使用 12px 圆角"
+    },
+    {
+      "id": "rounded-top-right",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-top-right-radius",
+      "equals": "12px",
+      "message": "让 .card 的右上角使用 12px 圆角"
+    },
+    {
+      "id": "rounded-bottom-right",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-bottom-right-radius",
+      "equals": "12px",
+      "message": "让 .card 的右下角使用 12px 圆角"
+    },
+    {
+      "id": "rounded-bottom-left",
+      "type": "style",
+      "selector": ".card",
+      "property": "border-bottom-left-radius",
+      "equals": "12px",
+      "message": "让 .card 的左下角使用 12px 圆角"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,9 @@
+.dashboard {
+  max-width: none;
+}
+
+.dashboard-header,
+.dashboard-grid,
+.dashboard-actions {
+  display: block;
+}

@@ -1,0 +1,28 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 72px 96px;
+  gap: 12px;
+  width: 320px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.header,
+.summary,
+.note {
+  padding: 12px;
+  border: 1px solid;
+}

@@ -1,0 +1,7 @@
+.panel p {
+  text-transform: none;
+}
+
+.alert {
+  text-transform: uppercase;
+}

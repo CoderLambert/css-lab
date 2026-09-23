@@ -1,0 +1,58 @@
+## 文字样式也是布局输入
+
+文字不只是 box 里面一串不会影响外部的像素。字体、字号、字重与行高共同影响 glyph 和 line box；可用的 inline measure 决定文字在哪里换行，因此 typography 既是视觉样式，也是 layout input。
+
+<Concept title="从继承、line metrics 与可用宽度推理文本">
+`font-family` 选择字体族和 fallback，`font-size` 影响 glyph 的尺度，`font-weight` 影响字重；`line-height` 为一行文字提供 line box 的高度。`line-height` 可以大于 `font-size`，它不需要机械地等于字号。
+
+许多文字属性会继承。把类型设置在 `.profile` 上，里面的 heading、paragraph 等后代通常会拿到继承值；需要例外时，再在更具体的后代上覆盖。继承不是“所有 CSS property 都向下复制”，要分别知道 property 的语义。
+
+文本是否换行还取决于包含它的 box 有多少 inline space、空白与断行机会，以及连续 token 是否允许断开。固定 `height` 只是限制 box，不是一个可靠的排版策略；先让 line metrics 与可用宽度正确，再观察内容如何流动。
+</Concept>
+
+<Predict
+  question="`.copy` 的 font-size 是 16px，line-height 是 26px。哪种预测更符合这个模型？"
+  options={["文字一定会被缩放成 26px", "每行可以拥有约 26px 的 line box 高度，但 glyph 尺寸仍主要由 16px font-size 决定", "line-height 会因为不同而导致 font-size 自动变成 26px"]}
+  answer="每行可以拥有约 26px 的 line box 高度，但 glyph 尺寸仍主要由 16px font-size 决定"
+  explanation="font-size 和 line-height 参与不同的决定：前者影响 glyph 尺度，后者影响 line box 的垂直度量。"
+/>
+
+<Compare
+  leftTitle="inherited text style"
+  leftCode=".profile { font-size: 18px; }"
+  leftMeaning="后代可继承许多 typography properties；在父级建立一致基线。"
+  rightTitle="local override"
+  rightCode=".profile h2 { font-size: 24px; }"
+  rightMeaning="后代可以有意覆盖继承值，不代表继承机制消失。"
+/>
+
+<Compare
+  leftTitle="line-height"
+  leftCode="line-height: 26px"
+  leftMeaning="控制 line box 的垂直度量；不等于改变 font-size。"
+  rightTitle="available measure"
+  rightCode="max-width: 24ch"
+  rightMeaning="限制文字可用的 inline space，进而影响换行；不需要固定 height。"
+/>
+
+## 练习让文字样式进入推理
+
+<Exercise
+  slug="inherit-text-styles"
+  label="让文字继承父级类型"
+  goal="在 .profile 上设置 18px 字号与 600 字重，并观察其中的文字如何继承这些非布局属性。"
+/>
+
+<Exercise
+  slug="set-readable-line-height"
+  label="给行高留下呼吸空间"
+  goal="为 .copy 设置 26px line-height；不要把 line-height 机械地设成与 font-size 相同。"
+/>
+
+<Exercise
+  slug="allow-text-to-wrap"
+  label="让受限文本正常换行"
+  goal="让窄卡片中的长文本保留正常换行，并处理很长的连续 token；不要用固定 height 截断文字。"
+/>
+
+这些 Exercise 的 checker 验证明确的 computed typography/text-flow declarations；字体实际可用的字形、最终行数和所有几何结果仍应在 Preview 中观察。

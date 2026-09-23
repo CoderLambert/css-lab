@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flexbox.flex-formatting-context-and-axes.establish-flex-context.001",
+  "revision": 1,
+  "slug": "establish-flex-context",
+  "title": "建立 Flex formatting context",
+  "prompt": "让 .toolbar 建立 flex formatting context，使 direct children 成为 flex items；先观察默认 row 的排列。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先找容器 .toolbar；只有容器进入 flex formatting context，direct children 才会成为 flex items。",
+    "这题的目标是 context，不需要先改变项目自身的尺寸。",
+    "对 .toolbar 设置 display: flex。"
+  ],
+  "checks": [
+    {
+      "id": "flex-context",
+      "type": "style",
+      "selector": ".toolbar",
+      "property": "display",
+      "equals": "flex",
+      "message": "让 .toolbar 建立 flex formatting context"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

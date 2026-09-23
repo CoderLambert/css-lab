@@ -1,0 +1,5 @@
+.cards {
+  display: block;
+  flex-wrap: nowrap;
+  gap: 0;
+}

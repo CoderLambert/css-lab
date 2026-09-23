@@ -8,19 +8,57 @@
   "order": 2,
   "status": "published",
   "hints": [
-    "先确认 .container 已经是 flex container，否则主轴分布属性不会生效。",
-    "默认 row 方向下，主轴是水平方向；题目描述的“起点到终点”是在主轴上分布。",
-    "使用 justify-content 控制主轴剩余空间；目标分布模式是 space-between，同时让交叉轴保持 center。"
+    "先读取题目的轴上下文；本题使用默认 row。",
+    "题目描述的起点与终点属于 main axis，不要把 space-between 当作固定水平方向工具。",
+    "使用 justify-content 控制 main-axis free space；目标分布模式是 space-between，同时让 cross axis 保持 center。"
   ],
   "checks": [
-    {"id":"container-display-flex","type":"style","selector":".container","property":"display","equals":"flex","message":"将 .container 设置为 flex 布局"},
-    {"id":"container-justify-space-between","type":"style","selector":".container","property":"justify-content","equals":"space-between","message":"让项目在主轴上使用 space-between 分布"},
-    {"id":"container-align-center","type":"style","selector":".container","property":"align-items","equals":"center","message":"让项目在交叉轴上保持居中"}
+    {
+      "id": "container-display-flex",
+      "type": "style",
+      "selector": ".container",
+      "property": "display",
+      "equals": "flex",
+      "message": "将 .container 设置为 flex 布局"
+    },
+    {
+      "id": "container-justify-space-between",
+      "type": "style",
+      "selector": ".container",
+      "property": "justify-content",
+      "equals": "space-between",
+      "message": "让项目在主轴上使用 space-between 分布"
+    },
+    {
+      "id": "container-align-center",
+      "type": "style",
+      "selector": ".container",
+      "property": "align-items",
+      "equals": "center",
+      "message": "让项目在交叉轴上保持居中"
+    }
   ],
-  "workspace": {"files":[
-    {"path":"index.html","language":"html","editable":false},
-    {"path":"base.css","language":"css","editable":false},
-    {"path":"style.css","language":"css","editable":true}
-  ]},
-  "runtime": {"type":"browser","entry":"index.html"}
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
 }

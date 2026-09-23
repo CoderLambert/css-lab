@@ -1,0 +1,56 @@
+## 没有 winning declaration，不等于“没有值”
+
+Cascade 先决定元素自身有没有 winning declaration。只有某个 property 没有得到 cascaded value 时，CSS 才进入 defaulting：这个 property 要么从 parent 继承，要么使用它自己的 initial value。
+
+<Concept title="Inheritance 是 defaulting 的一部分，不是 selector matching">
+CSS properties 分成默认继承与默认不继承两类。
+
+- inherited property 在元素没有 cascaded value 时，通常使用 parent 的 computed value；
+- non-inherited property 在没有 cascaded value 时，使用该 property 定义的 initial value。
+
+因此 child 没有写 declaration，仍然会得到一个 value。继承也不是“parent selector 自动匹配 child”。
+</Concept>
+
+<Predict
+  question="parent 设置 font-style: italic，child 没有任何 font-style declaration。font-style 是 inherited property，child 最可能得到什么？"
+  options={["继承 parent 的 computed font-style", "因为 child 没写 CSS，所以没有 font-style value", "自动复制 parent 的 selector"]}
+  answer="继承 parent 的 computed font-style"
+  explanation="当 inherited property 在 child 上没有 cascaded value 时，defaulting 会使用 parent 的 computed value；这不是 selector matching。"
+/>
+
+## Inherited 与 non-inherited property 走不同 defaulting 路径
+
+<Compare
+  leftTitle="inherited property"
+  leftCode="font-weight"
+  leftMeaning="没有 cascaded value 时，会从 parent 的 computed value 继承。"
+  rightTitle="non-inherited property"
+  rightCode="border-style"
+  rightMeaning="没有 cascaded value 时，不自动复制 parent；会走自己的 initial value。"
+/>
+
+property 的 **initial value** 是 CSS 对该 property 定义的初始值，不要把它和浏览器 user-agent stylesheet 中的默认规则混为一谈。
+
+如果 child 自己存在 winning declaration，那么该 declaration 会先决定结果；只有缺少 cascaded value 时，继承/defaulting 才补上 value。
+
+## 追踪 value 的来源
+
+<Exercise
+  slug="inherit-text-style"
+  label="从 parent 继承文字样式"
+  goal="只在 parent 上设置 inherited property，并同时验证 parent 与 child 的结果。"
+/>
+
+<Exercise
+  slug="contrast-non-inherited"
+  label="对比不会自动继承的属性"
+  goal="在同一个 parent 上同时设置 inherited 与 non-inherited property，观察 child 走不同 defaulting 路径。"
+/>
+
+<Exercise
+  slug="override-inherited-value"
+  label="显式覆盖继承值"
+  goal="让一个 nested child 保留继承值，另一个 child 用自己的 declaration 覆盖继承结果。"
+/>
+
+这些 checker 能验证 parent / child 的最终 resolved style，但无法证明 learner 的所有中间推理。尤其第一题同时检查 parent 与 child，避免把“直接给 child 写死同一个值”当成唯一的 inheritance 证据。

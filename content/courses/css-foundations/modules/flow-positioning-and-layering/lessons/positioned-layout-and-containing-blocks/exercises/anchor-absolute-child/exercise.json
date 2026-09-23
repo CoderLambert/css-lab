@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flow-positioning-and-layering.positioned-layout-and-containing-blocks.anchor-absolute-child.001",
+  "revision": 1,
+  "slug": "anchor-absolute-child",
+  "title": "锚定 absolute child",
+  "prompt": "让 .card 使用 position: relative 成为 containing block，并让 .badge 使用 absolute 与 top/right offset 相对 card 放置。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "absolute child 会寻找最近的 positioned ancestor。",
+    "先把 .card 设为 position: relative；它仍然保留 normal-flow 布局。",
+    "让 .badge 使用 position: absolute，并保留 top/right 的 8px offset。"
+  ],
+  "checks": [
+    {
+      "id": "card-containing-block",
+      "type": "style",
+      "selector": ".card",
+      "property": "position",
+      "equals": "relative",
+      "message": "让 card 建立 containing block"
+    },
+    {
+      "id": "badge-absolute",
+      "type": "style",
+      "selector": ".badge",
+      "property": "position",
+      "equals": "absolute",
+      "message": "让 badge 使用 position: absolute"
+    },
+    {
+      "id": "badge-top",
+      "type": "style",
+      "selector": ".badge",
+      "property": "top",
+      "equals": "8px",
+      "message": "保留 badge 的 top: 8px offset"
+    },
+    {
+      "id": "badge-right",
+      "type": "style",
+      "selector": ".badge",
+      "property": "right",
+      "equals": "8px",
+      "message": "保留 badge 的 right: 8px offset"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

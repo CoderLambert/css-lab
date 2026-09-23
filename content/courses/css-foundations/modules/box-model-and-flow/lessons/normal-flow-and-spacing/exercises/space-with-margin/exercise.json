@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "id": "css.box-model-and-flow.normal-flow-and-spacing.space-with-margin.001",
+  "revision": 1,
+  "slug": "space-with-margin",
+  "title": "用 margin 表达外部间距",
+  "prompt": "给相邻的 .section 设置外部垂直间距；不要把 margin 混进组件内部 padding。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "先区分内部空间和 box 外部的相邻间距。",
+    "题目说的是 section 之间的外部 spacing，所以不要把答案写成 padding。",
+    "对 .section 设置 margin-block: 20px。"
+  ],
+  "checks": [
+    {
+      "id": "external-spacing-top",
+      "type": "style",
+      "selector": ".section:first-of-type",
+      "property": "margin-top",
+      "equals": "20px",
+      "message": "用 20px 的外部 margin 表达第一个 section 的 block-start 间距"
+    },
+    {
+      "id": "external-spacing-bottom",
+      "type": "style",
+      "selector": ".section:first-of-type",
+      "property": "margin-bottom",
+      "equals": "20px",
+      "message": "保留第一个 section 的 block-end 外部间距"
+    },
+    {
+      "id": "external-spacing-last-top",
+      "type": "style",
+      "selector": ".section:last-of-type",
+      "property": "margin-top",
+      "equals": "20px",
+      "message": "用 20px 的外部 margin 表达第二个 section 的 block-start 间距"
+    },
+    {
+      "id": "external-spacing-last-bottom",
+      "type": "style",
+      "selector": ".section:last-of-type",
+      "property": "margin-bottom",
+      "equals": "20px",
+      "message": "保留第二个 section 的 block-end 外部间距"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "id": "css.grid.grid-alignment-and-gaps.align-items-in-grid.001",
+  "revision": 1,
+  "slug": "align-items-in-grid",
+  "title": "对齐 grid items",
+  "prompt": "让 .board 使用 align-items: center 与 justify-items: end，控制 grid items 在各自 grid areas 内的对齐。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "items 在各自 grid areas 内对齐；这和分布整个 grid content 是不同层级。",
+    "align-items 控制 block/cross 方向，justify-items 控制 inline 方向。",
+    "分别设置 align-items: center 与 justify-items: end。"
+  ],
+  "checks": [
+    {
+      "id": "board-align-items",
+      "type": "style",
+      "selector": ".board",
+      "property": "align-items",
+      "equals": "center",
+      "message": "让 board items 沿 block/cross 方向居中"
+    },
+    {
+      "id": "board-justify-items",
+      "type": "style",
+      "selector": ".board",
+      "property": "justify-items",
+      "equals": "end",
+      "alsoAccepts": [
+        "flex-end"
+      ],
+      "message": "让 board items 沿 inline 方向对齐到 end"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

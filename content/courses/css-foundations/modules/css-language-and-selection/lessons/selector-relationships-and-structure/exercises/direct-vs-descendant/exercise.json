@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.language-and-selection.selector-relationships-and-structure.direct-vs-descendant.001",
+  "revision": 1,
+  "slug": "direct-vs-descendant",
+  "title": "只匹配直接子元素",
+  "prompt": "使用 child combinator，只让 .menu 的两个直接 .item 使用 italic；嵌套在 .submenu 里的 .item 必须保持 normal。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先画出一跳关系：哪些 .item 的 parent 就是 .menu？",
+    "空格会匹配任意深度后代；这里需要限制为直接 child。",
+    "使用 .menu > .item，并设置 font-style: italic。"
+  ],
+  "checks": [
+    {
+      "id": "direct-a-italic",
+      "type": "style",
+      "selector": ".direct-a",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "第一个直接 .item 应使用 italic"
+    },
+    {
+      "id": "direct-b-italic",
+      "type": "style",
+      "selector": ".direct-b",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "第二个直接 .item 应使用 italic"
+    },
+    {
+      "id": "nested-item-normal",
+      "type": "style",
+      "selector": ".nested-item",
+      "property": "font-style",
+      "equals": "normal",
+      "message": "嵌套 .item 不应被 direct-child selector 命中"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,43 @@
+## 先找到对象，再讨论样式
+
+一条 CSS 规则不是“把样式写进 HTML”。浏览器会先判断 selector 匹配哪些元素，再把规则里的 declarations 作为这些元素的样式候选。
+
+<Concept title="CSS 规则的最小 mental model">
+可以把普通 style rule 拆成两步：
+
+1. selector 决定“哪些元素进入这条规则的匹配集合”；
+2. declaration block 中的 property/value 对，只对这些匹配到的元素提供样式候选。
+
+所以“selector 没匹配到”和“property/value 写错”是两类不同问题。
+</Concept>
+
+下面这条规则中，`.notice` 是 selector，`font-weight: 700` 是 declaration；其中 `font-weight` 是 property，`700` 是 value。
+
+<Predict
+  question='如果页面里没有任何元素带有 class="notice"，这条规则最直接的问题是什么？'
+  options={["selector 没有匹配到目标元素", "font-weight 一定是无效 property"]}
+  answer="selector 没有匹配到目标元素"
+  explanation="浏览器要先得到匹配集合。没有元素匹配 .notice 时，这条规则不会给任何元素提供这条 declaration。"
+/>
+
+## 从单一 declaration 到诊断
+
+<Exercise
+  slug="style-a-heading"
+  label="让标题居中"
+  goal="用一个简单 selector 命中目标元素，并添加一条 declaration。"
+/>
+
+<Exercise
+  slug="combine-declarations"
+  label="在一条规则里组合声明"
+  goal="保持同一个匹配集合，在 declaration block 中同时设置两个 property/value。"
+/>
+
+<Exercise
+  slug="repair-a-missed-selector"
+  label="修复没有命中的规则"
+  goal="先修正错误 selector，再给目标元素写出正确 declaration，并避免影响非目标元素。"
+/>
+
+遇到“CSS 没生效”时，先问：**规则有没有匹配到正确元素？** 再检查 declaration 本身。

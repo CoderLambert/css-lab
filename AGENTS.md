@@ -190,6 +190,8 @@ Rules:
 
 Exercises additionally have a positive integer `revision`, a declared Workspace file list and a Runtime definition. Course/Module/Lesson remain schemaVersion 1; Exercise is schemaVersion 2.
 
+Current CSS Foundations v1 source inventory is 9 Modules / 32 Lessons / 100 Exercises. Only the existing Flexbox alignment Lesson and its 3 Exercises are published; all other curriculum remains draft until capability and publication review.
+
 Lesson content rules:
 
 - `lesson.json` is lesson runtime metadata; `lesson.mdx` is teaching content.
@@ -212,7 +214,9 @@ When creating, revising, or reviewing CSS curriculum content, use the repo-level
 For deterministic authoring operations, prefer the Skill scripts over hand-writing structure:
 
 - inspect Course/Module/Lesson context with `inspect-context.mjs`
-- scaffold Lesson/Exercise skeletons with `scaffold.mjs`
+- scaffold Module/Lesson/Exercise skeletons with `scaffold.mjs`
+- reorder Module/Lesson siblings with `reorder.mjs`
+- migrate historical Exercise v1 assets only with the offline `scripts/content/migrate-css-foundations-v1-to-v2.mjs`; never add v1 compatibility to production readers/runtimes
 - validate reusable source packs with `inspect-source-pack.mjs`
 
 Do not bypass the scaffolder for orders, draft skeletons, duplicate-ID checks, or overwrite protection when it covers the operation. Model reasoning should focus on teaching design, lesson narrative, exercise objectives, hints, and checker semantics.
@@ -241,6 +245,8 @@ Responsibilities:
 - `solution/style.css`: authoring/reference solution for the editable workspace file.
 
 Exercise metadata uses `schemaVersion: 2` and declares Workspace files plus a Browser runtime entry. Course/Module/Lesson metadata remain `schemaVersion: 1`.
+
+Legacy `fixture.html` / exercise-level `base.css` / `starter.css` / `solution.css` is historical input only. Use the one-way offline M6B migrator for preserved source branches; future authoring must never create that layout.
 
 `solution/` must never be part of the learner runtime `Exercise` type or be sent to learner client props.
 

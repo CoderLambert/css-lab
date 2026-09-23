@@ -1,0 +1,42 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.page {
+  width: 320px;
+  min-height: 680px;
+  padding: 16px;
+  border: 1px solid;
+}
+
+.toc {
+  display: block;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.toc span {
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.article {
+  min-height: 520px;
+  padding: 16px 0;
+}
+
+.article h2 {
+  margin: 0 0 12px;
+}
+
+.article p {
+  margin: 0 0 180px;
+}

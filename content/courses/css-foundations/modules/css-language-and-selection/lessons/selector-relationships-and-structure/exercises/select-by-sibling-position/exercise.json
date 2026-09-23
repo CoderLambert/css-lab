@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.language-and-selection.selector-relationships-and-structure.select-by-sibling-position.001",
+  "revision": 1,
+  "slug": "select-by-sibling-position",
+  "title": "按 sibling 位置匹配",
+  "prompt": "使用 :nth-child() 只让 .steps 的第三个 child（.step-b）使用 italic。注意它是第二个 p，但第三个 child。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    ":nth-child() 看的是元素在 sibling list 中的位置，不是只在同 tag 中重新编号。",
+    "先从 .steps 的直接 children 从 1 开始数：h3 是 1，step-a 是 2，step-b 是 3。",
+    "使用 .steps > p:nth-child(3)，并设置 font-style: italic。"
+  ],
+  "checks": [
+    {
+      "id": "step-b-italic",
+      "type": "style",
+      "selector": ".step-b",
+      "property": "font-style",
+      "equals": "italic",
+      "message": "第三个 child .step-b 应使用 italic"
+    },
+    {
+      "id": "step-a-normal",
+      "type": "style",
+      "selector": ".step-a",
+      "property": "font-style",
+      "equals": "normal",
+      "message": "第二个 child .step-a 应保持 normal"
+    },
+    {
+      "id": "step-c-normal",
+      "type": "style",
+      "selector": ".step-c",
+      "property": "font-style",
+      "equals": "normal",
+      "message": "第四个 child .step-c 应保持 normal"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

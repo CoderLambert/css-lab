@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flexbox.flex-wrapping-and-multiline-alignment.create-flex-lines.001",
+  "revision": 1,
+  "slug": "create-flex-lines",
+  "title": "创建 flex lines",
+  "prompt": "让 .tray 使用 flex-wrap: wrap，在空间不足时创建多条 flex lines。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先确认 .tray 已经是 flex container；本题改变的是 line creation。",
+    "nowrap 会把 items 留在一条 line；wrap 才允许创建新的 lines。",
+    "对 .tray 设置 flex-wrap: wrap，然后在 Preview 中观察 items 换到下一行。"
+  ],
+  "checks": [
+    {
+      "id": "tray-wrap",
+      "type": "style",
+      "selector": ".tray",
+      "property": "flex-wrap",
+      "equals": "wrap",
+      "message": "让 tray 使用 flex-wrap: wrap"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

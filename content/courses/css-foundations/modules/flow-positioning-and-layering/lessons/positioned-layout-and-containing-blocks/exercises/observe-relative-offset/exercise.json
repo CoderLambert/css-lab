@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flow-positioning-and-layering.positioned-layout-and-containing-blocks.observe-relative-offset.001",
+  "revision": 1,
+  "slug": "observe-relative-offset",
+  "title": "观察 relative offset",
+  "prompt": "让 .badge 使用 position: relative、top: 8px 和 left: 12px；在 Preview 中观察它偏移但仍保留 normal-flow 占位。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先设置 position: relative；这会保留 .badge 原来的 flow slot。",
+    "top 和 left 是 positioned offset，不是 transform。",
+    "目标值是 top: 8px 与 left: 12px。"
+  ],
+  "checks": [
+    {
+      "id": "badge-position",
+      "type": "style",
+      "selector": ".badge",
+      "property": "position",
+      "equals": "relative",
+      "message": "让 badge 使用 position: relative"
+    },
+    {
+      "id": "badge-top",
+      "type": "style",
+      "selector": ".badge",
+      "property": "top",
+      "equals": "8px",
+      "message": "让 badge 使用 top: 8px"
+    },
+    {
+      "id": "badge-left",
+      "type": "style",
+      "selector": ".badge",
+      "property": "left",
+      "equals": "12px",
+      "message": "让 badge 使用 left: 12px"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

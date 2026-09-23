@@ -1,0 +1,4 @@
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px; }
+.frame { width: 400px; height: 48px; background: #edf2ea; }
+.meter { height: 100%; background: #a9bea4; }

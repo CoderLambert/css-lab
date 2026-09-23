@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "css.visual-styling-and-typography.interaction-states-and-focus.hover-state-feedback.001",
+  "revision": 1,
+  "slug": "hover-state-feedback",
+  "title": "为 hover 提供反馈",
+  "prompt": "为 .action 设计 :hover 状态反馈，让指针悬停时表面和边框发生有意的视觉变化。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "先保留默认按钮样式，再为当前状态增加反馈。",
+    "`:hover` 是状态选择器，不是要写进 HTML 的 class。",
+    "写一个 .action:hover 规则，改变 background-color 和 border-color，然后在 Preview 中悬停。"
+  ],
+  "checks": [],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

@@ -1,0 +1,25 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.stack {
+  display: flex;
+  width: 280px;
+  min-height: 220px;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid;
+}
+
+.item {
+  padding: 10px;
+  border: 1px solid;
+}

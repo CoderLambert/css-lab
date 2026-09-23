@@ -1,0 +1,56 @@
+## 颜色、背景与边框是不同的绘制层
+
+一个 box 已经参与 layout 之后，才有“它怎样被画出来”的问题。不要把所有视觉变化都叫作 layout：文字前景、背景和边框各自对应不同的 paint layer，也分别有自己的 CSS property。
+
+<Concept title="把 paint layer 与 box edge 分开看">
+`color` 描述文字等前景内容使用的颜色；`background-color` 在 box 背后绘制背景；`border-color` 与 `border-style` / `border-width` 描述 box 边缘的边框。背景会绘制在边框后面，内容绘制在背景与边框的上方。
+
+背景颜色改变的是绘制，不会自动给 box 增加一层 padding。边框则仍然是 box model 的一部分：在默认 `content-box` 下，边框会增加 border box 的外部尺寸；`border-box` 会把它纳入 authored size 的内部计算。`border-radius` 改变边角的绘制形状，但不等于改变布局模式。
+</Concept>
+
+<Predict
+  question="一个 content-box 元素已经有固定 width；只给它加 4px border，最应该预期哪种结果？"
+  options={["只有颜色变化，box 尺寸不受影响", "边框进入 box model，border box 可能比原来更宽", "背景会自动变成 4px padding"]}
+  answer="边框进入 box model，border box 可能比原来更宽"
+  explanation="border 不是纯粹浮在 box 外的装饰层。它位于 padding 外、margin 内，并参与 box model 的尺寸关系；背景颜色则不会自动增加尺寸。"
+/>
+
+<Compare
+  leftTitle="foreground"
+  leftCode="color: #1a3d2f"
+  leftMeaning="主要影响文字等前景内容的绘制。"
+  rightTitle="background"
+  rightCode="background-color: #f0f6f1"
+  rightMeaning="在 box 后面铺色；不会替代 padding 或 border。"
+/>
+
+<Compare
+  leftTitle="background"
+  leftCode="background-color: #f0f6f1"
+  leftMeaning="绘制一个背景层。"
+  rightTitle="border"
+  rightCode="border: 2px solid"
+  rightMeaning="绘制 box 边缘，也继续参与前面学过的 box model。"
+/>
+
+## 练习把绘制层和 box edge 对上
+
+<Exercise
+  slug="paint-foreground-and-background"
+  label="分开设置前景与背景"
+  goal="为 .card 设置指定的文字颜色与背景颜色，观察两种 paint layer 各自负责什么。"
+/>
+
+<Exercise
+  slug="border-joins-box-model"
+  label="让边框参与 box model"
+  goal="为 .card 添加 2px solid 边框；保留 padding，并把它作为 box model 的新边缘来推理。"
+/>
+
+<Exercise
+  slug="round-the-surface"
+  label="给表面加入圆角"
+  goal="为 .card 设置 12px border-radius，让背景与边框的角落形成圆角表面。"
+/>
+
+这些 Exercise 的 computed-style checks 适合验证明确的颜色、边框和圆角声明；它们不声称能从一次声明检查推导完整的像素绘制或所有 box geometry。

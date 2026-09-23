@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "id": "css.visual-styling-and-typography.interaction-states-and-focus.focus-visible-indicator.001",
+  "revision": 1,
+  "slug": "focus-visible-indicator",
+  "title": "保留可见的键盘焦点",
+  "prompt": "为 .action:focus-visible 设计清晰的 focus indicator；不要无条件删除 outline，也不要只依赖颜色变化。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "focus indicator 的任务是告诉键盘使用者当前位置，不是把默认 outline 静默抹掉。",
+    "`:focus-visible` 适合在浏览器判断需要可见提示时定制 ring；可以使用 outline-offset 增加间距。",
+    "写一个 .action:focus-visible 规则，提供 3px solid outline 和 3px outline-offset。"
+  ],
+  "checks": [],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

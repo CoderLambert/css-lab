@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.cascade-and-values.custom-properties-and-fallbacks",
+  "slug": "custom-properties-and-fallbacks",
+  "title": "Custom property 也参与 cascade 与 inheritance",
+  "description": "理解未注册 custom property 的 cascade、默认 inheritance、var() substitution 与 fallback。",
+  "estimatedMinutes": 18,
+  "order": 4,
+  "status": "draft"
+}

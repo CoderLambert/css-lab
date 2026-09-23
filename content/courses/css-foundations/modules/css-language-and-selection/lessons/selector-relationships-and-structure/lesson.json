@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "css.language-and-selection.selector-relationships-and-structure",
+  "slug": "selector-relationships-and-structure",
+  "title": "用结构表达匹配关系",
+  "description": "理解 descendant、child、attribute 与 structural pseudo-class 如何根据 DOM 关系、属性和 sibling 位置定义匹配集合。",
+  "estimatedMinutes": 18,
+  "order": 3,
+  "status": "draft"
+}

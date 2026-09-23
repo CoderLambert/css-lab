@@ -1,0 +1,25 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.toolbar {
+  width: 420px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.item {
+  min-width: 96px;
+  padding: 10px 12px;
+  border: 1px solid;
+  background: transparent;
+  font: inherit;
+}

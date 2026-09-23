@@ -1,0 +1,38 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.stage {
+  width: 300px;
+  padding: 16px;
+  border: 1px solid;
+}
+
+.before,
+.after {
+  margin: 0;
+  padding: 8px;
+  border: 1px solid;
+}
+
+.before {
+  margin-bottom: 12px;
+}
+
+.after {
+  margin-top: 12px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 1px solid;
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "id": "css.flexbox.flex-formatting-context-and-axes.diagnose-alignment-axis.001",
+  "revision": 1,
+  "slug": "diagnose-alignment-axis",
+  "title": "诊断方向不对的对齐",
+  "prompt": "修复一个把 justify-content 当成“水平属性”的 bug：先确认 flex-direction，再选择控制目标轴的属性。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "不要先背“水平属性”；先读取 .panel 的 flex-direction。",
+    "column 的 main axis 是纵向，所以视觉水平方向是 cross axis。",
+    "保留 flex-direction: column，并把负责 cross axis 的属性设置为 align-items: center。"
+  ],
+  "checks": [
+    {
+      "id": "diagnosis-context",
+      "type": "style",
+      "selector": ".panel",
+      "property": "display",
+      "equals": "flex",
+      "message": "保留 .panel 的 flex formatting context"
+    },
+    {
+      "id": "diagnosis-column",
+      "type": "style",
+      "selector": ".panel",
+      "property": "flex-direction",
+      "equals": "column",
+      "message": "确认 .panel 使用 column main axis"
+    },
+    {
+      "id": "cross-axis-alignment",
+      "type": "style",
+      "selector": ".panel",
+      "property": "align-items",
+      "equals": "center",
+      "message": "用 align-items 控制 column 的 cross axis"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}
