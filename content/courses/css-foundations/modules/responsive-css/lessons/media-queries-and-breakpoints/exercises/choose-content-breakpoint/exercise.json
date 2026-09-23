@@ -3,14 +3,14 @@
   "id": "css.responsive-css.media-queries-and-breakpoints.choose-content-breakpoint.001",
   "revision": 1,
   "slug": "choose-content-breakpoint",
-  "title": "按内容选择 breakpoint",
-  "prompt": "为 nav 设计一个由内容断裂驱动的 min-width 条件，并在 Preview 的 viewport presets 中观察；不要按设备品牌选择数字。",
+  "title": "实现内容驱动的 breakpoint",
+  "prompt": "先根据 fixture 的空间预算判断为什么横向 nav 需要接近 600px 的 viewport：4 个 links 各至少 128px，再加 3 个 12px gaps，需要约 548px 的 content width；body 的左右 padding 会继续占用 viewport。基于这个已解释的 break，写 600px 的 mobile-first min-width rule，并在 390/768/1280 对照结果。",
   "order": 1,
   "status": "published",
   "hints": [
-    "先问 nav 何时因为 links 互相挤压而需要另一种排列。",
-    "用一个 content-driven min-width 条件选择宽空间规则。",
-    "rule-style 会读取指定 @media block；再用 390、768、1280 的 viewport checks 对照同一份 CSS 的结果。"
+    "先做空间预算，不要按设备名称选数字：4×128px + 3×12px = 548px，viewport 还要扣除 body 的左右 padding。",
+    "因此本题把 600px 作为经过 fixture 内容约束解释后的练习阈值；重点是把这个 content break 表达成 mobile-first min-width condition。",
+    "保留 block baseline，并在 `@media (min-width: 600px)` 中让 nav 变为 flex、gap 12px，links 变为 inline-block。"
   ],
   "checks": [
     {
