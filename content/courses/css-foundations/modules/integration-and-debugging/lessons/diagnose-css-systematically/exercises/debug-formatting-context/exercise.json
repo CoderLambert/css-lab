@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "id": "css.integration-and-debugging.diagnose-css-systematically.debug-formatting-context.001",
+  "revision": 1,
+  "slug": "debug-formatting-context",
+  "title": "恢复 formatting context",
+  "prompt": "诊断并修复一个依赖 Flex 或 Grid formatting context 的布局组件。",
+  "order": 3,
+  "status": "draft",
+  "hints": [
+    "先问布局规则需要哪一个 formatting context；这里只有 container 的最终 display 还没有建立 Flex context。",
+    "`gap` 只有在对应的 layout context 中才会按预期参与 items 之间的空间分配。",
+    "让 `.toolbar` 使用 `display: flex`，并设置 `gap: 12px`；items 的具体宽度不是本题目标。"
+  ],
+  "checks": [
+    {
+      "id": "toolbar-flex-context",
+      "type": "style",
+      "selector": ".toolbar",
+      "property": "display",
+      "equals": "flex",
+      "message": "恢复 toolbar 的 Flex formatting context"
+    },
+    {
+      "id": "toolbar-gap",
+      "type": "style",
+      "selector": ".toolbar",
+      "property": "gap",
+      "equals": "12px",
+      "message": "为 toolbar items 设置 12px gap"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

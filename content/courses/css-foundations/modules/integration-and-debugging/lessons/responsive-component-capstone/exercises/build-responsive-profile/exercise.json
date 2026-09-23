@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 2,
+  "id": "css.integration-and-debugging.responsive-component-capstone.build-responsive-profile.001",
+  "revision": 1,
+  "slug": "build-responsive-profile",
+  "title": "构建 responsive profile",
+  "prompt": "在固定 HTML fixture 上完成一个综合 CSS component，并用 Preview 检查多个 viewport。",
+  "order": 1,
+  "status": "draft",
+  "hints": [
+    "阶段 1：先处理 surface、typography 与 readable measure；确认固定 HTML 中的 heading、summary 和 action 都可读。",
+    "阶段 2–3：再用 max-width 处理外层 constraint，用 Flexbox/Grid 或 normal flow 组织 header、body、actions。",
+    "阶段 4：让窄空间 baseline 先成立，只在真实 layout break 时加入 selective media query；最后沿 diagnosis pipeline 回查。",
+    "当前 checker 不足以证明 geometry、multi-viewport outcome 或多个等价实现；完成后用 390、768、1280 presets 观察，并说明你的选择。"
+  ],
+  "checks": [],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

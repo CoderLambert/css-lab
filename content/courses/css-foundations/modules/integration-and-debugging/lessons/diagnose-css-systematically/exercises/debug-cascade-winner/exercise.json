@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "id": "css.integration-and-debugging.diagnose-css-systematically.debug-cascade-winner.001",
+  "revision": 1,
+  "slug": "debug-cascade-winner",
+  "title": "诊断 cascade winner",
+  "prompt": "在保持 selector 不变的前提下，修复 source order/specificity 冲突，让状态 rule 成为 winner。",
+  "order": 2,
+  "status": "draft",
+  "hints": [
+    "selector 已经命中；比较两条等 specificity 的 `.card .status` 与 `.status.is-ready`，再看 source order。",
+    "cascade 会在 specificity 相同的候选中使用后出现的 declaration；不要用 `!important` 跳过 diagnosis。",
+    "把 baseline 放在前面，把 `.status.is-ready` 的 `color: rgb(35, 116, 76)` 放在后面。"
+  ],
+  "checks": [
+    {
+      "id": "ready-status-color",
+      "type": "style",
+      "selector": ".status",
+      "property": "color",
+      "equals": "rgb(35, 116, 76)",
+      "message": "让 ready status 的最终 color 成为状态颜色"
+    }
+  ],
+  "workspace": {
+    "files": [
+      {
+        "path": "index.html",
+        "language": "html",
+        "editable": false
+      },
+      {
+        "path": "base.css",
+        "language": "css",
+        "editable": false
+      },
+      {
+        "path": "style.css",
+        "language": "css",
+        "editable": true
+      }
+    ]
+  },
+  "runtime": {
+    "type": "browser",
+    "entry": "index.html"
+  }
+}

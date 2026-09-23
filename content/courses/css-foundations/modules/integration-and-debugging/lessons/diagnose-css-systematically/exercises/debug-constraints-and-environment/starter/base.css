@@ -1,0 +1,24 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.frame {
+  width: 280px;
+  padding: 12px;
+  border: 1px solid;
+}
+
+.notice {
+  width: 560px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid;
+}

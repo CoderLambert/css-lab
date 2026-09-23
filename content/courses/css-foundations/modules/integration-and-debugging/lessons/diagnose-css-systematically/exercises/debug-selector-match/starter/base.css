@@ -1,0 +1,26 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.notice-card {
+  width: 360px;
+  padding: 16px;
+  border: 1px solid;
+}
+
+.notice-card p {
+  margin: 0;
+  padding: 8px;
+}
+
+.ordinary {
+  border-top: 1px solid;
+}
