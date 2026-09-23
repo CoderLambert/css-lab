@@ -256,7 +256,7 @@ Use the check type that proves the learning objective rather than a convenient p
 Current evidence boundaries are important:
 
 - `style` does not prove which authored selector, unit, function, shorthand, or custom-property linkage produced the result.
-- `rule-style` compares CSSOM-authored selector text, property value, and (when present) normalized media-condition text. When a cascade exercise sets `priority: "normal" | "important"`, it also validates declaration priority. Without that field it does not prove priority. It still does not prove geometry, actual interaction modality, or arbitrary semantic equivalence between different selector/media spellings.
+- `rule-style` compares CSSOM-authored selector text, property value, and (when present) normalized media-condition text. When a cascade exercise sets `priority: "normal" | "important"`, it also validates declaration priority. When it sets `afterSelector`, it requires the matched learner-authored rule to appear after that exact selector in the same inspected rule scope. Without those fields it does not prove priority or source-order relation. It still does not prove geometry, actual interaction modality, or arbitrary semantic equivalence between different selector/media spellings.
 - `viewport-style` samples a fixed viewport outcome; it does not prove behavior at every intermediate width, line wrapping/geometry, or that a breakpoint was chosen for the right content reason.
 - `exists` / `count` prove structure only.
 

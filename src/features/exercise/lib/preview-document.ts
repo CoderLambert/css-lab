@@ -82,6 +82,13 @@ function createPreviewBridgeScript({
         ) {
           return false;
         }
+
+        if (
+          value.afterSelector !== undefined &&
+          typeof value.afterSelector !== "string"
+        ) {
+          return false;
+        }
       }
 
       return value.type !== "viewport-style" ||
@@ -194,6 +201,9 @@ function createPreviewBridgeScript({
     let propertyFound = false;
     let actual = null;
     let priority = null;
+    let sequence = 0;
+    let selectorPosition = null;
+    let afterSelectorPosition = null;
 
     const inspectRules = (rules, insideMatchingMedia) => {
       for (const rule of Array.from(rules)) {
@@ -203,6 +213,15 @@ function createPreviewBridgeScript({
           }
 
           if (insideMatchingMedia || check.media === undefined) {
+            sequence += 1;
+
+            if (
+              check.afterSelector !== undefined &&
+              rule.selectorText === check.afterSelector
+            ) {
+              afterSelectorPosition = sequence;
+            }
+
             if (rule.selectorText !== check.selector) {
               continue;
             }
@@ -213,6 +232,7 @@ function createPreviewBridgeScript({
             if (value) {
               propertyFound = true;
               actual = value;
+              selectorPosition = sequence;
               priority =
                 rule.style.getPropertyPriority(check.property) === "important"
                   ? "important"
@@ -239,7 +259,19 @@ function createPreviewBridgeScript({
 
     inspectRules(styleElement.sheet.cssRules, false);
 
-    return { selectorFound, propertyFound, actual, priority };
+    const orderMatches =
+      check.afterSelector === undefined ||
+      (selectorPosition !== null &&
+        afterSelectorPosition !== null &&
+        selectorPosition > afterSelectorPosition);
+
+    return {
+      selectorFound,
+      propertyFound,
+      actual,
+      priority,
+      orderMatches,
+    };
   };
 
   const escapeStyleClosingTagInProbe = (value) =>
@@ -422,24 +454,35 @@ function createPreviewBridgeScript({
         const accepted = acceptedValuesFor(check);
         const priorityMatches =
           check.priority === undefined || result.priority === check.priority;
+        const orderMatches =
+          check.afterSelector === undefined || result.orderMatches;
         const expected =
           accepted.join(" / ") +
           (check.priority === undefined
             ? ""
-            : " [priority: " + check.priority + "]");
+            : " [priority: " + check.priority + "]") +
+          (check.afterSelector === undefined
+            ? ""
+            : " [after: " + check.afterSelector + "]");
         const actual =
           result.actual === null
             ? null
             : result.actual +
               (check.priority === undefined
                 ? ""
-                : " [priority: " + result.priority + "]");
+                : " [priority: " + result.priority + "]") +
+              (check.afterSelector === undefined
+                ? ""
+                : " [after check: " +
+                  (result.orderMatches ? "matched" : "mismatch") +
+                  "]");
 
         return completedResult(
           check,
           result.propertyFound &&
             accepted.includes(result.actual) &&
-            priorityMatches,
+            priorityMatches &&
+            orderMatches,
           expected,
           actual,
         );

@@ -28,8 +28,9 @@
       "selector": ".status.is-ready",
       "property": "color",
       "equals": "rgb(35, 116, 76)",
-      "message": "保留 ready-state authored color",
-      "priority": "normal"
+      "message": "保留 ready-state authored color，并把状态 rule 放在 baseline rule 之后",
+      "priority": "normal",
+      "afterSelector": ".card .status"
     },
     {
       "id": "ready-status-color",

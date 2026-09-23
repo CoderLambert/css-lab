@@ -55,11 +55,13 @@ The current runtime reads learner CSS through CSSOM and compares:
 - authored property value against `equals` / `alsoAccepts`
 - media condition after whitespace normalization when `media` is supplied
 - declaration priority when optional `priority: "normal" | "important"` is supplied
+- a bounded source-order relation when optional `afterSelector` is supplied
 
 Therefore `rule-style` does **not** prove:
 
 - selector-list or media-query semantic equivalence across different spellings/orderings
 - declaration priority when the check omits the optional `priority` field
+- source-order relations when the check omits `afterSelector`; `afterSelector` itself uses exact selectorText matching
 - final geometry, line formation, scrolling, or paint order
 - real pointer/keyboard modality
 

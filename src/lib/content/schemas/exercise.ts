@@ -24,6 +24,7 @@ const RuleStyleCheckFields = {
   alsoAccepts: z.array(NonEmptyStringSchema).optional(),
   media: NonEmptyStringSchema.optional(),
   priority: z.enum(["normal", "important"]).optional(),
+  afterSelector: NonEmptyStringSchema.optional(),
 };
 
 export const RuleStyleCheckSchema = CheckBaseSchema.extend({
