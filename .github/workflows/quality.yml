@@ -38,6 +38,9 @@ jobs:
       - name: Test content contract
         run: pnpm test:content
 
+      - name: Audit M6B rebaseline
+        run: pnpm content:m6b-audit
+
       - name: Verify generated registry idempotency
         run: |
           pnpm content:generate
@@ -54,6 +57,11 @@ jobs:
 
       - name: Browser tests
         run: pnpm test:e2e
+
+      - name: Verify clean worktree
+        run: |
+          git diff --check
+          test -z "$(git status --short)"
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
