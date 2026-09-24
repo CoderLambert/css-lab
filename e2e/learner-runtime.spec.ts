@@ -64,6 +64,53 @@ async function readRuntimeReadyGenerations(page: Page): Promise<string[]> {
   });
 }
 
+async function installRuntimeReadyBlocker(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    if (window.top !== window) {
+      return;
+    }
+
+    const blockerWindow = window as typeof window & {
+      __labBlockRuntimeReady?: boolean;
+      __labBlockedRuntimeReadyGeneration?: string | null;
+    };
+
+    blockerWindow.__labBlockRuntimeReady = true;
+    blockerWindow.__labBlockedRuntimeReadyGeneration = null;
+
+    window.addEventListener("message", (event) => {
+      const message = event.data as {
+        source?: unknown;
+        type?: unknown;
+        generationId?: unknown;
+      };
+
+      if (
+        blockerWindow.__labBlockRuntimeReady &&
+        message?.source === "lab-runtime" &&
+        message.type === "runtime:ready" &&
+        typeof message.generationId === "string"
+      ) {
+        blockerWindow.__labBlockedRuntimeReadyGeneration =
+          message.generationId;
+        event.stopImmediatePropagation();
+      }
+    });
+  });
+}
+
+async function readBlockedRuntimeReadyGeneration(
+  page: Page,
+): Promise<string | null> {
+  return page.evaluate(() => {
+    const blockerWindow = window as typeof window & {
+      __labBlockedRuntimeReadyGeneration?: string | null;
+    };
+
+    return blockerWindow.__labBlockedRuntimeReadyGeneration ?? null;
+  });
+}
+
 test("learner navigation follows the published exercise sequence", async ({
   page,
 }) => {
@@ -218,6 +265,72 @@ test("editing updates preview, checking persists completion, and reload restores
     .poll(() => readEditorCss(page))
     .toContain("justify-content: center;");
   await expect(page.getByText("33%")).toBeVisible();
+});
+
+test("iframe load does not substitute for typed runtime ready", async ({
+  page,
+}) => {
+  await installRuntimeReadyBlocker(page);
+  await page.goto(FIRST_EXERCISE_URL);
+  await waitForExerciseHydration(page);
+
+  const preview = page.frameLocator(
+    'iframe[title="Browser exercise preview"]',
+  );
+  await expect(preview.locator(".container")).toBeVisible();
+
+  await expect
+    .poll(() => readBlockedRuntimeReadyGeneration(page))
+    .not.toBeNull();
+  const generationId = await readBlockedRuntimeReadyGeneration(page);
+
+  expect(generationId).toBeTruthy();
+
+  await replaceEditorCss(
+    page,
+    `.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}`,
+  );
+  await page.getByRole("button", { name: "检查答案" }).click();
+
+  await expect(
+    page.getByRole("button", { name: "检查中…" }),
+  ).toBeVisible();
+  await expect(page.getByText("全部检查通过")).toHaveCount(0);
+
+  await page.evaluate(() => {
+    const blockerWindow = window as typeof window & {
+      __labBlockRuntimeReady?: boolean;
+    };
+
+    blockerWindow.__labBlockRuntimeReady = false;
+  });
+
+  await preview.locator("body").evaluate(
+    (_, currentGenerationId) => {
+      parent.postMessage(
+        {
+          source: "lab-runtime",
+          type: "runtime:ready",
+          generationId: currentGenerationId,
+        },
+        "*",
+      );
+    },
+    generationId,
+  );
+
+  await expect(page.getByText("全部检查通过")).toBeVisible();
+  await expect
+    .poll(() =>
+      preview
+        .locator(".container")
+        .evaluate((element) => getComputedStyle(element).alignItems),
+    )
+    .toBe("center");
 });
 
 test("format is one undoable editor action and color swatches stay editor-local", async ({

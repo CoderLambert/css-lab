@@ -270,6 +270,51 @@ test("nested starter intermediate symlink and non-regular final target fail clos
   }
 });
 
+test("declared starter root escape is rejected for direct and list lookup", async () => {
+  const f = await fixture();
+
+  try {
+    const metadataPath = join(f.exercise, "exercise.json");
+    const metadata = JSON.parse(
+      await readFile(metadataPath, "utf8"),
+    );
+    const parentSegment = String.fromCharCode(46, 46);
+
+    metadata.workspace.files = [
+      { path: "index.html", language: "html", editable: false },
+      {
+        path: parentSegment + "/outside.css",
+        language: "css",
+        editable: true,
+      },
+    ];
+
+    await writeJson(metadataPath, metadata);
+    await writeFile(
+      join(f.exercise, "outside.css"),
+      ".container { display: block; }",
+      "utf8",
+    );
+
+    const reader = new FileContentReader(f.courses);
+
+    await expect(
+      reader.getExerciseBySlug(
+        "course",
+        "module",
+        "lesson",
+        "exercise",
+      ),
+    ).rejects.toThrow(/WorkspacePath|invalid/i);
+
+    await expect(
+      reader.listExercises("course", "module", "lesson"),
+    ).rejects.toThrow(/WorkspacePath|invalid/i);
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
 test("source inspector rejects unsafe undeclared starter entry", async () => {
   const f = await fixture();
 
