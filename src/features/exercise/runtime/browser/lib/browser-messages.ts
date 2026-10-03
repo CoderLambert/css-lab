@@ -110,7 +110,7 @@ function isCheck(value: unknown): value is Check {
     );
   }
 
-  if (value.type === "style") {
+  if (value.type === "style" || value.type === "rule-style") {
     return (
       hasOnlyKeys(value, [
         "id",
@@ -120,12 +120,23 @@ function isCheck(value: unknown): value is Check {
         "property",
         "equals",
         "alsoAccepts",
+        ...(value.type === "rule-style"
+          ? ["path", "media", "priority", "afterSelector"]
+          : []),
       ]) &&
       isNonEmptyString(value.property) &&
       isNonEmptyString(value.equals) &&
       (value.alsoAccepts === undefined ||
         (Array.isArray(value.alsoAccepts) &&
-          value.alsoAccepts.every(isNonEmptyString)))
+          value.alsoAccepts.every(isNonEmptyString))) &&
+      (value.type === "style" ||
+        (typeof value.path === "string" &&
+          isWorkspacePath(value.path) &&
+          workspacePathLanguage(value.path) === "css" &&
+          (value.media === undefined || isNonEmptyString(value.media)) &&
+          (value.priority === undefined ||
+            value.priority === "normal" || value.priority === "important") &&
+          (value.afterSelector === undefined || isNonEmptyString(value.afterSelector))))
     );
   }
 
@@ -229,7 +240,7 @@ export function isCheckResultMessage(
       "results",
     ]) &&
     value.source === LAB_MESSAGE_SOURCE.runtime &&
-    value.type === LAB_MESSAGE_TYPE.checkResult &&
+    value.type === LAB_MESSAGE_TYPE.runtimeReady.replace("runtime:ready", "check:result") &&
     isGenerationId(value.generationId) &&
     isNonEmptyString(value.requestId) &&
     typeof value.passed === "boolean" &&
