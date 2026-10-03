@@ -240,7 +240,7 @@ export function isCheckResultMessage(
       "results",
     ]) &&
     value.source === LAB_MESSAGE_SOURCE.runtime &&
-    value.type === LAB_MESSAGE_TYPE.runtimeReady.replace("runtime:ready", "check:result") &&
+    value.type === LAB_MESSAGE_TYPE.checkResult &&
     isGenerationId(value.generationId) &&
     isNonEmptyString(value.requestId) &&
     typeof value.passed === "boolean" &&
