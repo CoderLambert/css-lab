@@ -1,6 +1,7 @@
 import type { BrowserRuntimeDefinition } from "@/lib/content/schemas/exercise";
 import type { ExecutionSnapshot } from "@/lib/workspace/types";
 import type { BrowserDocumentIdentity } from "./browser-host";
+import { createRuleStyleCheckScript } from "./browser-rule-style";
 import {
   createGenerationId,
   createRandomNonce,
@@ -8,7 +9,7 @@ import {
   serializeLearnerHtml,
 } from "./browser-security";
 
-export const BROWSER_RUNTIME_BRIDGE_VERSION = 1;
+export const BROWSER_RUNTIME_BRIDGE_VERSION = 2;
 
 export interface BrowserDocumentDescriptor {
   generationId: string;
@@ -100,7 +101,7 @@ function createRuntimeBridge(
       );
     }
 
-    if (value.type === "style") {
+    if (value.type === "style" || value.type === "rule-style") {
       return (
         hasOnlyKeys(value, [
           "id",
@@ -110,12 +111,23 @@ function createRuntimeBridge(
           "property",
           "equals",
           "alsoAccepts",
+          ...(value.type === "rule-style"
+            ? ["path", "media", "priority", "afterSelector"]
+            : []),
         ]) &&
         isNonEmptyString(value.property) &&
         isNonEmptyString(value.equals) &&
         (value.alsoAccepts === undefined ||
           (Array.isArray(value.alsoAccepts) &&
-            value.alsoAccepts.every(isNonEmptyString)))
+            value.alsoAccepts.every(isNonEmptyString))) &&
+        (value.type === "style" ||
+          (typeof value.path === "string" &&
+            value.path.endsWith(".css") &&
+            value.path.split("/").every((segment) => /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(segment)) &&
+            (value.media === undefined || isNonEmptyString(value.media)) &&
+            (value.priority === undefined ||
+              value.priority === "normal" || value.priority === "important") &&
+            (value.afterSelector === undefined || isNonEmptyString(value.afterSelector))))
       );
     }
 
@@ -274,6 +286,8 @@ function createRuntimeBridge(
     return count;
   };
 
+  ${createRuleStyleCheckScript()}
+
   const runCheck = (check) => {
     if (!isRecord(check) || typeof check.id !== "string" || typeof check.message !== "string") {
       return {
@@ -285,6 +299,10 @@ function createRuntimeBridge(
         actual: null,
         diagnostic: null,
       };
+    }
+
+    if (check.type === "rule-style") {
+      return runRuleStyleCheck(check);
     }
 
     if (check.type === "count" && typeof check.selector === "string" && Number.isInteger(check.equals)) {
