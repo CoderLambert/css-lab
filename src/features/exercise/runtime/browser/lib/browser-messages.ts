@@ -97,6 +97,14 @@ function isCheck(value: unknown): value is Check {
     return false;
   }
 
+  if (value.type === "layout-contained") {
+    return (
+      hasOnlyKeys(value, ["id", "message", "type", "selector", "within", "axis"]) &&
+      isNonEmptyString(value.within) &&
+      value.axis === "x"
+    );
+  }
+
   if (value.type === "exists") {
     return hasOnlyKeys(value, ["id", "message", "type", "selector"]);
   }

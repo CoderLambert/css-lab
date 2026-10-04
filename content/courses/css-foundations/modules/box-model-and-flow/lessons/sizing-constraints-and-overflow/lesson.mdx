@@ -61,4 +61,6 @@
   goal="修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。"
 />
 
-这些 Exercise 的 checker 只验证明确写出的 CSS 声明。当前 DSL 不能可靠证明 intrinsic sizing、最终几何尺寸、滚动条是否出现或 overflow 是否真的发生；尤其是 `.label` 的 `width: max-content` 可能在 `getComputedStyle()` 中解析成 used pixel width，因此 intrinsic exercise 保留空 checks 并保持 draft。预览中的观察仍是学习的一部分，不应把声明检查误读成完整行为验证。
+“修复固定宽度失败”分别检查源码中的 `width: 320px` / `max-width: 100%`、实际生效的宽度上限，以及当前静态预览中头像 border box 是否处于容器 content box 的水平范围内。受约束后的 used width 可以小于 320px；不能把这个正确的缩小结果判错，也不能通过扩大容器或隐藏头像过关。
+
+这项水平布局检查不等于完整几何或行为认证：它不支持变换、滚动、动画等场景，也不验证纵向包含、绘制遮挡或多视口响应式行为。其他练习的现有声明/计算样式检查仍不能证明 intrinsic sizing、滚动条是否出现或 overflow 是否真的发生；`.label` 的 `width: max-content` 可能解析成 used pixel width，因此 intrinsic exercise 保留空 checks 并保持 draft。预览中的观察仍是学习的一部分，本课不因新增一项检查而自动发布。

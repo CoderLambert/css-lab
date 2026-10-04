@@ -199,7 +199,7 @@ Lesson content rules:
 - `Lesson` runtime objects must not carry MDX source, compiled content, or source paths.
 - Lesson MDX is compiled through the generated registry and may use only `Concept`, `Predict`, `Compare`, and `Exercise`.
 - Lesson MDX must not contain imports/exports, arbitrary JavaScript expressions, raw HTML/custom JSX, or level-one headings.
-- `Exercise` activities use a lesson-local `slug`, plus `label` and `goal`; do not hard-code learner absolute routes in MDX.
+- `Exercise` activities use a lesson-local `slug`, `label`, and `goal`; do not hard-code learner absolute routes in MDX.
 - `exercise.order` is the canonical learner navigation sequence. Effective learner-visible Lessons must reference every published Exercise exactly once and in that order; they must not reference draft Exercises. Draft Lessons, or Lessons hidden only because an ancestor is unpublished, may reference draft Exercises while still requiring existing, slug-matching, non-duplicate references.
 - The generated registry is not edited by hand. Run `pnpm content:generate` after adding or moving lesson content, then run `pnpm content:check` before completing content changes.
 
@@ -260,6 +260,7 @@ The current check protocol is intentionally small:
 
 - `style`
 - `rule-style`
+- `layout-contained`
 - `exists`
 - `count`
 
@@ -268,6 +269,8 @@ The current check protocol is intentionally small:
 `rule-style` proves source facts in one explicitly selected Workspace CSS file. Its required `path` must reference a declared editable CSS file; content validation enforces ownership, while the Runtime consumes the path and snapshot without reading editable metadata. It supports exact selector/property/CSSOM-value matching plus optional `alsoAccepts`, `media`, `priority` and `afterSelector` constraints. It does not prove cascade victory, geometry, actual pseudo-state interaction or viewport activation. Pair source facts with `style` when a rendered outcome matters.
 
 The source checker reads only the captured Workspace slot for that path, never arbitrary document stylesheets or learner-inserted style nodes. It inspects the last matching declaration in top-level rules or direct children of matching top-level media blocks; nested conditions/layers are not certified. See `.agents/skills/css-lesson-authoring/references/checker-guidelines.md` for exact-match semantics and anti-proxy examples.
+
+`layout-contained` checks a unique learner HTML target's actual border box against a unique strict ancestor's content box on `axis: "x"`, with fixed 0.5 CSS px tolerance. It requires finite positive dimensions and rejects hidden or unsupported transformed/scrolled/fragmented/animated scenes. It uses the existing captured snapshot and message/result protocol, not source spelling, arbitrary JavaScript, a viewport matrix, or a paint/occlusion oracle. Pair it with source constraints for preferred sizing objectives; `debug-fixed-width-failure` is the first draft consumer. The detailed supported scene and diagnostics are documented in the checker guidelines.
 
 `viewport-style` remains a separate future capability. Do not copy its source-branch contract into the production DSL or change curriculum publication as part of a checker-only task.
 

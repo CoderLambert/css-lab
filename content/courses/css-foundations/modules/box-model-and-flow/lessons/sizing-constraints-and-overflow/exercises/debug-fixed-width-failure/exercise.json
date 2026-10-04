@@ -1,33 +1,67 @@
 {
   "schemaVersion": 2,
   "id": "css.box-model-and-flow.sizing-constraints-and-overflow.debug-fixed-width-failure.001",
-  "revision": 1,
+  "revision": 2,
   "slug": "debug-fixed-width-failure",
   "title": "修复固定宽度失败",
-  "prompt": "修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。",
+  "prompt": "修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。保持 .frame 的 180px border-box，头像须有实际显示尺寸。",
   "order": 4,
   "status": "draft",
   "hints": [
     "先定位失败发生在哪个约束：preferred width 是否超过 containing block？",
-    "保留 320px 的宽度意图，再增加一个可用空间上限。",
+    "保留 320px 的宽度意图，再增加一个可用空间上限；不要扩大容器或隐藏头像。",
     "对 .avatar 设置 max-width: 100%。"
   ],
   "checks": [
     {
       "id": "preferred-width-kept",
-      "type": "style",
+      "type": "rule-style",
+      "path": "style.css",
       "selector": ".avatar",
       "property": "width",
       "equals": "320px",
-      "message": "保留 .avatar 的 preferred width"
+      "message": "在 style.css 中保留 .avatar 的 width: 320px 声明，而不是固定最终像素宽度"
     },
     {
       "id": "containing-width-cap",
+      "type": "rule-style",
+      "path": "style.css",
+      "selector": ".avatar",
+      "property": "max-width",
+      "equals": "100%",
+      "message": "在 style.css 中为 .avatar 声明基于可用空间的 max-width: 100%"
+    },
+    {
+      "id": "containing-width-cap-applied",
       "type": "style",
       "selector": ".avatar",
       "property": "max-width",
       "equals": "100%",
-      "message": "让 .avatar 不超过 containing block 的可用宽度"
+      "message": ".avatar 的实际 max-width 上限应为 100%，不能被其他规则覆盖"
+    },
+    {
+      "id": "fixture-width-kept",
+      "type": "style",
+      "selector": ".frame",
+      "property": "width",
+      "equals": "180px",
+      "message": "保持 .frame 的 180px 窄容器约束，不通过扩大容器绕过问题"
+    },
+    {
+      "id": "fixture-box-sizing-kept",
+      "type": "style",
+      "selector": ".frame",
+      "property": "box-sizing",
+      "equals": "border-box",
+      "message": "保持 .frame 的 border-box，让 180px 继续包含内边距和边框"
+    },
+    {
+      "id": "avatar-fits-frame",
+      "type": "layout-contained",
+      "selector": ".avatar",
+      "within": ".frame",
+      "axis": "x",
+      "message": "头像需要有实际显示尺寸，且左右边界不能超出容器的内容区"
     }
   ],
   "workspace": {
