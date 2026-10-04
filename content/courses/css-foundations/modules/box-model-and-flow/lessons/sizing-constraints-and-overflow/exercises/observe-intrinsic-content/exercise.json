@@ -4,28 +4,28 @@
   "revision": 2,
   "slug": "observe-intrinsic-content",
   "title": "让内容参与尺寸决定",
-  "prompt": "先观察 starter：block-level .label 的 width:auto 会使用 containing block 提供的可用 inline space。然后把它改成最大 intrinsic inline size，比较 box 如何从 available-space sizing 转为 content-derived sizing；不要用固定像素宽度模仿结果。",
+  "prompt": "先观察 starter：宽 frame 中 block-level .label 的 width:auto 会使用 containing block 提供的可用 inline space。然后把它改成最大 intrinsic inline size，比较 box 如何从 available-space sizing 转为 content-derived sizing；不要用固定像素宽度模仿结果。",
   "order": 1,
   "status": "draft",
   "hints": [
     "先预测 starter：block-level .label 的 width:auto 会优先使用 containing block 的可用 inline space，而不是 shrink-to-content。",
     "目标不是猜一个和文本差不多宽的 px 值，而是选择表示“最大 intrinsic inline size”的 sizing keyword。",
-    "保持 .label 为 display:block，并把 width 改成 max-content；观察背景/outline 的 box 宽度如何变化。"
+    "保持现有 #intrinsic-demo .label 规则的 display:block，并把 width 改成 max-content；观察背景/outline 如何从铺满 frame 收缩到内容宽度。"
   ],
   "checks": [
     {
       "id": "label-display-block-authored",
       "type": "rule-style",
       "path": "style.css",
-      "selector": ".label",
+      "selector": "#intrinsic-demo .label",
       "property": "display",
       "equals": "block",
-      "message": "在 style.css 中保持 .label 使用 display: block 参与 available-space 对比"
+      "message": "在 style.css 中保持 #intrinsic-demo .label 使用 display: block 参与 available-space 对比"
     },
     {
       "id": "label-display-block-applied",
       "type": "style",
-      "selector": ".label",
+      "selector": "#intrinsic-demo .label",
       "property": "display",
       "equals": "block",
       "message": ".label 的实际 display 仍应为 block，保持本题的 sizing context"
@@ -34,10 +34,34 @@
       "id": "label-width-max-content",
       "type": "rule-style",
       "path": "style.css",
-      "selector": ".label",
+      "selector": "#intrinsic-demo .label",
       "property": "width",
       "equals": "max-content",
       "message": "在 style.css 中用 width: max-content 选择最大 intrinsic inline size"
+    },
+    {
+      "id": "fixture-width-kept",
+      "type": "style",
+      "selector": "#intrinsic-demo",
+      "property": "width",
+      "equals": "420px",
+      "message": "保持 intrinsic demo 的 420px locked containing block，确保 starter/solution 对比真实可见"
+    },
+    {
+      "id": "fixture-box-sizing-kept",
+      "type": "style",
+      "selector": "#intrinsic-demo",
+      "property": "box-sizing",
+      "equals": "border-box",
+      "message": "保持 intrinsic demo 的 border-box fixture"
+    },
+    {
+      "id": "label-visible-and-contained",
+      "type": "layout-contained",
+      "selector": "#intrinsic-demo .label",
+      "within": "#intrinsic-demo",
+      "axis": "x",
+      "message": "max-content 结果需要形成真实可见 box，并保持在本题 locked frame 的 content box 内"
     }
   ],
   "workspace": {

@@ -143,8 +143,8 @@ async function measure(page: Page) {
   );
   if (!frame) throw new Error("missing runtime iframe");
   return frame.evaluate(() => {
-    const frameElement = document.querySelector<HTMLElement>(".frame");
-    const label = document.querySelector<HTMLElement>(".label");
+    const frameElement = document.querySelector<HTMLElement>("#intrinsic-demo");
+    const label = document.querySelector<HTMLElement>("#intrinsic-demo .label");
     if (!frameElement || !label) throw new Error("missing intrinsic fixture");
     const frameRect = frameElement.getBoundingClientRect();
     const labelRect = label.getBoundingClientRect();
@@ -160,6 +160,8 @@ async function measure(page: Page) {
       labelWidth: labelRect.width,
       labelHeight: labelRect.height,
       display: getComputedStyle(label).display,
+      visibility: getComputedStyle(label).visibility,
+      opacity: getComputedStyle(label).opacity,
       authoredVisibleText: label.textContent,
     };
   });
@@ -171,7 +173,7 @@ function result(response: CheckResultMessage, id: string) {
   return item;
 }
 
-test("intrinsic exercise v2 keeps draft identity and source-aware checks", () => {
+test("intrinsic exercise v2 keeps draft identity and source/layout evidence boundaries", () => {
   expect(exercise.status).toBe("draft");
   expect(exercise.revision).toBe(2);
   expect(exercise.id).toBe(
@@ -182,7 +184,7 @@ test("intrinsic exercise v2 keeps draft identity and source-aware checks", () =>
       id: "label-display-block-authored",
       type: "rule-style",
       path: "style.css",
-      selector: ".label",
+      selector: "#intrinsic-demo .label",
       property: "display",
       equals: "block",
     }),
@@ -192,15 +194,25 @@ test("intrinsic exercise v2 keeps draft identity and source-aware checks", () =>
       id: "label-width-max-content",
       type: "rule-style",
       path: "style.css",
+      selector: "#intrinsic-demo .label",
       property: "width",
       equals: "max-content",
+    }),
+  );
+  expect(exercise.checks).toContainEqual(
+    expect.objectContaining({
+      id: "label-visible-and-contained",
+      type: "layout-contained",
+      selector: "#intrinsic-demo .label",
+      within: "#intrinsic-demo",
+      axis: "x",
     }),
   );
   expect(starterCss).not.toContain("white-space");
   expect(solutionCss).not.toContain("white-space");
 });
 
-test("starter available-space sizing and solved max-content sizing are visibly different in the real iframe", async ({ page }) => {
+test("starter available-space sizing visibly shrinks to max-content in the real iframe", async ({ page }) => {
   const mounted = await mountRuntime(page);
 
   const starterResult = await runChecks(page, mounted, snapshot(starterCss));
@@ -208,6 +220,7 @@ test("starter available-space sizing and solved max-content sizing are visibly d
   expect(result(starterResult, "label-display-block-authored").reason).toBe("matched");
   expect(result(starterResult, "label-display-block-applied").reason).toBe("matched");
   expect(result(starterResult, "label-width-max-content").reason).toBe("mismatch");
+  expect(result(starterResult, "label-visible-and-contained").reason).toBe("matched");
   const starterMeasure = await measure(page);
   expect(starterMeasure.display).toBe("block");
   expect(Math.abs(starterMeasure.labelWidth - starterMeasure.frameContentWidth)).toBeLessThanOrEqual(0.75);
@@ -215,32 +228,91 @@ test("starter available-space sizing and solved max-content sizing are visibly d
   const solvedResult = await runChecks(page, mounted, snapshot(solutionCss));
   expect(solvedResult.passed).toBe(true);
   expect(result(solvedResult, "label-width-max-content").reason).toBe("matched");
+  expect(result(solvedResult, "label-visible-and-contained").reason).toBe("matched");
   const solvedMeasure = await measure(page);
   expect(solvedMeasure.display).toBe("block");
-  expect(solvedMeasure.labelWidth).toBeGreaterThan(starterMeasure.labelWidth + 1);
-  expect(solvedMeasure.labelWidth).toBeGreaterThan(solvedMeasure.frameContentWidth + 1);
+  expect(solvedMeasure.visibility).toBe("visible");
+  expect(solvedMeasure.opacity).toBe("1");
+  expect(solvedMeasure.labelHeight).toBeGreaterThan(0);
+  expect(solvedMeasure.labelWidth).toBeLessThan(starterMeasure.labelWidth - 1);
+  expect(solvedMeasure.labelWidth).toBeLessThan(solvedMeasure.frameContentWidth - 1);
   expect(solvedMeasure.authoredVisibleText).toContain("intrinsic content");
 });
 
-test("fixed pixel substitution and display-context override do not satisfy the exercise contract", async ({ page }) => {
+test("direct fixed pixels and same-selector fixed-width overrides fail authored evidence", async ({ page }) => {
   const mounted = await mountRuntime(page);
 
-  const fixedPixel = await runChecks(
-    page,
-    mounted,
-    snapshot(".label { display:block; width:260px; }"),
-  );
-  expect(fixedPixel.passed).toBe(false);
-  expect(result(fixedPixel, "label-width-max-content").reason).toBe("mismatch");
+  for (const css of [
+    "#intrinsic-demo .label { display:block; width:260px; }",
+    solutionCss + "#intrinsic-demo .label { width:260px; }",
+  ]) {
+    const response = await runChecks(page, mounted, snapshot(css));
+    expect(response.passed, css).toBe(false);
+    expect(result(response, "label-width-max-content").reason, css).toBe("mismatch");
+  }
+});
 
-  const overriddenDisplay = await runChecks(
-    page,
-    mounted,
-    snapshot(
-      ".label { display:block; width:max-content; } .frame .label { display:inline; }",
-    ),
-  );
-  expect(overriddenDisplay.passed).toBe(false);
-  expect(result(overriddenDisplay, "label-display-block-authored").reason).toBe("matched");
-  expect(result(overriddenDisplay, "label-display-block-applied").reason).toBe("mismatch");
+test("common lower-specificity width overrides cannot displace the intended max-content rule", async ({ page }) => {
+  const mounted = await mountRuntime(page);
+  const baseline = await runChecks(page, mounted, snapshot(solutionCss));
+  expect(baseline.passed).toBe(true);
+  const baselineMeasure = await measure(page);
+
+  for (const css of [
+    solutionCss + ".frame .label { width:260px; }",
+    solutionCss + "body .label { width:260px; }",
+    solutionCss + ".label:first-child { width:260px; }",
+    solutionCss + "* > .label { width:260px; }",
+  ]) {
+    const response = await runChecks(page, mounted, snapshot(css));
+    expect(response.passed, css).toBe(true);
+    const current = await measure(page);
+    expect(Math.abs(current.labelWidth - baselineMeasure.labelWidth), css).toBeLessThanOrEqual(0.75);
+  }
+});
+
+test("display-context, hidden, transform, zero-size and fixture rewrites do not preserve a false pass", async ({ page }) => {
+  const mounted = await mountRuntime(page);
+  const cases: Array<[string, string, "mismatch" | "checker-error"]> = [
+    [
+      solutionCss + "body #intrinsic-demo .label { display:inline; }",
+      "label-display-block-applied",
+      "mismatch",
+    ],
+    [
+      solutionCss + "#intrinsic-demo .label { visibility:hidden; }",
+      "label-visible-and-contained",
+      "mismatch",
+    ],
+    [
+      solutionCss + "#intrinsic-demo .label { opacity:0; }",
+      "label-visible-and-contained",
+      "mismatch",
+    ],
+    [
+      solutionCss + "#intrinsic-demo .label { transform:scale(1); }",
+      "label-visible-and-contained",
+      "checker-error",
+    ],
+    [
+      solutionCss + "#intrinsic-demo .label { width:max-content; height:0; overflow:hidden; }",
+      "label-visible-and-contained",
+      "mismatch",
+    ],
+    [
+      solutionCss + "#intrinsic-demo { width:700px; }",
+      "fixture-width-kept",
+      "mismatch",
+    ],
+    [
+      solutionCss + "#intrinsic-demo { box-sizing:content-box; }",
+      "fixture-box-sizing-kept",
+      "mismatch",
+    ],
+  ];
+  for (const [css, id, reason] of cases) {
+    const response = await runChecks(page, mounted, snapshot(css));
+    expect(response.passed, css).toBe(false);
+    expect(result(response, id).reason, css).toBe(reason);
+  }
 });
