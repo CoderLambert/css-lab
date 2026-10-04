@@ -215,6 +215,7 @@ function LearningWorkspaceSession({
       snapshot={snapshot}
       checkRequest={checkRequest}
       checkState={checkState}
+      checks={exercise.checks}
       hints={exercise.hints}
       revealedHintCount={revealedHintCount}
       hasEditableHtml={hasEditableHtml}

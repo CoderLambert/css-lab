@@ -1,6 +1,7 @@
 import type { BrowserRuntimeDefinition } from "@/lib/content/schemas/exercise";
 import type { ExecutionSnapshot } from "@/lib/workspace/types";
 import type { BrowserDocumentIdentity } from "./browser-host";
+import { createLayoutContainedCheckScript } from "./browser-layout-contained";
 import { createRuleStyleCheckScript } from "./browser-rule-style";
 import {
   createGenerationId,
@@ -9,7 +10,7 @@ import {
   serializeLearnerHtml,
 } from "./browser-security";
 
-export const BROWSER_RUNTIME_BRIDGE_VERSION = 2;
+export const BROWSER_RUNTIME_BRIDGE_VERSION = 3;
 
 export interface BrowserDocumentDescriptor {
   generationId: string;
@@ -87,6 +88,14 @@ function createRuntimeBridge(
       !isNonEmptyString(value.selector)
     ) {
       return false;
+    }
+
+    if (value.type === "layout-contained") {
+      return (
+        hasOnlyKeys(value, ["id", "message", "type", "selector", "within", "axis"]) &&
+        isNonEmptyString(value.within) &&
+        value.axis === "x"
+      );
     }
 
     if (value.type === "exists") {
@@ -287,6 +296,7 @@ function createRuntimeBridge(
   };
 
   ${createRuleStyleCheckScript()}
+  ${createLayoutContainedCheckScript()}
 
   const runCheck = (check) => {
     if (!isRecord(check) || typeof check.id !== "string" || typeof check.message !== "string") {
@@ -299,6 +309,10 @@ function createRuntimeBridge(
         actual: null,
         diagnostic: null,
       };
+    }
+
+    if (check.type === "layout-contained") {
+      return runLayoutContainedCheck(check);
     }
 
     if (check.type === "rule-style") {

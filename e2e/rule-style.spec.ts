@@ -158,7 +158,7 @@ async function mountRuntime(
 
 test("rule-style schema and host guard accept the same strict contract", () => {
   expect(CheckSchema.options.map((schema) => schema.shape.type.value)).toEqual([
-    "style", "rule-style", "exists", "count",
+    "style", "rule-style", "layout-contained", "exists", "count",
   ]);
   const valid = [
     rule(),

@@ -30,6 +30,13 @@ export const RuleStyleCheckSchema = CheckBaseSchema.extend({
   afterSelector: NonEmptyStringSchema.optional(),
 }).strict();
 
+export const LayoutContainedCheckSchema = CheckBaseSchema.extend({
+  type: z.literal("layout-contained"),
+  selector: NonEmptyStringSchema,
+  within: NonEmptyStringSchema,
+  axis: z.literal("x"),
+}).strict();
+
 export const ExistsCheckSchema = CheckBaseSchema.extend({
   type: z.literal("exists"),
   selector: NonEmptyStringSchema,
@@ -44,6 +51,7 @@ export const CountCheckSchema = CheckBaseSchema.extend({
 export const CheckSchema = z.discriminatedUnion("type", [
   StyleCheckSchema,
   RuleStyleCheckSchema,
+  LayoutContainedCheckSchema,
   ExistsCheckSchema,
   CountCheckSchema,
 ]);
@@ -91,6 +99,7 @@ export const ExerciseRecordSchema = z.object({
 
 export type StyleCheck = z.infer<typeof StyleCheckSchema>;
 export type RuleStyleCheck = z.infer<typeof RuleStyleCheckSchema>;
+export type LayoutContainedCheck = z.infer<typeof LayoutContainedCheckSchema>;
 export type ExistsCheck = z.infer<typeof ExistsCheckSchema>;
 export type CountCheck = z.infer<typeof CountCheckSchema>;
 export type Check = z.infer<typeof CheckSchema>;
