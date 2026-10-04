@@ -1,10 +1,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test, type Page } from "@playwright/test";
 
-import { CheckResults } from "../src/features/exercise/components/check-results";
+import { createCheckFeedbackRenderer } from "./helpers/check-feedback-renderer";
 import { BROWSER_RUNTIME_BRIDGE_VERSION, createBrowserDocument } from "../src/features/exercise/runtime/browser/lib/browser-document";
 import { acceptsCheckResult, createBrowserDocumentIdentity, planCapturedCheckDispatch } from "../src/features/exercise/runtime/browser/lib/browser-host";
 import { isCheckResultMessage, type CheckResultMessage } from "../src/features/exercise/runtime/browser/lib/browser-messages";
@@ -20,6 +18,10 @@ const files = exercise.workspace.files.map((file) => ({
 }));
 const generationId = "feedback-generation";
 let sequence = 0;
+let feedbackRenderer: ReturnType<typeof createCheckFeedbackRenderer>;
+
+test.beforeAll(() => { feedbackRenderer = createCheckFeedbackRenderer(); });
+test.afterAll(() => { feedbackRenderer?.dispose(); });
 
 function snapshot(css: string): ExecutionSnapshot {
   return { files: files.map((file) => file.path === "style.css" ? { ...file, content: css } : file) };
@@ -90,10 +92,10 @@ async function run(page: Page, css: string, checks: readonly Check[] = exercise.
 async function show(page: Page, response: CheckResultMessage, checks: readonly Check[] = exercise.checks, hasEditableHtml = false) {
   // Render the production React feedback component from real runtime output.
   // This is component+iframe integration, not a published learner-route test.
-  const markup = renderToStaticMarkup(createElement(CheckResults, {
+  const markup = feedbackRenderer.render({
     state: { status: "complete", requestId: response.requestId, passed: response.passed, results: response.results },
     checks, hasEditableHtml,
-  }));
+  });
   await page.locator("#feedback").evaluate((node, markup) => { node.innerHTML = markup; }, markup);
   return page.locator("#feedback");
 }
