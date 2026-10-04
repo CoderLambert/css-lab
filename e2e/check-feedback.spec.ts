@@ -90,8 +90,6 @@ async function run(page: Page, css: string, checks: readonly Check[] = exercise.
 }
 
 async function show(page: Page, response: CheckResultMessage, checks: readonly Check[] = exercise.checks, hasEditableHtml = false) {
-  // Render the production React feedback component from real runtime output.
-  // This is component+iframe integration, not a published learner-route test.
   const markup = feedbackRenderer.render({
     state: { status: "complete", requestId: response.requestId, passed: response.passed, results: response.results },
     checks, hasEditableHtml,
@@ -106,12 +104,12 @@ function sourceCheck(): RuleStyleCheck {
   return found;
 }
 
-test("real missing CSS rules display source feedback while the HTML target still exists", async ({ page }) => {
+test("real missing CSS rules display source feedback while learner HTML targets still exist", async ({ page }) => {
   await mount(page);
   const response = await run(page, "");
   expect(response.passed).toBe(false);
   expect(response.results.find((item) => item.id === "preferred-width-kept")?.reason).toBe("target-not-found");
-  await expect(page.frameLocator("#runtime").locator(".avatar")).toHaveCount(1);
+  await expect(page.frameLocator("#runtime").locator(".avatar")).toHaveCount(2);
   const feedback = await show(page, response);
   await expect(feedback).toContainText("style.css");
   await expect(feedback).toContainText("CSS 规则");
@@ -119,11 +117,25 @@ test("real missing CSS rules display source feedback while the HTML target still
   await expect(feedback).toContainText("当前实现还未满足全部条件");
   await expect(feedback).not.toContainText("当前 learner HTML");
   await expect(feedback).not.toContainText("内容配置问题");
+
   const solved = await run(page, solution);
   expect(solved.passed).toBe(true);
   await show(page, solved);
   await expect(feedback).toContainText("全部检查通过");
   await expect(feedback).not.toContainText("请检查选择器和声明位置");
+});
+
+test("cascade hard-coding is explained as an answer mismatch rather than a checker fault", async ({ page }) => {
+  await mount(page);
+  const response = await run(page, solution + ".frame .avatar {width:154px}");
+  expect(response.passed).toBe(false);
+  expect(response.results.find((item) => item.id === "wide-preferred-width-applied")?.reason).toBe("mismatch");
+  const feedback = await show(page, response);
+  await expect(feedback).toContainText("空间足够时");
+  await expect(feedback).toContainText("320px");
+  await expect(feedback).toContainText("154px");
+  await expect(feedback).toContainText("当前实现还未满足全部条件");
+  await expect(feedback).not.toContainText("部分检查未能完成");
 });
 
 test("layout errors expose their actual reason without claiming the learner or platform is broken", async ({ page }) => {
@@ -158,10 +170,17 @@ test("real DOM absence retains the locked/editable HTML distinction", async ({ p
 
 test("missing layout container names both targets rather than claiming the avatar is missing", async ({ page }) => {
   await mount(page);
-  const checks: Check[] = [{ id: "missing-layout", type: "layout-contained", selector: ".avatar", within: ".absent", axis: "x", message: "Layout requirement" }];
+  const checks: Check[] = [{
+    id: "missing-layout",
+    type: "layout-contained",
+    selector: ".frame:first-of-type .avatar",
+    within: ".absent",
+    axis: "x",
+    message: "Layout requirement",
+  }];
   const response = await run(page, solution, checks);
   const feedback = await show(page, response, checks);
-  await expect(feedback).toContainText("目标 .avatar 与容器 .absent");
+  await expect(feedback).toContainText("目标 .frame:first-of-type .avatar 与容器 .absent");
   await expect(feedback).toContainText("本题 HTML 为锁定内容");
 });
 

@@ -87,7 +87,7 @@ The first version deliberately supports only static, untransformed `horizontal-t
 
 Failures remain ordinary per-check results rather than throwing out the entire check request. `expected` and `actual` contain readable intervals or a specific reason; `diagnostic.property` is null because this is not a CSS-property equality assertion. Captured CSS is dispatched by the existing host immediately before checking, with unchanged generation/request identities. The helper neither reads Progress/solutions nor enables learner JavaScript.
 
-The first consuming Exercise is `debug-fixed-width-failure`. It combines authored width/cap checks, the effective max-width, retained narrow fixture constraints and measured containment. Original assets/solution stay unchanged. Its revision increases to 2 so the corrected acceptance cannot reuse a revision-1 completion; Exercise schemaVersion, stable ID, Workspace/DB contracts and draft status are unchanged. New layout support alone does not approve the whole Lesson for publication.
+The first consuming Exercise is `debug-fixed-width-failure`. It combines authored width/cap checks, a narrow horizontal-containment sample and a second locked wide sample where the used width must remain 320px. The reference solution stays unchanged; the locked HTML/base fixture gains the second context inside revision 2 so common fixed-pixel or more-specific overrides cannot pass merely by matching the narrow sample. Exercise schemaVersion, stable ID, Workspace/DB contracts and draft status remain unchanged. New layout support alone does not approve the whole Lesson for publication.
 
 The measurement boundary follows CSSOM View's transformed border-box/fragment semantics and CSSOM's resolved padding values. This is why transformed or fragmented scenes cannot use the simple subtraction algorithm.
 
@@ -95,7 +95,7 @@ The measurement boundary follows CSSOM View's transformed border-box/fragment se
 
 **Authored mechanism plus outcome:** use `rule-style` for `width: 2rem`, then `style` for the expected computed width in a controlled fixture. Computed `32px` alone cannot prove use of `rem`.
 
-**Preferred width plus available-space cap:** use `rule-style` for the preferred width and percentage cap, then `layout-contained` for actual horizontal fit. Do not require the constrained used width to equal the preferred width. Preserve narrow fixture constraints rather than allowing a wider container to make the test vacuous.
+**Preferred width plus available-space cap:** use `rule-style` for the preferred width and percentage cap, then combine a narrow `layout-contained` assertion with a wider locked context whose computed width still equals the preferred width. A single narrow used size is too easy to reproduce with a fixed-pixel cascade override. Multi-context evidence still does not prove the absence of every deliberately fixture-specific selector; the goal is to reject reasonable alternative mechanisms without building a general cascade engine.
 
 **Selector strategy plus match boundary:** use `rule-style` for the intended selector, then positive and negative `style` checks for target and non-target outcomes. Final appearance alone cannot prove a combinator or selector strategy.
 

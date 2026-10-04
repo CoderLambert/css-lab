@@ -16,6 +16,11 @@ body {
   padding: 12px;
 }
 
+.frame + .frame {
+  width: 400px;
+  margin-top: 16px;
+}
+
 .avatar {
   aspect-ratio: 1;
   border: 1px solid;

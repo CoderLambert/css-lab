@@ -58,9 +58,9 @@
 <Exercise
   slug="debug-fixed-width-failure"
   label="修复固定宽度失败"
-  goal="修复 .avatar 在窄 containing block 中溢出的固定宽度假设：保留宽度意图，同时让它不超过可用 inline size。"
+  goal="让同一条 .avatar 规则在窄容器中受可用空间约束，同时在宽容器中保留 320px preferred width。"
 />
 
-“修复固定宽度失败”分别检查源码中的 `width: 320px` / `max-width: 100%`、实际生效的宽度上限，以及当前静态预览中头像 border box 是否处于容器 content box 的水平范围内。受约束后的 used width 可以小于 320px；不能把这个正确的缩小结果判错，也不能通过扩大容器或隐藏头像过关。
+“修复固定宽度失败”用两个锁定 containing block 验证同一条 learner rule：窄 frame 中头像必须被 `max-width: 100%` 约束且保持在 content box 内，宽 frame 中实际宽度仍应为 320px。源码检查同时确认 `width: 320px` 与 `max-width: 100%` 的 authored intent。这样不会把窄容器中的正确缩小判错，也不会让通用的固定 used-width override 仅靠碰巧等于当前窄 fixture 宽度过关。
 
-这项水平布局检查不等于完整几何或行为认证：它不支持变换、滚动、动画等场景，也不验证纵向包含、绘制遮挡或多视口响应式行为。其他练习的现有声明/计算样式检查仍不能证明 intrinsic sizing、滚动条是否出现或 overflow 是否真的发生；`.label` 的 `width: max-content` 可能解析成 used pixel width，因此 intrinsic exercise 保留空 checks 并保持 draft。预览中的观察仍是学习的一部分，本课不因新增一项检查而自动发布。
+这仍不是“无法作弊”的通用 cascade 证明：刻意针对锁定 fixture 结构编写特殊规则超出本练习的正常解题路径。当前证据组合负责验证正常课程路径中的源码意图、宽/窄两个结果和窄容器几何包含；它不支持变换、滚动、动画，也不验证纵向包含、绘制遮挡或多视口响应式行为。其他练习的现有声明/计算样式检查仍不能证明 intrinsic sizing、滚动条是否出现或 overflow 是否真的发生；`.label` 的 `width: max-content` 可能解析成 used pixel width，因此 intrinsic exercise 保留空 checks 并保持 draft。预览中的观察仍是学习的一部分，本课不因新增一项检查而自动发布。

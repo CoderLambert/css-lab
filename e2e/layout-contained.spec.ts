@@ -50,8 +50,13 @@ function snapshot(css = starterCss, html?: string): ExecutionSnapshot {
 
 function layout(overrides: Partial<LayoutContainedCheck> = {}): LayoutContainedCheck {
   return {
-    id: "avatar-fits-frame", type: "layout-contained", selector: ".avatar",
-    within: ".frame", axis: "x", message: "头像应实际位于容器内容区内", ...overrides,
+    id: "avatar-fits-frame",
+    type: "layout-contained",
+    selector: ".frame:first-of-type .avatar",
+    within: ".frame:first-of-type",
+    axis: "x",
+    message: "窄容器头像应实际位于容器内容区内",
+    ...overrides,
   };
 }
 
@@ -76,7 +81,9 @@ interface MountedRuntime {
 async function mountRuntime(page: Page, captured = snapshot()): Promise<MountedRuntime> {
   const generationId = `layout-generation-${++sequence}`;
   const descriptor = createBrowserDocument({
-    runtime: exercise.runtime, snapshot: captured, generationId,
+    runtime: exercise.runtime,
+    snapshot: captured,
+    generationId,
     nonce: "00112233445566778899aabbccddeeff",
   });
   await page.setContent('<iframe id="runtime" width="800" height="600" sandbox="allow-scripts"></iframe>');
@@ -117,7 +124,9 @@ async function runChecks(
   const messages: unknown[] = [
     ...ignoredMessages,
     ...planCapturedCheckDispatch(mounted.generationId, exercise.runtime, mounted.identity, {
-      requestId, snapshot: captured, checks,
+      requestId,
+      snapshot: captured,
+      checks,
     }),
   ];
   const responses = await page.evaluate(async ({ messages, requestId, generationId }) => {
@@ -144,7 +153,6 @@ async function runChecks(
       for (const message of messages) targetWindow.postMessage(message, "*");
     });
   }, { messages, requestId, generationId: mounted.generationId });
-  // Final valid request is a FIFO barrier; malformed packets must not emit results.
   expect(responses).toHaveLength(1);
   const response = responses[0];
   if (!isCheckResultMessage(response)) throw new Error("invalid result protocol");
@@ -175,41 +183,76 @@ test("layout-contained has a strict schema/host contract without configurable to
   expect(exercise.checks).toContainEqual(expect.objectContaining({
     id: "preferred-width-kept", type: "rule-style", path: "style.css", equals: "320px",
   }));
-  expect(exercise.checks).toContainEqual(expect.objectContaining({ type: "layout-contained", axis: "x" }));
+  expect(exercise.checks).toContainEqual(expect.objectContaining({
+    id: "wide-preferred-width-applied", type: "style",
+    selector: ".frame:last-of-type .avatar", equals: "320px",
+  }));
+  expect(exercise.checks).toContainEqual(expect.objectContaining({
+    id: "avatar-fits-frame", type: "layout-contained",
+    selector: ".frame:first-of-type .avatar", axis: "x",
+  }));
 });
 
-test("real draft starter fails and the unchanged reference solution passes captured iframe checks", async ({ page }) => {
+test("real draft starter fails and the unchanged reference solution passes both locked sizing contexts", async ({ page }) => {
   const mounted = await mountRuntime(page);
   const initial = await runChecks(page, mounted, snapshot());
   expect(initial.passed).toBe(false);
   expect(findResult(initial, "preferred-width-kept").reason).toBe("matched");
+  expect(findResult(initial, "wide-preferred-width-applied").reason).toBe("matched");
   expect(findResult(initial, "avatar-fits-frame").reason).toBe("mismatch");
+
   const solved = await runChecks(page, mounted, snapshot(solutionCss));
   expect(solved.passed).toBe(true);
   expect(findResult(solved, "preferred-width-kept").actual).toBe("320px");
+  expect(findResult(solved, "wide-preferred-width-applied")).toMatchObject({
+    reason: "matched", actual: "320px",
+  });
   expect(findResult(solved, "avatar-fits-frame")).toMatchObject({
-    reason: "matched", diagnostic: { selector: ".avatar", property: null },
+    reason: "matched",
+    diagnostic: { selector: ".frame:first-of-type .avatar", property: null },
   });
   expect(findResult(solved, "avatar-fits-frame").expected).toContain("content x=");
   expect(findResult(solved, "avatar-fits-frame").actual).toContain("border x=");
-  // A later preview edit must not replace the click-time snapshot supplied by the host.
+
   const capturedSolution = snapshot(solutionCss);
   expect((await runChecks(page, mounted, snapshot())).passed).toBe(false);
   expect((await runChecks(page, mounted, capturedSolution)).passed).toBe(true);
   expect((await runChecks(page, mounted, snapshot())).passed).toBe(false);
 });
 
-test("fixed pixel substitution and enlarging the fixture cannot certify the learning objective", async ({ page }) => {
+test("direct and common cascade hard-coding cannot certify the preferred-width mechanism", async ({ page }) => {
   const mounted = await mountRuntime(page);
-  const hardCoded = await runChecks(page, mounted, snapshot(solutionCss.replace("320px", "154px")));
-  expect(findResult(hardCoded, "preferred-width-kept").reason).toBe("mismatch");
-  expect(hardCoded.passed).toBe(false);
-  const wider = await runChecks(page, mounted, snapshot(solutionCss + ".frame { width: 500px; }"));
-  expect(findResult(wider, "fixture-width-kept").reason).toBe("mismatch");
-  expect(wider.passed).toBe(false);
-  const differentBox = await runChecks(page, mounted, snapshot(solutionCss + ".frame { box-sizing: content-box; }"));
-  expect(findResult(differentBox, "fixture-box-sizing-kept").reason).toBe("mismatch");
-  expect(differentBox.passed).toBe(false);
+  const direct = await runChecks(page, mounted, snapshot(solutionCss.replace("320px", "154px")));
+  expect(findResult(direct, "preferred-width-kept").reason).toBe("mismatch");
+  expect(findResult(direct, "wide-preferred-width-applied").reason).toBe("mismatch");
+  expect(direct.passed).toBe(false);
+
+  for (const css of [
+    solutionCss + ".frame .avatar { width:154px; }",
+    solutionCss + "body .avatar { width:154px; }",
+    solutionCss + ".avatar:first-child { width:154px; }",
+    solutionCss + "* > .avatar { width:154px; }",
+    solutionCss + ".frame .avatar { max-width:154px; }",
+  ]) {
+    const response = await runChecks(page, mounted, snapshot(css));
+    expect(findResult(response, "wide-preferred-width-applied").reason, css).toBe("mismatch");
+    expect(response.passed, css).toBe(false);
+  }
+});
+
+test("narrow and wide fixture constraints cannot be changed to make a fixed answer pass", async ({ page }) => {
+  const mounted = await mountRuntime(page);
+  const cases: Array<[string, string]> = [
+    [solutionCss + ".frame { width:500px; }", "fixture-width-kept"],
+    [solutionCss + ".frame + .frame { width:180px; }", "wide-fixture-width-kept"],
+    [solutionCss + ".frame { box-sizing:content-box; }", "fixture-box-sizing-kept"],
+    [solutionCss + ".frame + .frame { box-sizing:content-box; }", "wide-fixture-box-sizing-kept"],
+  ];
+  for (const [css, id] of cases) {
+    const response = await runChecks(page, mounted, snapshot(css));
+    expect(findResult(response, id).reason, css).toBe("mismatch");
+    expect(response.passed, css).toBe(false);
+  }
 });
 
 test("actual edges, box sizing, zero dimensions and explicit hiding are not false positives", async ({ page }) => {
@@ -234,12 +277,18 @@ test("unique strict ancestors and learner-fragment selector boundaries are enfor
   const checks = [
     layout({ id: "missing", selector: ".absent" }),
     layout({ id: "missing-container", within: ".absent" }),
-    layout({ id: "self", within: ".avatar" }),
-    layout({ id: "reversed", selector: ".frame", within: ".avatar" }),
-    layout({ id: "ambiguous", selector: ".avatar, .frame" }),
-    layout({ id: "ambiguous-container", within: ".avatar, .frame" }),
-    layout({ id: "invalid", selector: "[" }), layout({ id: "invalid-container", within: "[" }),
-    layout({ id: "shell", within: "body" }), layout({ id: "root", within: "#learner-root" }),
+    layout({ id: "self", within: ".frame:first-of-type .avatar" }),
+    layout({
+      id: "reversed",
+      selector: ".frame:first-of-type",
+      within: ".frame:first-of-type .avatar",
+    }),
+    layout({ id: "ambiguous", selector: ".avatar" }),
+    layout({ id: "ambiguous-container", within: ".frame" }),
+    layout({ id: "invalid", selector: "[" }),
+    layout({ id: "invalid-container", within: "[" }),
+    layout({ id: "shell", within: "body" }),
+    layout({ id: "root", within: "#learner-root" }),
     layout({ id: "slot", selector: 'style[data-workspace-path="style.css"]' }),
   ];
   const response = await runChecks(page, mounted, snapshot(solutionCss), checks);
@@ -247,12 +296,14 @@ test("unique strict ancestors and learner-fragment selector boundaries are enfor
     "target-not-found", "target-not-found", "mismatch", "mismatch", "checker-error",
     "checker-error", "checker-error", "checker-error", "target-not-found", "target-not-found", "target-not-found",
   ]);
+
   const siblingHtml = '<div class="frame"></div><div class="avatar">A</div>';
   const siblings = snapshot(solutionCss, siblingHtml);
   const remounted = await mountRuntime(page, siblings);
-  expect((await runChecks(page, remounted, siblings, [layout()])).results[0].reason).toBe("mismatch");
+  const nonAncestor = layout({ selector: ".avatar", within: ".frame" });
+  expect((await runChecks(page, remounted, siblings, [nonAncestor])).results[0].reason).toBe("mismatch");
   expect(() => planCapturedCheckDispatch(mounted.generationId, exercise.runtime, mounted.identity, {
-    requestId: "changed-html", snapshot: siblings, checks: [layout()],
+    requestId: "changed-html", snapshot: siblings, checks: [nonAncestor],
   })).toThrow("different Browser document generation");
 });
 
@@ -276,14 +327,19 @@ test("unsupported coordinate, scrolling, paint and moving scenes fail closed", a
 });
 
 test("fragmented inline boxes and explicitly hidden HTML are rejected without learner JS", async ({ page }) => {
-  const fragmented = snapshot(".frame {width:80px} .avatar {padding:0;border:0;font:16px monospace;}",
-    '<div class="frame"><span class="avatar">one two three four five six seven eight</span></div>');
+  const fragmented = snapshot(
+    ".frame {width:80px} .avatar {padding:0;border:0;font:16px monospace;}",
+    '<div class="frame"><span class="avatar">one two three four five six seven eight</span></div>',
+  );
   const mounted = await mountRuntime(page, fragmented);
   const response = await runChecks(page, mounted, fragmented, [layout()]);
   expect(response.results[0].reason).toBe("checker-error");
   expect(response.results[0].actual).toContain("多片段");
-  const hidden = snapshot(solutionCss + ".avatar {display:block}",
-    '<div class="frame"><div hidden class="avatar">A</div></div>');
+
+  const hidden = snapshot(
+    solutionCss + ".avatar {display:block}",
+    '<div class="frame"><div hidden class="avatar">A</div></div>',
+  );
   const hiddenRuntime = await mountRuntime(page, hidden);
   expect((await runChecks(page, hiddenRuntime, hidden, [layout()])).results[0].reason).toBe("mismatch");
 });
@@ -310,8 +366,10 @@ test("malformed layout packets and stale identities are ignored by the real ifra
     ...valid, requestId: `invalid-${index}`, checks: [check],
   }));
   ignored.push(
-    { ...valid, generationId: "stale" }, { ...valid, requestId: "" },
-    { ...valid, source: "not-host" }, { ...valid, unknown: true },
+    { ...valid, generationId: "stale" },
+    { ...valid, requestId: "" },
+    { ...valid, source: "not-host" },
+    { ...valid, unknown: true },
   );
   const response = await runChecks(page, mounted, snapshot(solutionCss), exercise.checks, ignored);
   expect(response.passed).toBe(true);
@@ -323,7 +381,6 @@ test("viewport scrolling is outside the supported static contract", async ({ pag
   expect((await runChecks(page, mounted, longDocument, [layout()])).passed).toBe(true);
   const frame = page.frames().find((candidate) => candidate.parentFrame() === page.mainFrame());
   if (!frame) throw new Error("missing runtime frame");
-  // Test-driver action, not a capability enabled in learner code.
   await frame.evaluate(() => window.scrollTo(10, 10));
   expect(await frame.evaluate(() => window.scrollX)).toBeGreaterThan(0);
   expect((await runChecks(page, mounted, longDocument, [layout()])).results[0].reason).toBe("checker-error");
