@@ -259,8 +259,17 @@ Workspace declaration order is runtime-significant. The current CSS curriculum k
 The current check protocol is intentionally small:
 
 - `style`
+- `rule-style`
 - `exists`
 - `count`
+
+`style` proves a computed fixture outcome, not the learner's authored selector, unit, or function. `exists` and `count` prove learner-fragment structure, not runtime-shell structure.
+
+`rule-style` proves source facts in one explicitly selected Workspace CSS file. Its required `path` must reference a declared editable CSS file; content validation enforces ownership, while the Runtime consumes the path and snapshot without reading editable metadata. It supports exact selector/property/CSSOM-value matching plus optional `alsoAccepts`, `media`, `priority` and `afterSelector` constraints. It does not prove cascade victory, geometry, actual pseudo-state interaction or viewport activation. Pair source facts with `style` when a rendered outcome matters.
+
+The source checker reads only the captured Workspace slot for that path, never arbitrary document stylesheets or learner-inserted style nodes. It inspects the last matching declaration in top-level rules or direct children of matching top-level media blocks; nested conditions/layers are not certified. See `.agents/skills/css-lesson-authoring/references/checker-guidelines.md` for exact-match semantics and anti-proxy examples.
+
+`viewport-style` remains a separate future capability. Do not copy its source-branch contract into the production DSL or change curriculum publication as part of a checker-only task.
 
 Checks are declarative content data. Do not create per-exercise custom JavaScript check functions when the shared DSL can express the requirement.
 
