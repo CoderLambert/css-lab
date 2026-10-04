@@ -1,3 +1,5 @@
+import type { Check } from "@/lib/content/schemas/exercise";
+
 export type CheckOutcomeReason =
   | "matched"
   | "mismatch"
@@ -24,6 +26,16 @@ export interface BrowserCheckResult extends CheckResult {
 
 export interface CheckResultContext {
   hasEditableHtml: boolean;
+  check: Check | null;
+}
+
+/** Only current host-owned definitions may determine a result's evidence kind. */
+export function resolveCheckDefinition(
+  result: Pick<CheckResult, "id">,
+  checks: readonly Check[],
+): Check | null {
+  const matches = checks.filter((check) => check.id === result.id);
+  return matches.length === 1 ? matches[0] : null;
 }
 
 export function isCheckResultFault(
@@ -33,8 +45,12 @@ export function isCheckResultFault(
   if (result.reason === "checker-error") {
     return true;
   }
+  if (!context.check || context.check.id !== result.id) {
+    return true;
+  }
   return (
     result.reason === "target-not-found" &&
+    context.check.type !== "rule-style" &&
     !context.hasEditableHtml
   );
 }

@@ -4,11 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Lightbulb } from "lucide-react";
 
 import { CheckResults } from "@/features/exercise/components/check-results";
+import { isCheckResultFault, resolveCheckDefinition } from "@/features/exercise/lib/check-result";
 import { BrowserRuntimeFrame } from "@/features/exercise/runtime/browser/components/browser-runtime-frame";
 import type { CheckState } from "@/features/exercise/lib/check-state";
 import type { BrowserCheckRequest } from "@/features/exercise/runtime/browser/lib/browser-host";
 import type { CheckResultMessage } from "@/features/exercise/runtime/browser/lib/browser-messages";
-import type { BrowserRuntimeDefinition } from "@/lib/content/schemas/exercise";
+import type { BrowserRuntimeDefinition, Check } from "@/lib/content/schemas/exercise";
 import type { ExecutionSnapshot } from "@/lib/workspace/types";
 
 type ViewportPresetId = "responsive" | "small" | "tablet" | "desktop";
@@ -54,6 +55,7 @@ interface PreviewPanelProps {
   snapshot: ExecutionSnapshot;
   checkRequest: BrowserCheckRequest | null;
   checkState: CheckState;
+  checks: readonly Check[];
   hints: string[];
   revealedHintCount: number;
   hasEditableHtml: boolean;
@@ -65,6 +67,7 @@ export function PreviewPanel({
   snapshot,
   checkRequest,
   checkState,
+  checks,
   hints,
   revealedHintCount,
   hasEditableHtml,
@@ -109,6 +112,9 @@ export function PreviewPanel({
       ? Math.min(1, availableFrameWidth / viewportPreset.width)
       : 1;
   const revealedHints = hints.slice(0, revealedHintCount);
+  const hasCheckerFault = checkState.status === "complete" && checkState.results.some((result) =>
+    isCheckResultFault(result, { hasEditableHtml, check: resolveCheckDefinition(result, checks) }),
+  );
   const viewportLabel =
     viewportPreset.width && viewportPreset.height
       ? `${viewportPreset.width} × ${viewportPreset.height}`
@@ -221,9 +227,11 @@ export function PreviewPanel({
               ? "等待检查"
               : checkState.status === "checking"
                 ? "检查中"
-                : checkState.passed
-                  ? "已通过"
-                  : "需要调整"}
+                : hasCheckerFault
+                  ? "检查未完成"
+                  : checkState.passed
+                    ? "已通过"
+                    : "需要调整"}
           </span>
         </div>
 
@@ -234,6 +242,7 @@ export function PreviewPanel({
         ) : (
           <CheckResults
             state={checkState}
+            checks={checks}
             compact
             hasEditableHtml={hasEditableHtml}
           />
