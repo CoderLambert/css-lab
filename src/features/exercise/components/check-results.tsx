@@ -43,6 +43,8 @@ function Diagnostic({
 
   const diagnostic = getBrowserCheckDiagnostic(result);
   const selector = check.selector;
+  const isLayoutEvidence =
+    check.type === "layout-contained" || check.type === "layout-max-content";
   const property =
     check.type === "style" || check.type === "rule-style"
       ? check.property
@@ -54,11 +56,11 @@ function Diagnostic({
         <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden="true" />
         <div className="min-w-0">
           <p>
-            {check.type === "layout-contained"
+            {isLayoutEvidence
               ? "本次布局检查无法完成，不能据此判断布局是否满足要求。请保留当前代码，按具体原因检查后重试；若问题持续，可反馈这道题。"
               : "检测器执行异常。这更可能是题目检查规则或运行时的问题，而不是你的实现。可以保留当前代码并反馈这道题。"}
           </p>
-          {check.type === "layout-contained" ? (
+          {isLayoutEvidence ? (
             <p className="mt-1 break-words">
               具体原因：{result.actual === null ? "未获得具体原因，请重试或反馈此题。" : formatValue(result.actual)}
             </p>

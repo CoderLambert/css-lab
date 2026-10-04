@@ -40,6 +40,13 @@
       "message": "在 style.css 中用 width: max-content 选择最大 intrinsic inline size"
     },
     {
+      "id": "label-max-content-applied",
+      "type": "layout-max-content",
+      "selector": "#intrinsic-demo .label",
+      "axis": "x",
+      "message": "实际 label inline size 应与同元素的 max-content 参考尺寸一致，而不是被其他 cascade 规则改回 auto 或固定值"
+    },
+    {
       "id": "fixture-width-kept",
       "type": "style",
       "selector": "#intrinsic-demo",

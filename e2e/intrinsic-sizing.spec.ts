@@ -13,12 +13,16 @@ import {
   type BrowserDocumentIdentity,
 } from "../src/features/exercise/runtime/browser/lib/browser-host";
 import {
+  createCheckRunMessage,
   isCheckResultMessage,
+  isCheckRunMessage,
   type CheckResultMessage,
 } from "../src/features/exercise/runtime/browser/lib/browser-messages";
 import {
+  CheckSchema,
   ExerciseRecordSchema,
   type Check,
+  type LayoutMaxContentCheck,
 } from "../src/lib/content/schemas/exercise";
 import type { ExecutionSnapshot } from "../src/lib/workspace/types";
 
@@ -38,6 +42,17 @@ function snapshot(css = starterCss): ExecutionSnapshot {
     files: starterFiles.map((file) =>
       file.path === "style.css" ? { ...file, content: css } : file,
     ),
+  };
+}
+
+function maxContentCheck(overrides: Partial<LayoutMaxContentCheck> = {}): LayoutMaxContentCheck {
+  return {
+    id: "label-max-content-applied",
+    type: "layout-max-content",
+    selector: "#intrinsic-demo .label",
+    axis: "x",
+    message: "实际 inline size 应与 max-content 参考尺寸一致",
+    ...overrides,
   };
 }
 
@@ -95,31 +110,37 @@ async function runChecks(
   mounted: MountedRuntime,
   captured: ExecutionSnapshot,
   checks: readonly Check[] = exercise.checks,
+  ignoredMessages: unknown[] = [],
 ): Promise<CheckResultMessage> {
   const requestId = `intrinsic-request-${++sequence}`;
-  const messages = planCapturedCheckDispatch(
-    mounted.generationId,
-    exercise.runtime,
-    mounted.identity,
-    { requestId, snapshot: captured, checks },
-  );
-  const value = await page.evaluate(
+  const messages = [
+    ...ignoredMessages,
+    ...planCapturedCheckDispatch(
+      mounted.generationId,
+      exercise.runtime,
+      mounted.identity,
+      { requestId, snapshot: captured, checks },
+    ),
+  ];
+  const values = await page.evaluate(
     async ({ messages, generationId, requestId }) => {
       const iframe = document.querySelector<HTMLIFrameElement>("#runtime");
       const target = iframe?.contentWindow;
       if (!target) throw new Error("missing runtime window");
-      return new Promise<unknown>((resolve, reject) => {
+      return new Promise<unknown[]>((resolve, reject) => {
+        const received: unknown[] = [];
         const onMessage = (event: MessageEvent) => {
           if (
-            event.source === target &&
-            event.data?.source === "lab-runtime" &&
-            event.data?.type === "check:result" &&
-            event.data?.generationId === generationId &&
-            event.data?.requestId === requestId
-          ) {
+            event.source !== target ||
+            event.data?.source !== "lab-runtime" ||
+            event.data?.type !== "check:result" ||
+            event.data?.generationId !== generationId
+          ) return;
+          received.push(event.data);
+          if (event.data?.requestId === requestId) {
             window.clearTimeout(timeout);
             window.removeEventListener("message", onMessage);
-            resolve(event.data);
+            resolve(received);
           }
         };
         const timeout = window.setTimeout(() => {
@@ -132,6 +153,8 @@ async function runChecks(
     },
     { messages, generationId: mounted.generationId, requestId },
   );
+  expect(values).toHaveLength(1);
+  const value = values[0];
   if (!isCheckResultMessage(value)) throw new Error("invalid check result");
   expect(acceptsCheckResult(value, mounted.generationId, requestId)).toBe(true);
   return value;
@@ -201,6 +224,14 @@ test("intrinsic exercise v2 keeps draft identity and source/layout evidence boun
   );
   expect(exercise.checks).toContainEqual(
     expect.objectContaining({
+      id: "label-max-content-applied",
+      type: "layout-max-content",
+      selector: "#intrinsic-demo .label",
+      axis: "x",
+    }),
+  );
+  expect(exercise.checks).toContainEqual(
+    expect.objectContaining({
       id: "label-visible-and-contained",
       type: "layout-contained",
       selector: "#intrinsic-demo .label",
@@ -220,6 +251,7 @@ test("starter available-space sizing visibly shrinks to max-content in the real 
   expect(result(starterResult, "label-display-block-authored").reason).toBe("matched");
   expect(result(starterResult, "label-display-block-applied").reason).toBe("matched");
   expect(result(starterResult, "label-width-max-content").reason).toBe("mismatch");
+  expect(result(starterResult, "label-max-content-applied").reason).toBe("mismatch");
   expect(result(starterResult, "label-visible-and-contained").reason).toBe("matched");
   const starterMeasure = await measure(page);
   expect(starterMeasure.display).toBe("block");
@@ -228,6 +260,7 @@ test("starter available-space sizing visibly shrinks to max-content in the real 
   const solvedResult = await runChecks(page, mounted, snapshot(solutionCss));
   expect(solvedResult.passed).toBe(true);
   expect(result(solvedResult, "label-width-max-content").reason).toBe("matched");
+  expect(result(solvedResult, "label-max-content-applied").reason).toBe("matched");
   expect(result(solvedResult, "label-visible-and-contained").reason).toBe("matched");
   const solvedMeasure = await measure(page);
   expect(solvedMeasure.display).toBe("block");
@@ -269,6 +302,64 @@ test("common lower-specificity width overrides cannot displace the intended max-
     const current = await measure(page);
     expect(Math.abs(current.labelWidth - baselineMeasure.labelWidth), css).toBeLessThanOrEqual(0.75);
   }
+});
+
+
+test("higher-specificity same-property width overrides cannot preserve a false pass", async ({ page }) => {
+  const mounted = await mountRuntime(page);
+
+  for (const css of [
+    solutionCss + "body #intrinsic-demo .label { width:auto; }",
+    solutionCss + "body #intrinsic-demo .label { width:260px; }",
+    solutionCss + "body #intrinsic-demo .label { inline-size:auto; }",
+    solutionCss + "body #intrinsic-demo .label { max-width:100px; }",
+  ]) {
+    const response = await runChecks(page, mounted, snapshot(css));
+    expect(result(response, "label-width-max-content").reason, css).toBe("matched");
+    expect(result(response, "label-max-content-applied").reason, css).toBe("mismatch");
+    expect(response.passed, css).toBe(false);
+  }
+});
+
+test("layout-max-content schema, host and iframe validation stay strict", async ({ page }) => {
+  const mounted = await mountRuntime(page);
+  const valid = maxContentCheck();
+  expect(CheckSchema.safeParse(valid).success).toBe(true);
+  expect(isCheckRunMessage(createCheckRunMessage("generation", "request", [valid]))).toBe(true);
+
+  const invalid: unknown[] = [
+    { ...valid, axis: "y" },
+    { ...valid, axis: undefined },
+    { ...valid, selector: " " },
+    { ...valid, tolerance: 10 },
+    { ...valid, equals: "max-content" },
+  ];
+  for (const check of invalid) {
+    expect(CheckSchema.safeParse(check).success).toBe(false);
+    expect(isCheckRunMessage({
+      source: "lab-host",
+      type: "check:run",
+      generationId: "generation",
+      requestId: "request",
+      checks: [check],
+    })).toBe(false);
+  }
+
+  const base = createCheckRunMessage(mounted.generationId, "ignored", [valid]);
+  const ignored = invalid.map((check, index) => ({
+    ...base,
+    requestId: `invalid-max-content-${index}`,
+    checks: [check],
+  }));
+  const response = await runChecks(
+    page,
+    mounted,
+    snapshot(solutionCss),
+    [valid],
+    ignored,
+  );
+  expect(response.passed).toBe(true);
+  expect(result(response, valid.id).reason).toBe("matched");
 });
 
 test("display-context, hidden, transform, zero-size and fixture rewrites do not preserve a false pass", async ({ page }) => {

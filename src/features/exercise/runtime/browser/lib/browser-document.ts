@@ -2,6 +2,7 @@ import type { BrowserRuntimeDefinition } from "@/lib/content/schemas/exercise";
 import type { ExecutionSnapshot } from "@/lib/workspace/types";
 import type { BrowserDocumentIdentity } from "./browser-host";
 import { createLayoutContainedCheckScript } from "./browser-layout-contained";
+import { createLayoutMaxContentCheckScript } from "./browser-layout-max-content";
 import { createRuleStyleCheckScript } from "./browser-rule-style";
 import {
   createGenerationId,
@@ -10,7 +11,7 @@ import {
   serializeLearnerHtml,
 } from "./browser-security";
 
-export const BROWSER_RUNTIME_BRIDGE_VERSION = 3;
+export const BROWSER_RUNTIME_BRIDGE_VERSION = 4;
 
 export interface BrowserDocumentDescriptor {
   generationId: string;
@@ -94,6 +95,13 @@ function createRuntimeBridge(
       return (
         hasOnlyKeys(value, ["id", "message", "type", "selector", "within", "axis"]) &&
         isNonEmptyString(value.within) &&
+        value.axis === "x"
+      );
+    }
+
+    if (value.type === "layout-max-content") {
+      return (
+        hasOnlyKeys(value, ["id", "message", "type", "selector", "axis"]) &&
         value.axis === "x"
       );
     }
@@ -297,6 +305,7 @@ function createRuntimeBridge(
 
   ${createRuleStyleCheckScript()}
   ${createLayoutContainedCheckScript()}
+  ${createLayoutMaxContentCheckScript()}
 
   const runCheck = (check) => {
     if (!isRecord(check) || typeof check.id !== "string" || typeof check.message !== "string") {
@@ -313,6 +322,10 @@ function createRuntimeBridge(
 
     if (check.type === "layout-contained") {
       return runLayoutContainedCheck(check);
+    }
+
+    if (check.type === "layout-max-content") {
+      return runLayoutMaxContentCheck(check);
     }
 
     if (check.type === "rule-style") {

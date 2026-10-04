@@ -19,7 +19,7 @@ Target state:
 
 The 13-warning set below is the historical M6B release baseline. It identified draft Exercises whose real learning outcome could not be truthfully covered by the checker capabilities available at that release point; M6B did not add weak proxy checks or lower Studio severity.
 
-Post-M6B, warnings are removed only when a separately validated current-runtime capability plus a truthful Exercise redesign closes the corresponding gap. Issue #10 is the first item resolved this way: current production `rule-style` can prove the authored `width:max-content` intent, while the redesigned block-level fixture makes the available-space → intrinsic-size contrast observable without hard-coding a pixel geometry answer. The Exercise remains draft. Therefore the current Studio warning count is **12**, while the original 13-entry table remains release-history evidence.
+Post-M6B, warnings are removed only when a separately validated current-runtime capability plus a truthful Exercise redesign closes the corresponding gap. Issue #10 is the first item resolved this way: `rule-style` proves the authored `width:max-content` intent, while the curriculum-driven `layout-max-content` evidence compares the actual box against a runtime-owned max-content reference without hard-coding a font/platform pixel answer. The redesigned block fixture makes the available-space → intrinsic-size contrast visible and the Exercise remains draft. Therefore the current Studio warning count is **12**, while the original 13-entry table remains release-history evidence.
 
 ### Exact correspondence with the latest curriculum source
 
@@ -29,7 +29,7 @@ This was an intentional M6B release boundary, not a migration omission. At the M
 
 | Location | Stable ID | Capability gap | Current Post-M6B status |
 | --- | --- | --- | --- |
-| `box-model-and-flow/sizing-constraints-and-overflow/observe-intrinsic-content` | `css.box-model-and-flow.sizing-constraints-and-overflow.observe-intrinsic-content.001` | geometry/layout observation | **resolved by #10** — `rule-style` authored evidence + observable block fixture; still draft |
+| `box-model-and-flow/sizing-constraints-and-overflow/observe-intrinsic-content` | `css.box-model-and-flow.sizing-constraints-and-overflow.observe-intrinsic-content.001` | geometry/layout observation | **resolved by #10** — `rule-style` authored evidence + `layout-max-content` applied outcome + observable block fixture; still draft |
 | `flexbox/flex-item-control-and-order/use-auto-margin` | `css.flexbox.flex-item-control-and-order.use-auto-margin.001` | geometry/layout observation | remaining warning |
 | `grid/grid-formatting-context-and-tracks/compare-fixed-and-flexible-tracks` | `css.grid.grid-formatting-context-and-tracks.compare-fixed-and-flexible-tracks.001` | authored Grid track validation | remaining warning |
 | `grid/grid-formatting-context-and-tracks/define-explicit-tracks` | `css.grid.grid-formatting-context-and-tracks.define-explicit-tracks.001` | authored Grid track validation | remaining warning |

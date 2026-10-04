@@ -17,6 +17,7 @@ The current shared checker supports:
 - `style`
 - `rule-style`
 - `layout-contained`
+- `layout-max-content`
 - `exists`
 - `count`
 
@@ -31,6 +32,8 @@ Do not create per-exercise custom JavaScript. `viewport-style` is not implemente
 `rule-style` inspects the browser CSSOM declarations of one explicitly selected Workspace CSS file. It can prove source-level selector/value/priority/order facts. It does not prove cascade victory, layout geometry, viewport activation, or actual hover/focus interaction.
 
 `layout-contained` measures horizontal border-box containment in a strict ancestor's content box in the current captured, static Browser snapshot. It does not prove authored syntax, vertical containment, paint/occlusion, scrolling behavior, or responsiveness across viewports.
+
+`layout-max-content` compares one visible static HTML target's actual border-box inline size with a runtime-owned reference measurement of the same target under `max-content` inline sizing. It proves a narrow applied intrinsic-size outcome without hard-coding a font/platform pixel value. It does not prove which authored selector won the cascade; use `rule-style` alongside it when authored `width:max-content` is part of the objective.
 
 If the real objective is geometric or behavioral and the current DSL cannot validate it reliably, report a checker capability gap. Do not substitute a convenient but incorrect proxy.
 
@@ -91,9 +94,29 @@ The first consuming Exercise is `debug-fixed-width-failure`. It combines authore
 
 The measurement boundary follows CSSOM View's transformed border-box/fragment semantics and CSSOM's resolved padding values. This is why transformed or fragmented scenes cannot use the simple subtraction algorithm.
 
+## Horizontal layout-max-content contract
+
+```json
+{
+  "id": "label-max-content-applied",
+  "type": "layout-max-content",
+  "selector": "#intrinsic-demo .label",
+  "axis": "x",
+  "message": "实际 inline size 应与 max-content 参考尺寸一致"
+}
+```
+
+All fields are required and `axis` is exactly `x`. The selector must identify exactly one ordinary HTML element inside the learner root. The target must be visible, single-fragment, static, untransformed, unscrolled, horizontal writing mode, outside flex/grid/table/multicol sizing contexts, and free of active animation/transition or size containment. Unsupported scenes fail closed with `checker-error`; hidden/zero-size targets fail with `mismatch`.
+
+The checker first captures the target's actual border-box width. It then synchronously saves the target's inline `style` attribute, applies runtime-owned `!important` measurement overrides for `width/inline-size:max-content`, neutralizes min/max inline-size constraints, disables animation/transition for the measurement, reads the reference border-box width, and restores the original inline style in a `finally` path before returning. It does not clone learner HTML, persist mutations, inspect solutions, or enable learner JavaScript.
+
+The check passes when actual and reference border-box widths differ by at most 0.5 CSS px. This rejects a more-specific `width:auto` or ordinary fixed-width cascade winner while avoiding a hard-coded pixel oracle. It still is not a universal anti-cheat or cascade prover: deliberately reproducing the exact measured intrinsic width by unrelated means is outside the normal learner path. Source intent and applied outcome remain separate evidence.
+
 ## Combination patterns and anti-proxy review
 
 **Authored mechanism plus outcome:** use `rule-style` for `width: 2rem`, then `style` for the expected computed width in a controlled fixture. Computed `32px` alone cannot prove use of `rem`.
+
+**Intrinsic max-content mechanism plus applied size:** use `rule-style(width=max-content)` to prove authored intent and `layout-max-content` to prove the same target's actual inline size matches a runtime-owned max-content reference. Always test a higher-specificity same-property `width:auto` and a reasonable fixed-width override before declaring the evidence complete.
 
 **Preferred width plus available-space cap:** use `rule-style` for the preferred width and percentage cap, then combine a narrow `layout-contained` assertion with a wider locked context whose computed width still equals the preferred width. A single narrow used size is too easy to reproduce with a fixed-pixel cascade override. Multi-context evidence still does not prove the absence of every deliberately fixture-specific selector; the goal is to reject reasonable alternative mechanisms without building a general cascade engine.
 
@@ -109,7 +132,7 @@ Use `priority: "normal"` when an `!important` workaround defeats the lesson, and
 
 ## Diagnostics
 
-- `matched`: the requested source fact, computed/structural outcome, or supported horizontal containment matches.
+- `matched`: the requested source fact, computed/structural outcome, supported horizontal containment, or max-content reference size matches.
 - `target-not-found`: the requested source file/selector is absent, or a DOM/layout selector has no learner-fragment target.
 - `mismatch`: the source constraint is wrong, or the supported layout fails containment, positive-size, explicit-visibility or ancestry requirements.
 - `checker-error`: invalid/ambiguous layout selector, unsupported layout scene, or runtime/CSSOM/measurement fault.
