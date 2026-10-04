@@ -26,12 +26,17 @@ test("studio audits the full M6B content tree and exposes only published learner
     await expect(card.getByText(value, { exact: true })).toBeVisible();
   }
 
-  const warningBadge = page.getByText("13 warnings", { exact: true });
+  const warningBadge = page.getByText("12 warnings", { exact: true });
   await expect(warningBadge).toBeVisible();
   const warningCodes = page.locator("li").filter({ hasText: "warning" }).locator("code");
-  await expect(warningCodes).toHaveCount(13);
+  await expect(warningCodes).toHaveCount(12);
   const codes = await warningCodes.allTextContents();
   expect(new Set(codes)).toEqual(new Set(["exercise-without-checks"]));
+  await expect(
+    page.locator("li").filter({ hasText: "warning" }).filter({
+      hasText: "observe-intrinsic-content",
+    }),
+  ).toHaveCount(0);
 
   for (const forbiddenCode of [
     "published-child-hidden",

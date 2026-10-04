@@ -105,6 +105,13 @@ function isCheck(value: unknown): value is Check {
     );
   }
 
+  if (value.type === "layout-max-content") {
+    return (
+      hasOnlyKeys(value, ["id", "message", "type", "selector", "axis"]) &&
+      value.axis === "x"
+    );
+  }
+
   if (value.type === "exists") {
     return hasOnlyKeys(value, ["id", "message", "type", "selector"]);
   }

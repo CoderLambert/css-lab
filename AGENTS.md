@@ -261,6 +261,7 @@ The current check protocol is intentionally small:
 - `style`
 - `rule-style`
 - `layout-contained`
+- `layout-max-content`
 - `exists`
 - `count`
 
@@ -270,7 +271,9 @@ The current check protocol is intentionally small:
 
 The source checker reads only the captured Workspace slot for that path, never arbitrary document stylesheets or learner-inserted style nodes. It inspects the last matching declaration in top-level rules or direct children of matching top-level media blocks; nested conditions/layers are not certified. See `.agents/skills/css-lesson-authoring/references/checker-guidelines.md` for exact-match semantics and anti-proxy examples.
 
-`layout-contained` checks a unique learner HTML target's actual border box against a unique strict ancestor's content box on `axis: "x"`, with fixed 0.5 CSS px tolerance. It requires finite positive dimensions and rejects hidden or unsupported transformed/scrolled/fragmented/animated scenes. It uses the existing captured snapshot and message/result protocol, not source spelling, arbitrary JavaScript, a viewport matrix, or a paint/occlusion oracle. Pair it with source constraints for preferred sizing objectives; `debug-fixed-width-failure` is the first draft consumer. The detailed supported scene and diagnostics are documented in the checker guidelines.
+`layout-contained` checks a unique learner HTML target's actual border box against a unique strict ancestor's content box on `axis: "x"`, with fixed 0.5 CSS px tolerance. It requires finite positive dimensions and rejects hidden or unsupported transformed/scrolled/fragmented/animated scenes. It uses the existing captured snapshot and message/result protocol, not source spelling, arbitrary JavaScript, a viewport matrix, or a paint/occlusion oracle. Pair it with source constraints for preferred sizing objectives; `debug-fixed-width-failure` is the first draft consumer.
+
+`layout-max-content` verifies that one visible static HTML target's actual border-box inline size matches a runtime-owned reference measurement of that **same element** with `width/max-inline-size` constraints temporarily normalized to `max-content`. It is a narrow applied-outcome check for intrinsic sizing lessons, not a cascade inspector or general geometry oracle. Pair it with `rule-style` when the authored `max-content` mechanism matters; `observe-intrinsic-content` is its first draft consumer. The runtime restores the target's inline style synchronously after reference measurement and rejects unsupported transformed/scrolled/animated/contained scenes.
 
 `viewport-style` remains a separate future capability. Do not copy its source-branch contract into the production DSL or change curriculum publication as part of a checker-only task.
 

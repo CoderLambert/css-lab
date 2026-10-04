@@ -37,10 +37,17 @@
 
 ## 让约束成为推理的一部分
 
+<Predict
+  question="在较宽的 frame 中，一个 block-level .label 使用 width:auto。编辑前先预测：它的 box 宽度主要跟随什么？把 width 改成 max-content 后又会发生什么？"
+  options={["auto 跟随可用 inline space；max-content 改为由内容的最大 intrinsic inline size 决定", "auto 与 max-content 在 block box 中总是完全等价", "max-content 会自动把文本压缩到 frame 内"]}
+  answer="auto 跟随可用 inline space；max-content 改为由内容的最大 intrinsic inline size 决定"
+  explanation="本题故意使用足够宽的 block fixture 形成可见对比：starter 的 auto 铺满可用内容区，max-content 则收缩到内容在不进行软换行时需要的最大 intrinsic inline size。"
+/>
+
 <Exercise
   slug="observe-intrinsic-content"
   label="让内容参与尺寸决定"
-  goal="让 .label 依据内容形成 intrinsic inline size，并观察长内容与 containing context 的关系。"
+  goal="先观察 block width:auto 如何跟随 containing block 的可用 inline space，再切换到 width:max-content，让 box 收缩到最大 intrinsic inline size并比较两种 sizing 输入。"
 />
 
 <Exercise
@@ -61,6 +68,8 @@
   goal="让同一条 .avatar 规则在窄容器中受可用空间约束，同时在宽容器中保留 320px preferred width。"
 />
 
+“让内容参与尺寸决定”故意使用足够宽的 locked frame 与高 specificity 的既有 `#intrinsic-demo .label` 规则。starter 的 block-level `width:auto` 会铺满 frame 的可用内容宽度；改成 `width:max-content` 后，背景/outline 会明显收缩到内容的最大 intrinsic inline size。Checker 用 `rule-style` 证明 learner 保留现有 sizing context 并 authored `width:max-content`，再用 `layout-max-content` 将实际 box inline size 与同元素的 runtime-owned max-content 参考测量比较；computed display、locked fixture width/box-sizing 与 containment 继续防止隐藏、fixture 改写或不支持布局把证据架空。它不硬编码某个字体/平台像素值，也不把 source check 误当成 cascade victory。
+
 “修复固定宽度失败”用两个锁定 containing block 验证同一条 learner rule：窄 frame 中头像必须被 `max-width: 100%` 约束且保持在 content box 内，宽 frame 中实际宽度仍应为 320px。源码检查同时确认 `width: 320px` 与 `max-width: 100%` 的 authored intent。这样不会把窄容器中的正确缩小判错，也不会让通用的固定 used-width override 仅靠碰巧等于当前窄 fixture 宽度过关。
 
-这仍不是“无法作弊”的通用 cascade 证明：刻意针对锁定 fixture 结构编写特殊规则超出本练习的正常解题路径。当前证据组合负责验证正常课程路径中的源码意图、宽/窄两个结果和窄容器几何包含；它不支持变换、滚动、动画，也不验证纵向包含、绘制遮挡或多视口响应式行为。其他练习的现有声明/计算样式检查仍不能证明 intrinsic sizing、滚动条是否出现或 overflow 是否真的发生；`.label` 的 `width: max-content` 可能解析成 used pixel width，因此 intrinsic exercise 保留空 checks 并保持 draft。预览中的观察仍是学习的一部分，本课不因新增一项检查而自动发布。
+这仍不是“无法作弊”的通用 cascade 证明：刻意针对 locked fixture 结构编写特殊规则超出本练习的正常解题路径。当前证据组合负责验证正常课程路径中的源码意图、受控布局结果和可见学习对比；它不支持任意 cascade 证明、纵向包含、绘制遮挡或多视口响应式行为。`choose-overflow-strategy` 当前的声明检查仍不能证明滚动条真的出现或内容确实发生 overflow；预览观察仍是学习的一部分，本课不因局部 checker 改进而自动发布。

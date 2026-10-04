@@ -1,5 +1,4 @@
-.label {
-  display: inline-block;
+#intrinsic-demo .label {
+  display: block;
   width: auto;
-  white-space: nowrap;
 }

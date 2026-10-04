@@ -37,6 +37,12 @@ export const LayoutContainedCheckSchema = CheckBaseSchema.extend({
   axis: z.literal("x"),
 }).strict();
 
+export const LayoutMaxContentCheckSchema = CheckBaseSchema.extend({
+  type: z.literal("layout-max-content"),
+  selector: NonEmptyStringSchema,
+  axis: z.literal("x"),
+}).strict();
+
 export const ExistsCheckSchema = CheckBaseSchema.extend({
   type: z.literal("exists"),
   selector: NonEmptyStringSchema,
@@ -52,6 +58,7 @@ export const CheckSchema = z.discriminatedUnion("type", [
   StyleCheckSchema,
   RuleStyleCheckSchema,
   LayoutContainedCheckSchema,
+  LayoutMaxContentCheckSchema,
   ExistsCheckSchema,
   CountCheckSchema,
 ]);
@@ -100,6 +107,7 @@ export const ExerciseRecordSchema = z.object({
 export type StyleCheck = z.infer<typeof StyleCheckSchema>;
 export type RuleStyleCheck = z.infer<typeof RuleStyleCheckSchema>;
 export type LayoutContainedCheck = z.infer<typeof LayoutContainedCheckSchema>;
+export type LayoutMaxContentCheck = z.infer<typeof LayoutMaxContentCheckSchema>;
 export type ExistsCheck = z.infer<typeof ExistsCheckSchema>;
 export type CountCheck = z.infer<typeof CountCheckSchema>;
 export type Check = z.infer<typeof CheckSchema>;

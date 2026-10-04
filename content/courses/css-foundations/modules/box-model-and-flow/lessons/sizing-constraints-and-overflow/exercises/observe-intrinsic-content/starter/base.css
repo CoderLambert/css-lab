@@ -11,7 +11,12 @@ body {
 }
 
 .frame {
-  width: 180px;
+  width: 420px;
   border: 1px solid;
   padding: 12px;
+}
+
+.label {
+  background: rgb(238, 244, 240);
+  outline: 1px solid rgb(98, 116, 105);
 }
