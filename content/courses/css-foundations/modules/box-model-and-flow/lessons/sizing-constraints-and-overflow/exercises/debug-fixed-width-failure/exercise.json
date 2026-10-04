@@ -80,6 +80,22 @@
       "message": "空间足够时，头像的实际宽度应继续体现 320px preferred width"
     },
     {
+      "id": "wide-avatar-box-sizing-kept",
+      "type": "style",
+      "selector": ".frame:last-of-type .avatar",
+      "property": "box-sizing",
+      "equals": "border-box",
+      "message": "宽容器中的头像保持 border-box，320px 才代表实际 border-box 宽度"
+    },
+    {
+      "id": "wide-avatar-fits-frame",
+      "type": "layout-contained",
+      "selector": ".frame:last-of-type .avatar",
+      "within": ".frame:last-of-type",
+      "axis": "x",
+      "message": "宽容器中的头像也必须保持实际可见、静态且位于容器内容区"
+    },
+    {
       "id": "avatar-fits-frame",
       "type": "layout-contained",
       "selector": ".frame:first-of-type .avatar",

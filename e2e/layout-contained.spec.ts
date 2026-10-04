@@ -191,6 +191,10 @@ test("layout-contained has a strict schema/host contract without configurable to
     id: "avatar-fits-frame", type: "layout-contained",
     selector: ".frame:first-of-type .avatar", axis: "x",
   }));
+  expect(exercise.checks).toContainEqual(expect.objectContaining({
+    id: "wide-avatar-fits-frame", type: "layout-contained",
+    selector: ".frame:last-of-type .avatar", axis: "x",
+  }));
 });
 
 test("real draft starter fails and the unchanged reference solution passes both locked sizing contexts", async ({ page }) => {
@@ -207,6 +211,8 @@ test("real draft starter fails and the unchanged reference solution passes both 
   expect(findResult(solved, "wide-preferred-width-applied")).toMatchObject({
     reason: "matched", actual: "320px",
   });
+  expect(findResult(solved, "wide-avatar-box-sizing-kept").reason).toBe("matched");
+  expect(findResult(solved, "wide-avatar-fits-frame").reason).toBe("matched");
   expect(findResult(solved, "avatar-fits-frame")).toMatchObject({
     reason: "matched",
     diagnostic: { selector: ".frame:first-of-type .avatar", property: null },
@@ -252,6 +258,24 @@ test("narrow and wide fixture constraints cannot be changed to make a fixed answ
     const response = await runChecks(page, mounted, snapshot(css));
     expect(findResult(response, id).reason, css).toBe("mismatch");
     expect(response.passed, css).toBe(false);
+  }
+});
+
+test("wide comparison evidence cannot be hidden, transformed, collapsed or changed to content-box", async ({ page }) => {
+  const mounted = await mountRuntime(page);
+  const cases: Array<[string, string, string]> = [
+    [".frame:last-of-type .avatar { display:none; }", "wide-avatar-fits-frame", "mismatch"],
+    [".frame:last-of-type .avatar { visibility:hidden; }", "wide-avatar-fits-frame", "mismatch"],
+    [".frame:last-of-type .avatar { opacity:0; }", "wide-avatar-fits-frame", "mismatch"],
+    [".frame:last-of-type .avatar { transform:scale(.5); }", "wide-avatar-fits-frame", "checker-error"],
+    [".frame:last-of-type .avatar { height:0; padding:0; border:0; aspect-ratio:auto; }", "wide-avatar-fits-frame", "mismatch"],
+    [".frame:last-of-type .avatar { margin-left:60px; }", "wide-avatar-fits-frame", "mismatch"],
+    [".frame:last-of-type .avatar { box-sizing:content-box; }", "wide-avatar-box-sizing-kept", "mismatch"],
+  ];
+  for (const [override, id, reason] of cases) {
+    const response = await runChecks(page, mounted, snapshot(solutionCss + override));
+    expect(findResult(response, id).reason, override).toBe(reason);
+    expect(response.passed, override).toBe(false);
   }
 });
 
